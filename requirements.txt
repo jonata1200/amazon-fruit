@@ -1,0 +1,13 @@
+matplotlib
+numpy
+openpyxl
+packaging
+pandas
+PyQt6
+PyQt6-Qt6
+PyQt6-sip
+python-dateutil
+pytz
+reportlab
+six
+tzdata

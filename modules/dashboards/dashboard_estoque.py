@@ -16,7 +16,6 @@ class DashboardEstoque(QWidget):
         self.main_layout = QVBoxLayout(self)
         self.build_ui()
 
-    # ... (build_ui, update_theme, add_product, edit_product, filter_table, _create_kpi_box permanecem os mesmos) ...
     def build_ui(self):
         while self.main_layout.count():
             child = self.main_layout.takeAt(0)
@@ -24,13 +23,11 @@ class DashboardEstoque(QWidget):
                 child.widget().deleteLater()
 
         self.df_estoque = self.data_handler.get_dataframe('Estoque')
-
         self.main_layout.setContentsMargins(20, 20, 20, 20)
         self.main_layout.setSpacing(20)
         title_label = QLabel("Dashboard de Estoque")
         title_label.setStyleSheet("font-size: 28px; font-weight: bold; color: '#FF8C00';")
         self.main_layout.addWidget(title_label)
-        
         kpi_layout = QHBoxLayout()
         total_produtos = len(self.df_estoque)
         valor_total_custo = (self.df_estoque['Preco_Custo'] * self.df_estoque['Quantidade_Estoque']).sum()
@@ -39,18 +36,24 @@ class DashboardEstoque(QWidget):
         kpi_layout.addWidget(self._create_kpi_box("Valor do Estoque (Custo)", f"R$ {valor_total_custo:,.2f}"))
         kpi_layout.addWidget(self._create_kpi_box("Itens com Estoque Baixo", f"{itens_estoque_baixo}"))
         self.main_layout.addLayout(kpi_layout)
-        
+
+        # --- ADICIONAR O BOTÃO DE EXCLUSÃO ---
         action_buttons_layout = QHBoxLayout()
         add_button = QPushButton("➕ Adicionar Produto")
-        add_button.setObjectName("ActionButton") # ADICIONE ESTA LINHA
+        add_button.setObjectName("ActionButton")
         add_button.clicked.connect(self.add_product)
         
         edit_button = QPushButton("✏️ Editar Produto")
-        edit_button.setObjectName("ActionButton") # ADICIONE ESTA LINHA
+        edit_button.setObjectName("ActionButton")
         edit_button.clicked.connect(self.edit_product)
         
+        delete_button = QPushButton("🗑️ Excluir Produto") # Novo botão
+        delete_button.setObjectName("ActionButton")
+        delete_button.clicked.connect(self.delete_product) # Conectar ao novo método
+
         action_buttons_layout.addWidget(add_button)
         action_buttons_layout.addWidget(edit_button)
+        action_buttons_layout.addWidget(delete_button) # Adicionar ao layout
         action_buttons_layout.addStretch()
         self.main_layout.addLayout(action_buttons_layout)
         
@@ -63,7 +66,6 @@ class DashboardEstoque(QWidget):
         self.stock_table = self._create_stock_table()
         table_section_layout.addWidget(self.stock_table)
         content_layout.addLayout(table_section_layout)
-        
         charts_layout = QVBoxLayout()
         charts_layout.addWidget(self._create_low_stock_chart())
         charts_layout.addWidget(self._create_category_pie_chart())
@@ -104,6 +106,35 @@ class DashboardEstoque(QWidget):
             else:
                 QMessageBox.critical(self, "Erro", "Não foi possível atualizar o produto.")
 
+    # --- NOVO MÉTODO PARA EXCLUSÃO ---
+    def delete_product(self):
+        """Exclui o produto selecionado na tabela após confirmação."""
+        selected_row_index = self.stock_table.currentRow()
+        if selected_row_index < 0:
+            QMessageBox.warning(self, "Aviso", "Por favor, selecione um produto na tabela para excluir.")
+            return
+
+        # Obter o ID e o Nome do produto para a mensagem de confirmação
+        product_id = self.stock_table.item(selected_row_index, 0).text()
+        product_name = self.stock_table.item(selected_row_index, 1).text()
+
+        # Caixa de diálogo de confirmação
+        reply = QMessageBox.question(
+            self,
+            'Confirmar Exclusão',
+            f"Você tem certeza que deseja excluir o produto:\n\n{product_name} (ID: {product_id})?\n\nEsta ação não pode ser desfeita.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+
+        if reply == QMessageBox.StandardButton.Yes:
+            if self.data_handler.delete_record('Estoque', 'ID_Produto', product_id):
+                QMessageBox.information(self, "Sucesso", "Produto excluído com sucesso!")
+                self.build_ui() # Atualiza a interface
+            else:
+                QMessageBox.critical(self, "Erro", "Não foi possível excluir o produto do banco de dados.")
+
+
     def filter_table(self):
         search_text = self.search_bar.text().lower()
         for row_num in range(self.stock_table.rowCount()):
@@ -112,22 +143,16 @@ class DashboardEstoque(QWidget):
 
     def _create_kpi_box(self, title, value, value_color=None):
         kpi_frame = QFrame()
-        kpi_frame.setObjectName("KPIFrame") # Define o nome do objeto para o estilo global
-        
+        kpi_frame.setObjectName("KPIFrame")
         layout = QVBoxLayout(kpi_frame)
         title_label = QLabel(title)
-        title_label.setObjectName("KPITitleLabel") # Define o nome do objeto
+        title_label.setObjectName("KPITitleLabel")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
         value_label = QLabel(value)
-        value_label.setObjectName("KPIValueLabel") # Define o nome do objeto
+        value_label.setObjectName("KPIValueLabel")
         value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        # Se uma cor específica for passada (ex: para lucro/despesa),
-        # aplica-a como um estilo 'in-line' que sobrescreve apenas a cor.
         if value_color:
             value_label.setStyleSheet(f"color: {value_color};")
-        
         layout.addWidget(title_label)
         layout.addWidget(value_label)
         return kpi_frame
@@ -141,12 +166,9 @@ class DashboardEstoque(QWidget):
             for j, value in enumerate(row):
                 item = QTableWidgetItem(str(value))
                 table.setItem(i, j, item)
-        
-        # --- LINHA ALTERADA ---
         table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         return table
 
-    # ... (_create_low_stock_chart e _create_category_pie_chart permanecem os mesmos) ...
     def _create_low_stock_chart(self):
         text_color = 'white' if self.theme_name == 'dark' else 'black'
         bg_color = '#2E2E2E' if self.theme_name == 'dark' else '#F0F0F0'

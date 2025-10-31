@@ -67,3 +67,11 @@ class DataHandler:
 
         query = f"UPDATE {table_name} SET {set_clause} WHERE {identifier_col} = ?"
         return self.execute_query(query, values)
+    
+    def delete_record(self, table_name, identifier_col, identifier_val):
+        """
+        Exclui um registro de uma tabela com base em uma coluna identificadora.
+        """
+        query = f"DELETE FROM {table_name} WHERE {identifier_col} = ?"
+        params = (identifier_val,)
+        return self.execute_query(query, params)
