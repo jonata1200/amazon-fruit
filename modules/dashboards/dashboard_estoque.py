@@ -13,21 +13,33 @@ class DashboardEstoque(QWidget):
         super().__init__()
         self.data_handler = data_handler
         self.theme_name = theme_name
+        
+        # O layout principal agora serve apenas como um contêiner mestre
         self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.central_content_widget = None # Inicializa o placeholder
         self.build_ui()
 
     def build_ui(self):
-        while self.main_layout.count():
-            child = self.main_layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
+        # 1. Destrói o widget de conteúdo antigo, se ele existir, garantindo uma limpeza total
+        if self.central_content_widget:
+            self.central_content_widget.deleteLater()
 
+        # 2. Cria um novo widget para ser o contêiner de todo o conteúdo
+        self.central_content_widget = QWidget()
+        content_layout = QVBoxLayout(self.central_content_widget) # O layout principal do conteúdo
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(20)
+
+        # Recarrega os dados
         self.df_estoque = self.data_handler.get_dataframe('Estoque')
-        self.main_layout.setContentsMargins(20, 20, 20, 20)
-        self.main_layout.setSpacing(20)
+
+        # --- 3. Adiciona todos os componentes ao 'content_layout' ---
         title_label = QLabel("Dashboard de Estoque")
         title_label.setStyleSheet("font-size: 28px; font-weight: bold; color: '#FF8C00';")
-        self.main_layout.addWidget(title_label)
+        content_layout.addWidget(title_label)
+        
         kpi_layout = QHBoxLayout()
         total_produtos = len(self.df_estoque)
         valor_total_custo = (self.df_estoque['Preco_Custo'] * self.df_estoque['Quantidade_Estoque']).sum()
@@ -35,29 +47,28 @@ class DashboardEstoque(QWidget):
         kpi_layout.addWidget(self._create_kpi_box("Produtos Únicos", f"{total_produtos}"))
         kpi_layout.addWidget(self._create_kpi_box("Valor do Estoque (Custo)", f"R$ {valor_total_custo:,.2f}"))
         kpi_layout.addWidget(self._create_kpi_box("Itens com Estoque Baixo", f"{itens_estoque_baixo}"))
-        self.main_layout.addLayout(kpi_layout)
-
-        # --- ADICIONAR O BOTÃO DE EXCLUSÃO ---
+        content_layout.addLayout(kpi_layout)
+        
         action_buttons_layout = QHBoxLayout()
         add_button = QPushButton("➕ Adicionar Produto")
         add_button.setObjectName("ActionButton")
         add_button.clicked.connect(self.add_product)
-        
+
         edit_button = QPushButton("✏️ Editar Produto")
         edit_button.setObjectName("ActionButton")
         edit_button.clicked.connect(self.edit_product)
-        
-        delete_button = QPushButton("🗑️ Excluir Produto") # Novo botão
-        delete_button.setObjectName("ActionButton")
-        delete_button.clicked.connect(self.delete_product) # Conectar ao novo método
 
+        delete_button = QPushButton("🗑️ Excluir Produto")
+        delete_button.setObjectName("ActionButton")
+        delete_button.clicked.connect(self.delete_product)
+        
         action_buttons_layout.addWidget(add_button)
         action_buttons_layout.addWidget(edit_button)
-        action_buttons_layout.addWidget(delete_button) # Adicionar ao layout
+        action_buttons_layout.addWidget(delete_button)
         action_buttons_layout.addStretch()
-        self.main_layout.addLayout(action_buttons_layout)
+        content_layout.addLayout(action_buttons_layout)
         
-        content_layout = QHBoxLayout()
+        bottom_layout = QHBoxLayout()
         table_section_layout = QVBoxLayout()
         self.search_bar = QLineEdit()
         self.search_bar.setPlaceholderText("Buscar produto...")
@@ -65,46 +76,78 @@ class DashboardEstoque(QWidget):
         table_section_layout.addWidget(self.search_bar)
         self.stock_table = self._create_stock_table()
         table_section_layout.addWidget(self.stock_table)
-        content_layout.addLayout(table_section_layout)
+        bottom_layout.addLayout(table_section_layout)
+        
         charts_layout = QVBoxLayout()
         charts_layout.addWidget(self._create_low_stock_chart())
         charts_layout.addWidget(self._create_category_pie_chart())
-        content_layout.addLayout(charts_layout)
-        self.main_layout.addLayout(content_layout)
+        bottom_layout.addLayout(charts_layout)
+        content_layout.addLayout(bottom_layout)
+
+        # 4. Adiciona o novo widget de conteúdo ao layout mestre do dashboard
+        self.main_layout.addWidget(self.central_content_widget)
 
     def update_theme(self, new_theme_name):
         self.theme_name = new_theme_name
         self.build_ui()
 
     def add_product(self):
+        """Abre o diálogo para adicionar um novo produto, com validação de dados."""
         dialog = ProductDialog()
         if dialog.exec():
             new_data = dialog.get_data()
+
+            # --- LÓGICA DE VALIDAÇÃO ---
+            # 1. Validação de campos obrigatórios
             if not new_data['ID_Produto'] or not new_data['Nome_Produto']:
-                QMessageBox.warning(self, "Aviso", "ID do Produto e Nome são obrigatórios.")
+                QMessageBox.warning(self, "Entrada Inválida", "ID do Produto e Nome são campos obrigatórios.")
                 return
+
+            # 2. Validação de ID duplicado
+            if self.data_handler.record_exists('Estoque', 'ID_Produto', new_data['ID_Produto']):
+                QMessageBox.warning(self, "Entrada Inválida", f"O ID de produto '{new_data['ID_Produto']}' já existe. Por favor, use um ID único.")
+                return
+
+            # 3. Validação de Preço de Venda vs. Custo
+            if new_data['Preco_Venda'] < new_data['Preco_Custo']:
+                QMessageBox.warning(self, "Entrada Inválida", "O preço de venda não pode ser menor que o preço de custo.")
+                return
+            
+            # Se todas as validações passarem, adiciona o registro
             if self.data_handler.add_record('Estoque', new_data):
                 QMessageBox.information(self, "Sucesso", "Produto adicionado com sucesso!")
                 self.build_ui()
             else:
-                QMessageBox.critical(self, "Erro", "Não foi possível adicionar o produto.")
+                QMessageBox.critical(self, "Erro", "Não foi possível adicionar o produto ao banco de dados.")
 
     def edit_product(self):
+        """Abre o diálogo para editar o produto selecionado, com validação de dados."""
         selected_row_index = self.stock_table.currentRow()
         if selected_row_index < 0:
             QMessageBox.warning(self, "Aviso", "Selecione um produto para editar.")
             return
+            
         product_id = self.stock_table.item(selected_row_index, 0).text()
         product_data = self.df_estoque.iloc[selected_row_index].to_dict()
+        
         dialog = ProductDialog(product_data=product_data)
         if dialog.exec():
             updated_data = dialog.get_data()
-            del updated_data['ID_Produto']
+            
+            # --- LÓGICA DE VALIDAÇÃO ---
+            # 1. Validação de Preço de Venda vs. Custo
+            if updated_data['Preco_Venda'] < updated_data['Preco_Custo']:
+                QMessageBox.warning(self, "Entrada Inválida", "O preço de venda não pode ser menor que o preço de custo.")
+                return
+            
+            del updated_data['ID_Produto'] # O ID não é editável, então removemos para a query UPDATE
+            
+            # Se a validação passar, atualiza o registro
             if self.data_handler.update_record('Estoque', updated_data, 'ID_Produto', product_id):
                 QMessageBox.information(self, "Sucesso", "Produto atualizado com sucesso!")
                 self.build_ui()
             else:
-                QMessageBox.critical(self, "Erro", "Não foi possível atualizar o produto.")
+                QMessageBox.critical(self, "Erro", "Não foi possível atualizar o produto no banco de dados.")
 
     # --- NOVO MÉTODO PARA EXCLUSÃO ---
     def delete_product(self):

@@ -14,14 +14,19 @@ class DashboardGeral(QWidget):
         self.theme_name = theme_name
         
         self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.central_content_widget = None
         self.build_ui()
 
     def build_ui(self):
-        # Limpa a UI antiga
-        while self.main_layout.count():
-            child = self.main_layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
+        if self.central_content_widget:
+            self.central_content_widget.deleteLater()
+
+        self.central_content_widget = QWidget()
+        content_layout = QVBoxLayout(self.central_content_widget)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(20)
 
         # Recarrega os dados
         self.df_financas = self.data_handler.get_dataframe('Financas')
@@ -29,23 +34,19 @@ class DashboardGeral(QWidget):
         self.df_clientes = self.data_handler.get_dataframe('Publico_Alvo')
         self.df_rh = self.data_handler.get_dataframe('Recursos_Humanos')
 
-        # Constrói a UI
-        self.main_layout.setContentsMargins(20, 20, 20, 20)
-        self.main_layout.setSpacing(20)
-
         header_layout = QHBoxLayout()
         title_label = QLabel("Visão Geral do Negócio")
         title_label.setStyleSheet("font-size: 28px; font-weight: bold; color: '#FF8C00';")
         
-        export_button = QPushButton("📄 Relatório Completo")
-        export_button.setObjectName("ActionButton") # ADICIONE ESTA LINHA
+        export_button = QPushButton("📄 Gerar Relatório Completo")
+        export_button.setObjectName("ActionButton")
         export_button.clicked.connect(self.export_full_report)
-        export_button.setFixedWidth(220)
+        export_button.setFixedWidth(220) 
 
         header_layout.addWidget(title_label)
         header_layout.addStretch()
         header_layout.addWidget(export_button)
-        self.main_layout.addLayout(header_layout)
+        content_layout.addLayout(header_layout)
 
         kpi_grid = QGridLayout()
         kpi_grid.setSpacing(20)
@@ -62,8 +63,10 @@ class DashboardGeral(QWidget):
         total_funcionarios = len(self.df_rh)
         kpi_grid.addWidget(self._create_kpi_box("Total de Clientes", f"{total_clientes}"), 0, 2)
         kpi_grid.addWidget(self._create_kpi_box("Total de Funcionários", f"{total_funcionarios}"), 1, 2)
-        self.main_layout.addLayout(kpi_grid)
-        self.main_layout.addWidget(self._create_revenue_vs_expenses_chart(entradas, saidas), 1)
+        content_layout.addLayout(kpi_grid)
+        content_layout.addWidget(self._create_revenue_vs_expenses_chart(entradas, saidas), 1)
+
+        self.main_layout.addWidget(self.central_content_widget)
 
     def update_theme(self, new_theme_name):
         self.theme_name = new_theme_name
@@ -81,22 +84,16 @@ class DashboardGeral(QWidget):
 
     def _create_kpi_box(self, title, value, value_color=None):
         kpi_frame = QFrame()
-        kpi_frame.setObjectName("KPIFrame") # Define o nome do objeto para o estilo global
-        
+        kpi_frame.setObjectName("KPIFrame")
         layout = QVBoxLayout(kpi_frame)
         title_label = QLabel(title)
-        title_label.setObjectName("KPITitleLabel") # Define o nome do objeto
+        title_label.setObjectName("KPITitleLabel")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
         value_label = QLabel(value)
-        value_label.setObjectName("KPIValueLabel") # Define o nome do objeto
+        value_label.setObjectName("KPIValueLabel")
         value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        # Se uma cor específica for passada (ex: para lucro/despesa),
-        # aplica-a como um estilo 'in-line' que sobrescreve apenas a cor.
         if value_color:
             value_label.setStyleSheet(f"color: {value_color};")
-        
         layout.addWidget(title_label)
         layout.addWidget(value_label)
         return kpi_frame

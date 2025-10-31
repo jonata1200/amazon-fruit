@@ -75,3 +75,22 @@ class DataHandler:
         query = f"DELETE FROM {table_name} WHERE {identifier_col} = ?"
         params = (identifier_val,)
         return self.execute_query(query, params)
+    
+    def record_exists(self, table_name, column_name, value):
+        """
+        Verifica se um registro com um valor específico em uma coluna já existe.
+        Retorna True se existir, False caso contrário.
+        """
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                # A query COUNT é muito eficiente para verificar existência
+                query = f"SELECT COUNT(1) FROM {table_name} WHERE {column_name} = ?"
+                cursor.execute(query, (value,))
+                # fetchone() retorna uma tupla, ex: (1,) ou (0,)
+                result = cursor.fetchone()[0]
+                return result > 0
+        except Exception as e:
+            print(f"Erro ao verificar a existência do registro: {e}")
+            # Em caso de erro, é mais seguro assumir que pode existir para evitar duplicação
+            return True
