@@ -8,39 +8,42 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from ..edit_dialog import ProductDialog
 
+# --- 1. CLASSE INTELIGENTE PARA ORDENAÇÃO ---
+class CustomTableWidgetItem(QTableWidgetItem):
+    """
+    Subclasse de QTableWidgetItem que permite a ordenação correta de números.
+    """
+    def __lt__(self, other):
+        # Tenta comparar os itens como se fossem números (float)
+        try:
+            return float(self.text()) < float(other.text())
+        except (ValueError, TypeError):
+            # Se a conversão para float falhar, compara como texto
+            return super().__lt__(other)
+
 class DashboardEstoque(QWidget):
     def __init__(self, data_handler, theme_name='dark'):
         super().__init__()
         self.data_handler = data_handler
         self.theme_name = theme_name
-        
-        # O layout principal agora serve apenas como um contêiner mestre
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
-        
-        self.central_content_widget = None # Inicializa o placeholder
+        self.central_content_widget = None
         self.build_ui()
 
     def build_ui(self):
-        # 1. Destrói o widget de conteúdo antigo, se ele existir, garantindo uma limpeza total
         if self.central_content_widget:
             self.central_content_widget.deleteLater()
-
-        # 2. Cria um novo widget para ser o contêiner de todo o conteúdo
         self.central_content_widget = QWidget()
-        content_layout = QVBoxLayout(self.central_content_widget) # O layout principal do conteúdo
+        content_layout = QVBoxLayout(self.central_content_widget)
         content_layout.setContentsMargins(20, 20, 20, 20)
         content_layout.setSpacing(20)
-
-        # Recarrega os dados
         self.df_estoque = self.data_handler.get_dataframe('Estoque')
-
-        # --- 3. Adiciona todos os componentes ao 'content_layout' ---
         title_label = QLabel("Dashboard de Estoque")
         title_label.setStyleSheet("font-size: 28px; font-weight: bold; color: '#FF8C00';")
         content_layout.addWidget(title_label)
-        
         kpi_layout = QHBoxLayout()
+        
         total_produtos = len(self.df_estoque)
         valor_total_custo = (self.df_estoque['Preco_Custo'] * self.df_estoque['Quantidade_Estoque']).sum()
         itens_estoque_baixo = self.df_estoque[self.df_estoque['Quantidade_Estoque'] <= self.df_estoque['Nivel_Minimo_Estoque']].shape[0]
@@ -48,28 +51,26 @@ class DashboardEstoque(QWidget):
         kpi_layout.addWidget(self._create_kpi_box("Valor do Estoque (Custo)", f"R$ {valor_total_custo:,.2f}"))
         kpi_layout.addWidget(self._create_kpi_box("Itens com Estoque Baixo", f"{itens_estoque_baixo}"))
         content_layout.addLayout(kpi_layout)
-        
         action_buttons_layout = QHBoxLayout()
+
         add_button = QPushButton("➕ Adicionar Produto")
         add_button.setObjectName("ActionButton")
         add_button.clicked.connect(self.add_product)
-
         edit_button = QPushButton("✏️ Editar Produto")
         edit_button.setObjectName("ActionButton")
         edit_button.clicked.connect(self.edit_product)
-
         delete_button = QPushButton("🗑️ Excluir Produto")
         delete_button.setObjectName("ActionButton")
         delete_button.clicked.connect(self.delete_product)
-        
+
         action_buttons_layout.addWidget(add_button)
         action_buttons_layout.addWidget(edit_button)
         action_buttons_layout.addWidget(delete_button)
         action_buttons_layout.addStretch()
         content_layout.addLayout(action_buttons_layout)
-        
         bottom_layout = QHBoxLayout()
         table_section_layout = QVBoxLayout()
+
         self.search_bar = QLineEdit()
         self.search_bar.setPlaceholderText("Buscar produto...")
         self.search_bar.textChanged.connect(self.filter_table)
@@ -77,15 +78,29 @@ class DashboardEstoque(QWidget):
         self.stock_table = self._create_stock_table()
         table_section_layout.addWidget(self.stock_table)
         bottom_layout.addLayout(table_section_layout)
-        
+
         charts_layout = QVBoxLayout()
         charts_layout.addWidget(self._create_low_stock_chart())
         charts_layout.addWidget(self._create_category_pie_chart())
         bottom_layout.addLayout(charts_layout)
         content_layout.addLayout(bottom_layout)
-
-        # 4. Adiciona o novo widget de conteúdo ao layout mestre do dashboard
         self.main_layout.addWidget(self.central_content_widget)
+
+    def _create_stock_table(self):
+        table = QTableWidget()
+        # --- 2. HABILITAR A ORDENAÇÃO ---
+        table.setSortingEnabled(True)
+
+        table.setColumnCount(len(self.df_estoque.columns))
+        table.setRowCount(len(self.df_estoque))
+        table.setHorizontalHeaderLabels(self.df_estoque.columns)
+        for i, row in self.df_estoque.iterrows():
+            for j, value in enumerate(row):
+                # --- 3. USAR A NOVA CLASSE INTELIGENTE ---
+                item = CustomTableWidgetItem(str(value))
+                table.setItem(i, j, item)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        return table
 
     def update_theme(self, new_theme_name):
         self.theme_name = new_theme_name

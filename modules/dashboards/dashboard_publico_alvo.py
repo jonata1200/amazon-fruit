@@ -6,6 +6,14 @@ from PyQt6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
+# Classe inteligente para ordenação numérica
+class CustomTableWidgetItem(QTableWidgetItem):
+    def __lt__(self, other):
+        try:
+            return float(self.text()) < float(other.text())
+        except (ValueError, TypeError):
+            return super().__lt__(other)
+
 class DashboardPublicoAlvo(QWidget):
     def __init__(self, data_handler, theme_name='dark'):
         super().__init__()
@@ -13,25 +21,20 @@ class DashboardPublicoAlvo(QWidget):
         self.theme_name = theme_name
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
-
         self.central_content_widget = None
         self.build_ui()
 
     def build_ui(self):
         if self.central_content_widget:
             self.central_content_widget.deleteLater()
-
         self.central_content_widget = QWidget()
         content_layout = QVBoxLayout(self.central_content_widget)
         content_layout.setContentsMargins(20, 20, 20, 20)
         content_layout.setSpacing(20)
-
         self.df_clientes = self.data_handler.get_dataframe('Publico_Alvo')
-        
         title_label = QLabel("Dashboard de Público-Alvo")
         title_label.setStyleSheet("font-size: 28px; font-weight: bold; color: '#FF8C00';")
         content_layout.addWidget(title_label)
-        
         kpi_layout = QHBoxLayout()
         total_clientes = len(self.df_clientes)
         idade_media = self.df_clientes['Idade'].mean()
@@ -40,7 +43,6 @@ class DashboardPublicoAlvo(QWidget):
         kpi_layout.addWidget(self._create_kpi_box("Idade Média", f"{idade_media:.1f} anos"))
         kpi_layout.addWidget(self._create_kpi_box("Gasto Médio por Cliente", f"R$ {gasto_medio_total:,.2f}"))
         content_layout.addLayout(kpi_layout)
-        
         bottom_layout = QHBoxLayout()
         bottom_layout.addWidget(self._create_customer_table())
         charts_layout = QVBoxLayout()
@@ -48,7 +50,6 @@ class DashboardPublicoAlvo(QWidget):
         charts_layout.addWidget(self._create_gender_chart())
         bottom_layout.addLayout(charts_layout)
         content_layout.addLayout(bottom_layout)
-
         self.main_layout.addWidget(self.central_content_widget)
 
     def update_theme(self, new_theme_name):
@@ -73,12 +74,14 @@ class DashboardPublicoAlvo(QWidget):
 
     def _create_customer_table(self):
         table = QTableWidget()
+        table.setSortingEnabled(True)
         table.setColumnCount(len(self.df_clientes.columns))
         table.setRowCount(len(self.df_clientes))
         table.setHorizontalHeaderLabels(self.df_clientes.columns)
         for i, row in self.df_clientes.iterrows():
             for j, value in enumerate(row):
-                table.setItem(i, j, QTableWidgetItem(str(value)))
+                item = CustomTableWidgetItem(str(value))
+                table.setItem(i, j, item)
         table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         return table
 

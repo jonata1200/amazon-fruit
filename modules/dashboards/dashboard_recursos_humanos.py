@@ -6,6 +6,14 @@ from PyQt6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
+# Classe inteligente para ordenação numérica
+class CustomTableWidgetItem(QTableWidgetItem):
+    def __lt__(self, other):
+        try:
+            return float(self.text()) < float(other.text())
+        except (ValueError, TypeError):
+            return super().__lt__(other)
+
 class DashboardRecursosHumanos(QWidget):
     def __init__(self, data_handler, theme_name='dark'):
         super().__init__()
@@ -13,37 +21,30 @@ class DashboardRecursosHumanos(QWidget):
         self.theme_name = theme_name
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
-
         self.central_content_widget = None
         self.build_ui()
 
     def build_ui(self):
         if self.central_content_widget:
             self.central_content_widget.deleteLater()
-
         self.central_content_widget = QWidget()
         content_layout = QVBoxLayout(self.central_content_widget)
         content_layout.setContentsMargins(20, 20, 20, 20)
         content_layout.setSpacing(20)
-
         self.df_rh = self.data_handler.get_dataframe('Recursos_Humanos')
-        
         title_label = QLabel("Dashboard de Recursos Humanos")
         title_label.setStyleSheet("font-size: 28px; font-weight: bold; color: '#FF8C00';")
         content_layout.addWidget(title_label)
-        
         kpi_layout = QHBoxLayout()
         total_funcionarios = len(self.df_rh)
         custo_mensal_total = self.df_rh['Salario'].sum()
         kpi_layout.addWidget(self._create_kpi_box("Total de Funcionários", f"{total_funcionarios}"))
         kpi_layout.addWidget(self._create_kpi_box("Custo Mensal da Equipe", f"R$ {custo_mensal_total:,.2f}"))
         content_layout.addLayout(kpi_layout)
-        
         bottom_layout = QHBoxLayout()
         bottom_layout.addWidget(self._create_employee_table())
         bottom_layout.addWidget(self._create_salary_chart())
         content_layout.addLayout(bottom_layout)
-
         self.main_layout.addWidget(self.central_content_widget)
 
     def update_theme(self, new_theme_name):
@@ -68,12 +69,14 @@ class DashboardRecursosHumanos(QWidget):
 
     def _create_employee_table(self):
         table = QTableWidget()
+        table.setSortingEnabled(True)
         table.setColumnCount(len(self.df_rh.columns))
         table.setRowCount(len(self.df_rh))
         table.setHorizontalHeaderLabels(self.df_rh.columns)
         for i, row in self.df_rh.iterrows():
             for j, value in enumerate(row):
-                table.setItem(i, j, QTableWidgetItem(str(value)))
+                item = CustomTableWidgetItem(str(value))
+                table.setItem(i, j, item)
         table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         return table
 
