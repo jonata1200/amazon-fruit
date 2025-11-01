@@ -46,7 +46,7 @@ class DashboardEstoque(QWidget):
         
         total_produtos = len(self.df_estoque)
         valor_total_custo = (self.df_estoque['Preco_Custo'] * self.df_estoque['Quantidade_Estoque']).sum()
-        itens_estoque_baixo = self.df_estoque[self.df_estoque['Quantidade_Estoque'] <= self.df_estoque['Nivel_Minimo_Estoque']].shape[0]
+        itens_estoque_baixo = (self.df_estoque[self.df_estoque['Quantidade_Estoque'] <= self.df_estoque['Nivel_Minimo_Estoque']]).shape[0]
         kpi_layout.addWidget(self._create_kpi_box("Produtos Únicos", f"{total_produtos}"))
         kpi_layout.addWidget(self._create_kpi_box("Valor do Estoque (Custo)", f"R$ {valor_total_custo:,.2f}"))
         kpi_layout.addWidget(self._create_kpi_box("Itens com Estoque Baixo", f"{itens_estoque_baixo}"))
@@ -249,7 +249,12 @@ class DashboardEstoque(QWidget):
         fig = Figure(figsize=(5, 3), dpi=100)
         fig.patch.set_facecolor(bg_color)
         ax = fig.add_subplot(111)
-        ax.pie(category_counts, labels=category_counts.index, autopct='%1.1f%%', textprops={'color': text_color})
+        ax.pie(
+            category_counts,
+            labels=category_counts.index,
+            autopct='%1.1f%%',
+            textprops={'color': text_color}
+        )
         ax.set_title('Distribuição por Categoria', color=text_color)
         fig.tight_layout()
         return FigureCanvas(fig)

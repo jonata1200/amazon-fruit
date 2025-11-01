@@ -73,14 +73,21 @@ class DashboardGeral(QWidget):
         self.build_ui()
 
     def export_full_report(self):
-        file_path, _ = QFileDialog.getSaveFileName(self, "Salvar Relatório Completo", "", "PDF Files (*.pdf)")
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Salvar Relatório Completo", "", "PDF Files (*.pdf)"
+        )
         if file_path:
             try:
                 report_gen = ReportGenerator(self.data_handler)
                 report_gen.generate_report(file_path)
-                QMessageBox.information(self, "Sucesso", f"Relatório completo salvo com sucesso em:\n{file_path}")
+                QMessageBox.information(
+                    self, "Sucesso",
+                    f"Relatório completo salvo com sucesso em:\n{file_path}"
+                )
             except Exception as e:
-                QMessageBox.critical(self, "Erro", f"Ocorreu um erro ao gerar o relatório:\n{e}")
+                QMessageBox.critical(
+                    self, "Erro", f"Ocorreu um erro ao gerar o relatório:\n{e}"
+                )
 
     def _create_kpi_box(self, title, value, value_color=None):
         kpi_frame = QFrame()
