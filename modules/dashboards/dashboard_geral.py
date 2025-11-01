@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PyQt6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from ..report_generator import ReportGenerator
+from ..report.report_generator import ReportGenerator
 
 class DashboardGeral(QWidget):
     def __init__(self, data_handler, theme_name='dark'):
