@@ -6,6 +6,9 @@ from PyQt6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
+import pandas as pd
+from modules.ui.qt_utils import set_table_from_df
+
 # Classe inteligente para ordenação numérica
 class CustomTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
@@ -112,3 +115,71 @@ class DashboardFinancas(QWidget):
         ax.set_title('Distribuição de Despesas', color=text_color)
         fig.tight_layout()
         return FigureCanvas(fig)
+    
+    def _reload_data(self):
+        self.df_fin = self.data_handler.load_table("Financas")
+
+    def _rebuild_kpis(self):
+        df = self.df_fin
+        receita = despesa = 0.0
+        if {'Valor','Tipo'}.issubset(df.columns):
+            t = df['Tipo'].astype(str).str.lower()
+            v = pd.to_numeric(df['Valor'], errors='coerce').fillna(0.0)
+            receita = float(v[t.str.startswith('entrada')].sum())
+            despesa = float(v[t.str.startswith('saída')].sum())
+        lucro = receita - despesa
+        self.kpi_receita.setText(f"R$ {receita:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+        self.kpi_despesa.setText(f"R$ {despesa:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+        self.kpi_lucro.setText(f"R$ {lucro:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+
+    def _rebuild_tables(self):
+        set_table_from_df(self.table_financas, self.df_fin)
+
+    def _rebuild_charts(self):
+        # Receita vs. Despesa (barras)
+        if hasattr(self, "canvas_revexp"):
+            self.layout_revexp.removeWidget(self.canvas_revexp)
+            self.canvas_revexp.setParent(None)
+        fig1 = Figure(figsize=(6, 3), dpi=100); ax1 = fig1.add_subplot(111)
+        receita = despesa = 0.0
+        if {'Valor','Tipo'}.issubset(self.df_fin.columns):
+            t = self.df_fin['Tipo'].astype(str).str.lower()
+            v = pd.to_numeric(self.df_fin['Valor'], errors='coerce').fillna(0.0)
+            receita = float(v[t.str.startswith('entrada')].sum())
+            despesa = float(v[t.str.startswith('saída')].sum())
+        ax1.bar(['Receita','Despesas'], [receita, despesa], color=['#2E8B57','#D62728'])
+        ax1.set_title("Receita vs. Despesas")
+        self.canvas_revexp = FigureCanvas(fig1); self.layout_revexp.addWidget(self.canvas_revexp)
+
+        # Pizza de despesas por categoria
+        if hasattr(self, "canvas_pie"):
+            self.layout_pie.removeWidget(self.canvas_pie)
+            self.canvas_pie.setParent(None)
+        fig2 = Figure(figsize=(5, 3), dpi=100); ax2 = fig2.add_subplot(111)
+        ok = {'Categoria','Tipo','Valor'}.issubset(self.df_fin.columns)
+        if ok:
+            dd = self.df_fin[self.df_fin['Tipo'].astype(str).str.lower().str.startswith('saída')]
+            s = dd.groupby('Categoria')['Valor'].sum().sort_values(ascending=False)
+            if not s.empty:
+                ax2.pie(s.values, labels=s.index, autopct='%1.1f%%', startangle=90)
+        ax2.set_title("Distribuição de Despesas")
+        self.canvas_pie = FigureCanvas(fig2); self.layout_pie.addWidget(self.canvas_pie)
+
+        # Série temporal (entradas - saídas)
+        if hasattr(self, "canvas_ts"):
+            self.layout_ts.removeWidget(self.canvas_ts)
+            self.canvas_ts.setParent(None)
+        fig3 = Figure(figsize=(6.2, 3), dpi=100); ax3 = fig3.add_subplot(111)
+        if {'Data','Valor','Tipo'}.issubset(self.df_fin.columns):
+            dfx = self.df_fin.copy()
+            dfx['Data'] = pd.to_datetime(dfx['Data'], errors='coerce'); dfx = dfx.dropna(subset=['Data'])
+            dfx['signed'] = dfx.apply(lambda r: r['Valor'] if str(r.get('Tipo','')).lower().startswith('entrada')
+                                    else -abs(r['Valor']), axis=1)
+            daily = dfx.groupby('Data')['signed'].sum().sort_index()
+            if not daily.empty:
+                ax3.plot(daily.index, daily.values, marker='o')
+        ax3.set_title("Fluxo Diário (Entradas - Saídas)")
+        self.canvas_ts = FigureCanvas(fig3); self.layout_ts.addWidget(self.canvas_ts)
+
+    def refresh(self):
+        self._reload_data(); self._rebuild_kpis(); self._rebuild_tables(); self._rebuild_charts()

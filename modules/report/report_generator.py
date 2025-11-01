@@ -69,7 +69,6 @@ class ReportGenerator:
     def _p(self, text): self.story.append(Paragraph(text, self.styles['WrappedBody']))
 
     def generate_report(self, file_path: str):
-        # Letter (pontos): 612x792 — usando margins p/ boa área útil
         doc = SimpleDocTemplate(
             file_path, pagesize=(612, 792),
             leftMargin=45, rightMargin=45, topMargin=40, bottomMargin=40
@@ -82,7 +81,13 @@ class ReportGenerator:
 
         # Resumo
         self._section("Resumo Geral")
-        self._p(f"Relatório gerado em {datetime.now().strftime('%d/%m/%Y %H:%M')}.")
+        now = datetime.now().strftime('%d/%m/%Y %H:%M')
+        period = self.data_handler.get_period()
+        if period:
+            s, e = period
+            self._p(f"Relatório gerado em {now}. Período selecionado: {s} a {e}.")
+        else:
+            self._p(f"Relatório gerado em {now}. Período: todos os dados.")
 
         # -------- ESTOQUE --------
         df_estoque = self.data_handler.load_table("Estoque")

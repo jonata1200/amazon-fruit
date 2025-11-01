@@ -6,6 +6,10 @@ from PyQt6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
+import pandas as pd
+from modules.ui.qt_utils import set_table_from_df
+import math
+
 # Classe inteligente para ordenação numérica
 class CustomTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
@@ -109,3 +113,49 @@ class DashboardFornecedores(QWidget):
         ax.set_title('Tipos de Produtos Fornecidos', color=text_color)
         fig.tight_layout()
         return FigureCanvas(fig)
+    
+    def _reload_data(self):
+        self.df_forn = self.data_handler.load_table("Fornecedores")
+
+    def _rebuild_kpis(self):
+        total = len(self.df_forn)
+        aval = float(pd.to_numeric(self.df_forn.get('Avaliacao'), errors='coerce').mean()) \
+            if 'Avaliacao' in self.df_forn else float('nan')
+        self.kpi_total_forn.setText(str(total))
+        self.kpi_media.setText(f"{aval:.1f} / 5 ★" if not math.isnan(aval) else "—")
+
+    def _rebuild_tables(self):
+        set_table_from_df(self.table_fornecedores, self.df_forn)
+
+    def _rebuild_charts(self):
+        # Avaliação (barra horizontal)
+        if hasattr(self, "canvas_rate"):
+            self.layout_rate.removeWidget(self.canvas_rate); self.canvas_rate.setParent(None)
+        fig1 = Figure(figsize=(6.2, 3), dpi=100); ax1 = fig1.add_subplot(111)
+        if {'Nome_Fornecedor','Avaliacao'}.issubset(self.df_forn.columns):
+            dfx = self.df_forn.copy()
+            dfx['Avaliacao'] = pd.to_numeric(dfx['Avaliacao'], errors='coerce')
+            dfx = dfx.dropna(subset=['Avaliacao'])
+            if not dfx.empty:
+                ax1.barh(dfx['Nome_Fornecedor'].astype(str), dfx['Avaliacao'], color='#2E8B57')
+                ax1.set_xlim(0, 5); ax1.invert_yaxis()
+        ax1.set_title("Avaliação dos Fornecedores")
+        self.canvas_rate = FigureCanvas(fig1); self.layout_rate.addWidget(self.canvas_rate)
+
+        # Tipos de produtos (pizza)
+        if hasattr(self, "canvas_types"):
+            self.layout_types.removeWidget(self.canvas_types); self.canvas_types.setParent(None)
+        fig2 = Figure(figsize=(5.2, 3), dpi=100); ax2 = fig2.add_subplot(111)
+        if 'Produtos_Fornecidos' in self.df_forn:
+            all_types = []
+            for x in self.df_forn['Produtos_Fornecidos'].dropna().astype(str):
+                all_types += [t.strip() for t in x.split(',')]
+            import pandas as pd
+            s = pd.Series(all_types).value_counts()
+            if not s.empty:
+                ax2.pie(s.values, labels=s.index, autopct='%1.1f%%', startangle=90)
+        ax2.set_title("Tipos de Produtos Fornecidos")
+        self.canvas_types = FigureCanvas(fig2); self.layout_types.addWidget(self.canvas_types)
+
+    def refresh(self):
+        self._reload_data(); self._rebuild_kpis(); self._rebuild_tables(); self._rebuild_charts()

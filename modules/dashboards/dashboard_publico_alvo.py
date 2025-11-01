@@ -6,6 +6,10 @@ from PyQt6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
+import pandas as pd
+from modules.ui.qt_utils import set_table_from_df
+import math
+
 # Classe inteligente para ordenação numérica
 class CustomTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
@@ -111,3 +115,46 @@ class DashboardPublicoAlvo(QWidget):
         ax.set_title('Distribuição por Gênero', color=text_color)
         fig.tight_layout()
         return FigureCanvas(fig)
+    
+    def _reload_data(self):
+        self.df_pub = self.data_handler.load_table("Publico_Alvo")
+
+    def _rebuild_kpis(self):
+        total = len(self.df_pub)
+        idade_media = float(pd.to_numeric(self.df_pub.get('Idade'), errors='coerce').mean()) \
+                    if 'Idade' in self.df_pub else float('nan')
+        gasto_medio = float(pd.to_numeric(self.df_pub.get('Gasto_Medio'), errors='coerce').mean()) \
+                    if 'Gasto_Medio' in self.df_pub else float('nan')
+        self.kpi_total.setText(str(total))
+        self.kpi_idade.setText(f"{idade_media:.1f} anos" if not math.isnan(idade_media) else "—")
+        self.kpi_ticket.setText("R$ " + (f"{gasto_medio:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+                                if not math.isnan(gasto_medio) else "—")
+
+    def _rebuild_tables(self):
+        set_table_from_df(self.table_publico, self.df_pub)
+
+    def _rebuild_charts(self):
+        # Localização (barras)
+        if hasattr(self, "canvas_loc"):
+            self.layout_loc.removeWidget(self.canvas_loc); self.canvas_loc.setParent(None)
+        fig1 = Figure(figsize=(6, 3), dpi=100); ax1 = fig1.add_subplot(111)
+        if 'Localizacao' in self.df_pub:
+            s = self.df_pub['Localizacao'].astype(str).value_counts()
+            if not s.empty:
+                ax1.bar(s.index, s.values, color='#4B0082'); ax1.tick_params(axis='x', rotation=15)
+        ax1.set_title("Distribuição de Clientes por Localização")
+        self.canvas_loc = FigureCanvas(fig1); self.layout_loc.addWidget(self.canvas_loc)
+
+        # Gênero (pizza)
+        if hasattr(self, "canvas_gender"):
+            self.layout_gender.removeWidget(self.canvas_gender); self.canvas_gender.setParent(None)
+        fig2 = Figure(figsize=(5, 3), dpi=100); ax2 = fig2.add_subplot(111)
+        if 'Genero' in self.df_pub:
+            s = self.df_pub['Genero'].astype(str).value_counts()
+            if not s.empty:
+                ax2.pie(s.values, labels=s.index, autopct='%1.1f%%', startangle=90)
+        ax2.set_title("Distribuição por Gênero")
+        self.canvas_gender = FigureCanvas(fig2); self.layout_gender.addWidget(self.canvas_gender)
+
+    def refresh(self):
+        self._reload_data(); self._rebuild_kpis(); self._rebuild_tables(); self._rebuild_charts()

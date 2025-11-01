@@ -6,6 +6,9 @@ from PyQt6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
+import pandas as pd
+from modules.ui.qt_utils import set_table_from_df
+
 # Classe inteligente para ordenação numérica
 class CustomTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
@@ -94,3 +97,36 @@ class DashboardRecursosHumanos(QWidget):
         ax.set_facecolor(bg_color)
         fig.tight_layout()
         return FigureCanvas(fig)
+    
+    def _reload_data(self):
+        self.df_rh = self.data_handler.load_table("Recursos_Humanos")
+
+    def _rebuild_kpis(self):
+        total = len(self.df_rh)
+        custo = 0.0
+        if 'Salario' in self.df_rh:
+            custo = float(pd.to_numeric(self.df_rh['Salario'], errors='coerce').fillna(0.0).sum())
+        self.kpi_total_func.setText(str(total))
+        self.kpi_custo_mensal.setText(f"R$ {custo:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+
+    def _rebuild_tables(self):
+        set_table_from_df(self.table_rh, self.df_rh)
+
+    def _rebuild_charts(self):
+        # Salários por funcionário
+        if hasattr(self, "canvas_sal"):
+            self.layout_sal.removeWidget(self.canvas_sal); self.canvas_sal.setParent(None)
+        fig = Figure(figsize=(6.2, 3.2), dpi=100); ax = fig.add_subplot(111)
+        req = {'Nome_Funcionario','Salario'}
+        if req.issubset(self.df_rh.columns):
+            dfx = self.df_rh.copy()
+            dfx['Salario'] = pd.to_numeric(dfx['Salario'], errors='coerce')
+            dfx = dfx.dropna(subset=['Salario'])
+            if not dfx.empty:
+                ax.bar(dfx['Nome_Funcionario'].astype(str), dfx['Salario'], color='#4B0082')
+                ax.tick_params(axis='x', rotation=25)
+        ax.set_title("Salários por Funcionário")
+        self.canvas_sal = FigureCanvas(fig); self.layout_sal.addWidget(self.canvas_sal)
+
+    def refresh(self):
+        self._reload_data(); self._rebuild_kpis(); self._rebuild_tables(); self._rebuild_charts()

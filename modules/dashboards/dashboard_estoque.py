@@ -8,6 +8,9 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from ..edit_dialog import ProductDialog
 
+import pandas as pd
+from modules.ui.qt_utils import set_table_from_df
+
 # --- 1. CLASSE INTELIGENTE PARA ORDENAÇÃO ---
 class CustomTableWidgetItem(QTableWidgetItem):
     """
@@ -258,3 +261,69 @@ class DashboardEstoque(QWidget):
         ax.set_title('Distribuição por Categoria', color=text_color)
         fig.tight_layout()
         return FigureCanvas(fig)
+
+    # dentro da sua classe DashboardEstoque:
+    def _reload_data(self):
+        self.df_estoque = self.data_handler.load_table("Estoque")
+
+    def _rebuild_kpis(self):
+        df = self.df_estoque
+        total = df['ID_Produto'].nunique() if 'ID_Produto' in df else len(df)
+        valor = 0.0
+        if {'Quantidade_Estoque','Preco_Custo'}.issubset(df.columns):
+            q = pd.to_numeric(df['Quantidade_Estoque'], errors='coerce').fillna(0)
+            c = pd.to_numeric(df['Preco_Custo'], errors='coerce').fillna(0.0)
+            valor = float((q*c).sum())
+        baixo = 0
+        if {'Quantidade_Estoque','Nivel_Minimo_Estoque'}.issubset(df.columns):
+            baixo = int((pd.to_numeric(df['Quantidade_Estoque'], errors='coerce') <=
+                        pd.to_numeric(df['Nivel_Minimo_Estoque'], errors='coerce')).sum())
+
+        # supondo que você tenha labels: self.kpi_produtos, self.kpi_valor, self.kpi_baixo
+        self.kpi_produtos.setText(str(total))
+        self.kpi_valor.setText(f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+        self.kpi_baixo.setText(str(baixo))
+
+    def _rebuild_tables(self):
+        # supondo que table é self.table_estoque (QTableView)
+        set_table_from_df(self.table_estoque, self.df_estoque)
+
+    def _rebuild_charts(self):
+        # 1) pizza por categoria -> self.canvas_categoria (FigureCanvas)
+        if hasattr(self, "canvas_categoria"):
+            self.layout_categoria.removeWidget(self.canvas_categoria)
+            self.canvas_categoria.setParent(None)
+        fig1 = Figure(figsize=(5, 3), dpi=100)
+        ax1 = fig1.add_subplot(111)
+        if not self.df_estoque.empty and 'Categoria' in self.df_estoque:
+            s = self.df_estoque['Categoria'].astype(str).value_counts()
+            if not s.empty:
+                ax1.pie(s.values, labels=s.index, autopct='%1.1f%%', startangle=90)
+        ax1.set_title("Distribuição por Categoria")
+        self.canvas_categoria = FigureCanvas(fig1)
+        self.layout_categoria.addWidget(self.canvas_categoria)
+
+        # 2) barra horizontal itens abaixo do mínimo -> self.canvas_baixo
+        if hasattr(self, "canvas_baixo"):
+            self.layout_baixo.removeWidget(self.canvas_baixo)
+            self.canvas_baixo.setParent(None)
+        fig2 = Figure(figsize=(5.6, 3), dpi=100)
+        ax2 = fig2.add_subplot(111)
+        req = {'Nome_Produto','Quantidade_Estoque','Nivel_Minimo_Estoque'}
+        if req.issubset(self.df_estoque.columns):
+            df = self.df_estoque.copy()
+            df['gap'] = pd.to_numeric(df['Nivel_Minimo_Estoque'], errors='coerce') - \
+                        pd.to_numeric(df['Quantidade_Estoque'], errors='coerce')
+            low = df[df['gap'] > 0].sort_values('gap', ascending=False).head(10)
+            if not low.empty:
+                ax2.barh(low['Nome_Produto'].astype(str), low['gap'])
+                ax2.invert_yaxis()
+        ax2.set_title("Itens com Estoque Baixo (gap)")
+        self.canvas_baixo = FigureCanvas(fig2)
+        self.layout_baixo.addWidget(self.canvas_baixo)
+
+    def refresh(self):
+        self._reload_data()
+        self._rebuild_kpis()
+        self._rebuild_tables()
+        self._rebuild_charts()
