@@ -3,19 +3,24 @@
 import os
 import sys
 import sqlite3
-from typing import Optional
+from typing import Optional, Dict, List
 
 import pandas as pd
 
-
 # ---------------------------------------------------------------------
-# Configurações e Mapeamentos
+# Configurações
 # ---------------------------------------------------------------------
 
-EXCEL_FILE_CANDIDATES = ["amazon_fruit_dados.xlsx", "assets/amazon_fruit_dados.xlsx"]
+EXCEL_FILE_CANDIDATES = [
+    "amazon_fruit_dados.xlsx",
+    "assets/amazon_fruit_dados.xlsx",
+    "amazon-fruit.xlsx",
+    "assets/amazon-fruit.xlsx",
+]
+
 DB_FILE = "amazon_fruit.db"
 
-SHEET_TO_TABLE = {
+SHEET_TO_TABLE: Dict[str, str] = {
     "Estoque": "Estoque",
     "Fornecedores": "Fornecedores",
     "Publico_Alvo": "Publico_Alvo",
@@ -23,11 +28,13 @@ SHEET_TO_TABLE = {
     "Recursos_Humanos": "Recursos_Humanos",
 }
 
-# --- NOVO: Definição do Schema do Banco de Dados (DDL) ---
-# Aqui definimos a estrutura exata de cada tabela, com chaves primárias e restrições.
-SCHEMAS = {
+# ---------------------------------------------------------------------
+# Schema (ajustado para bater com o Excel gerado)
+# ---------------------------------------------------------------------
+
+CREATE_STATEMENTS: Dict[str, str] = {
     "Estoque": """
-        CREATE TABLE Estoque (
+        CREATE TABLE IF NOT EXISTS Estoque (
             ID_Produto TEXT PRIMARY KEY NOT NULL,
             Nome_Produto TEXT NOT NULL,
             Categoria TEXT,
@@ -40,198 +47,235 @@ SCHEMAS = {
         );
     """,
     "Fornecedores": """
-        CREATE TABLE Fornecedores (
+        CREATE TABLE IF NOT EXISTS Fornecedores (
             ID_Fornecedor TEXT PRIMARY KEY NOT NULL,
             Nome_Fornecedor TEXT NOT NULL,
+            CNPJ TEXT,
             Contato TEXT,
             Telefone TEXT,
             Email TEXT,
+            Endereco TEXT,
             Cidade TEXT,
             Estado TEXT,
+            CEP TEXT,
             Avaliacao INTEGER,
-            Data_Ultima_Compra TEXT
+            Data_Ultima_Compra TEXT,
+            Produtos_Fornecidos TEXT
         );
     """,
     "Publico_Alvo": """
-        CREATE TABLE Publico_Alvo (
+        CREATE TABLE IF NOT EXISTS Publico_Alvo (
             ID_Cliente TEXT PRIMARY KEY NOT NULL,
             Nome TEXT NOT NULL,
-            Idade INTEGER,
             Genero TEXT,
+            Idade INTEGER,
             Localizacao TEXT,
-            Gasto_Medio REAL,
+            Preferencias TEXT,
             Frequencia_Compra_Mensal INTEGER,
-            Canal_Origem TEXT
+            Gasto_Medio REAL
         );
     """,
     "Financas": """
-        CREATE TABLE Financas (
+        CREATE TABLE IF NOT EXISTS Financas (
             ID_Lancamento INTEGER PRIMARY KEY AUTOINCREMENT,
             Data TEXT NOT NULL,
             Tipo TEXT NOT NULL,
             Categoria TEXT,
             Descricao TEXT,
-            Valor REAL NOT NULL
+            Valor REAL NOT NULL,
+            Metodo_Pagamento TEXT,
+            Centro_Custo TEXT,
+            Pedido_Referencia TEXT
         );
     """,
     "Recursos_Humanos": """
-        CREATE TABLE Recursos_Humanos (
+        CREATE TABLE IF NOT EXISTS Recursos_Humanos (
             ID_Funcionario TEXT PRIMARY KEY NOT NULL,
-            Nome_Funcionario TEXT NOT NULL,
+            Nome TEXT NOT NULL,
             Cargo TEXT,
-            Salario REAL,
+            Departamento TEXT,
             Data_Contratacao TEXT,
-            Status TEXT
+            Regime TEXT,
+            Salario REAL,
+            Cidade TEXT,
+            Estado TEXT,
+            Email TEXT
         );
     """,
 }
 
+# Coluna de data "principal" usada por alguns recursos do app (se necessário)
+TABLE_DATE_COL = {
+    "Financas": "Data",
+    "Fornecedores": "Data_Ultima_Compra",
+    "Recursos_Humanos": "Data_Contratacao",
+    # "Estoque": "Data_Validade",  # só se precisar usar como "evento"
+}
+
 # ---------------------------------------------------------------------
-# Funções Utilitárias (com melhorias)
+# Utilitários
 # ---------------------------------------------------------------------
 
-def find_excel_file() -> Optional[str]:
+def log(msg: str):
+    print(msg, flush=True)
+
+def find_excel() -> Optional[str]:
     for path in EXCEL_FILE_CANDIDATES:
         if os.path.exists(path):
             return path
     return None
 
-def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy()
-    df.columns = [str(c).strip().replace(" ", "_") for c in df.columns]
-    return df
+def get_conn(db_path: str) -> sqlite3.Connection:
+    return sqlite3.connect(db_path)
 
-def coerce_types(df: pd.DataFrame, table: str) -> pd.DataFrame:
-    """
-    Aplica coerção de tipos e AVISA sobre dados que não puderam ser convertidos.
-    """
-    df = df.copy()
-    # Mapeamento simples para facilitar o loop
-    type_map = {
-        'int': ('integer', 0),
-        'float': ('float', 0.0),
-        'str': ('string', ''),
-        'date': ('datetime', None)
-    }
-
-    # As regras de tipo agora são usadas para validação
-    rules = {
-        "Estoque": {"Quantidade_Estoque": "int", "Preco_Custo": "float", "Preco_Venda": "float", "Data_Validade": "date", "Nivel_Minimo_Estoque": "int"},
-        "Fornecedores": {"Avaliacao": "int", "Data_Ultima_Compra": "date"},
-        "Publico_Alvo": {"Idade": "int", "Gasto_Medio": "float", "Frequencia_Compra_Mensal": "int"},
-        "Financas": {"Data": "date", "Valor": "float"},
-        "Recursos_Humanos": {"Salario": "float", "Data_Contratacao": "date"},
-    }
-    
-    table_rules = rules.get(table, {})
-    for col, kind in table_rules.items():
-        if col not in df.columns:
-            continue
-        
-        original_series = df[col]
-        
-        # --- LÓGICA ATUALIZADA COM AVISOS ---
-        if kind in ['int', 'float']:
-            numeric_series = pd.to_numeric(original_series, errors='coerce')
-            invalid_rows = original_series.notna() & numeric_series.isna()
-            if invalid_rows.any():
-                print(f"  [AVISO] Dados inválidos na Tabela '{table}', Coluna '{col}'. As seguintes linhas serão ignoradas (definidas como 0):")
-                print(df.loc[invalid_rows, [col]].to_string(index=False, header=False))
-            
-            fill_value = 0 if kind == 'int' else 0.0
-            df[col] = numeric_series.fillna(fill_value).astype(kind)
-
-        elif kind == 'date':
-            parsed = pd.to_datetime(df[col], errors='coerce', dayfirst=True)
-            invalid_rows = original_series.notna() & parsed.isna()
-            if invalid_rows.any():
-                 print(f"  [AVISO] Datas inválidas na Tabela '{table}', Coluna '{col}'. As seguintes linhas serão ignoradas (definidas como Nulas):")
-                 print(df.loc[invalid_rows, [col]].to_string(index=False, header=False))
-            
-            # Converte para string no formato YYYY-MM-DD, valores inválidos viram 'NaT'
-            df[col] = parsed.dt.strftime('%Y-%m-%d').replace({pd.NaT: None})
-            
-    return df
-
-def trim_empty_rows(df: pd.DataFrame) -> pd.DataFrame:
-    if df.empty: return df
-    df = df.replace(r"^\s*$", pd.NA, regex=True)
-    return df.dropna(how="all").reset_index(drop=True)
-
-def read_sheet(xls: pd.ExcelFile, sheet_name: str) -> pd.DataFrame:
-    df = xls.parse(sheet_name)
-    df = normalize_columns(df)
-    df = trim_empty_rows(df)
-    return df
-
-# --- NOVA FUNÇÃO ---
-def create_tables(conn: sqlite3.Connection):
-    """Cria todas as tabelas no banco de dados a partir dos schemas definidos."""
+def get_table_columns(conn: sqlite3.Connection, table: str) -> List[str]:
     cur = conn.cursor()
-    print("\n[INFO] Criando schema do banco de dados...")
-    for table_name, ddl_query in SCHEMAS.items():
-        print(f"  - Preparando tabela '{table_name}'...")
-        cur.execute(f"DROP TABLE IF EXISTS {table_name};")
-        cur.execute(ddl_query)
+    cur.execute(f"PRAGMA table_info({table})")
+    return [row[1] for row in cur.fetchall()]
+
+def filter_df_to_table(df: pd.DataFrame, conn: sqlite3.Connection, table: str) -> pd.DataFrame:
+    cols_db = set(get_table_columns(conn, table))
+    keep = [c for c in df.columns if c in cols_db]
+    if not keep:
+        raise ValueError(f"Nenhuma coluna da planilha bate com a tabela '{table}'. Colunas da planilha: {list(df.columns)} / Tabela possui: {list(cols_db)}")
+    return df[keep]
+
+def normalize_date_series(s: pd.Series) -> pd.Series:
+    return pd.to_datetime(s, errors="coerce").dt.strftime("%Y-%m-%d")
+
+def to_float_series(s: pd.Series) -> pd.Series:
+    return pd.to_numeric(s, errors="coerce").astype(float)
+
+def to_int_series(s: pd.Series) -> pd.Series:
+    return pd.to_numeric(s, errors="coerce").fillna(0).astype(int)
+
+# ---------------------------------------------------------------------
+# Preparadores por tabela
+# ---------------------------------------------------------------------
+
+def prep_estoque(df: pd.DataFrame) -> pd.DataFrame:
+    if "Quantidade_Estoque" in df.columns:
+        df["Quantidade_Estoque"] = to_int_series(df["Quantidade_Estoque"])
+    if "Preco_Custo" in df.columns:
+        df["Preco_Custo"] = to_float_series(df["Preco_Custo"])
+    if "Preco_Venda" in df.columns:
+        df["Preco_Venda"] = to_float_series(df["Preco_Venda"])
+    if "Data_Validade" in df.columns:
+        df["Data_Validade"] = normalize_date_series(df["Data_Validade"])
+    return df
+
+def prep_fornecedores(df: pd.DataFrame) -> pd.DataFrame:
+    if "Avaliacao" in df.columns:
+        df["Avaliacao"] = to_int_series(df["Avaliacao"])
+    if "Data_Ultima_Compra" in df.columns:
+        df["Data_Ultima_Compra"] = normalize_date_series(df["Data_Ultima_Compra"])
+    # Campos de texto
+    for col in ["CNPJ","Contato","Telefone","Email","Endereco","Cidade","Estado","CEP","Produtos_Fornecidos","Nome_Fornecedor"]:
+        if col in df.columns:
+            df[col] = df[col].astype(str)
+    return df
+
+def prep_publico(df: pd.DataFrame) -> pd.DataFrame:
+    if "Idade" in df.columns:
+        df["Idade"] = to_int_series(df["Idade"])
+    if "Frequencia_Compra_Mensal" in df.columns:
+        df["Frequencia_Compra_Mensal"] = to_int_series(df["Frequencia_Compra_Mensal"])
+    if "Gasto_Medio" in df.columns:
+        df["Gasto_Medio"] = to_float_series(df["Gasto_Medio"])
+    for col in ["Genero","Localizacao","Preferencias","Nome"]:
+        if col in df.columns:
+            df[col] = df[col].astype(str)
+    return df
+
+def prep_financas(df: pd.DataFrame) -> pd.DataFrame:
+    # Deixar o SQLite autoincrementar
+    if "ID_Lancamento" in df.columns:
+        df = df.drop(columns=["ID_Lancamento"])
+
+    if "Data" in df.columns:
+        df["Data"] = normalize_date_series(df["Data"])
+    if "Valor" in df.columns:
+        df["Valor"] = to_float_series(df["Valor"])
+    for col in ["Tipo","Categoria","Descricao","Metodo_Pagamento","Centro_Custo","Pedido_Referencia"]:
+        if col in df.columns:
+            df[col] = df[col].astype(str)
+    return df
+
+def prep_rh(df: pd.DataFrame) -> pd.DataFrame:
+    if "Data_Contratacao" in df.columns:
+        df["Data_Contratacao"] = normalize_date_series(df["Data_Contratacao"])
+    if "Salario" in df.columns:
+        df["Salario"] = to_float_series(df["Salario"])
+    for col in ["Nome","Cargo","Departamento","Regime","Cidade","Estado","Email"]:
+        if col in df.columns:
+            df[col] = df[col].astype(str)
+    return df
+
+PREP_BY_TABLE = {
+    "Estoque": prep_estoque,
+    "Fornecedores": prep_fornecedores,
+    "Publico_Alvo": prep_publico,
+    "Financas": prep_financas,
+    "Recursos_Humanos": prep_rh,
+}
+
+# ---------------------------------------------------------------------
+# Pipeline
+# ---------------------------------------------------------------------
+
+def create_schema(conn: sqlite3.Connection):
+    log("\n[INFO] Criando schema do banco de dados...")
+    cur = conn.cursor()
+    for tbl, ddl in CREATE_STATEMENTS.items():
+        log(f"  - Preparando tabela '{tbl}'...")
+        cur.execute(ddl)
     conn.commit()
-    print("[OK] Schema criado com sucesso.\n")
+    log("[OK] Schema criado com sucesso.\n")
 
-def write_table(conn: sqlite3.Connection, df: pd.DataFrame, table_name: str) -> int:
-    """Escreve o DataFrame na tabela (append). Retorna o número de linhas inseridas."""
-    # --- LÓGICA ATUALIZADA para usar 'append' ---
+def load_sheet_to_table(xls_path: str, sheet_name: str, table_name: str, conn: sqlite3.Connection):
+    log(f"[INFO] Processando planilha '{sheet_name}' para a tabela '{table_name}'...")
+    df = pd.read_excel(xls_path, sheet_name=sheet_name, dtype=str)
+
+    # Converte tipos específicos por tabela
+    prep_fn = PREP_BY_TABLE.get(table_name)
+    if prep_fn:
+        df = prep_fn(df)
+
+    # Filtra para colunas existentes na tabela
+    df = filter_df_to_table(df, conn, table_name)
+
+    # Inserção
     df.to_sql(table_name, conn, if_exists="append", index=False)
-    return len(df)
+    log(f"  [OK] Tabela '{table_name}' populada com {len(df)} linhas.")
 
-# ---------------------------------------------------------------------
-# Fluxo Principal da Migração
-# ---------------------------------------------------------------------
+def main():
+    excel_path = find_excel()
+    if not excel_path:
+        log("[ERRO] Nenhum arquivo Excel encontrado. Ajuste EXCEL_FILE_CANDIDATES ou coloque o arquivo na raiz.")
+        sys.exit(1)
 
-def migrate_data() -> int:
-    excel_file = find_excel_file()
-    if not excel_file:
-        print("Erro: Não encontrei 'amazon_fruit_dados.xlsx'.")
-        return 2
+    log(f"[INFO] Usando Excel: {excel_path}\n")
 
-    print(f"[INFO] Usando Excel: {excel_file}")
-    try:
-        xls = pd.ExcelFile(excel_file)
-    except Exception as e:
-        print(f"Erro ao abrir o Excel: {e}")
-        return 3
+    # Recria o banco (se quiser manter o anterior, remova o bloco abaixo)
+    if os.path.exists(DB_FILE):
+        os.remove(DB_FILE)
 
     try:
-        conn = sqlite3.connect(DB_FILE)
-        # --- ETAPA ADICIONADA: Cria as tabelas antes de inserir os dados ---
-        create_tables(conn)
-        
-        for sheet, table in SHEET_TO_TABLE.items():
-            if sheet not in xls.sheet_names:
-                print(f"[AVISO] Planilha '{sheet}' não encontrada no Excel. Ignorando.")
-                continue
+        with get_conn(DB_FILE) as conn:
+            create_schema(conn)
 
-            print(f"[INFO] Processando planilha '{sheet}' para a tabela '{table}'...")
-            df = read_sheet(xls, sheet)
-            df = coerce_types(df, table)
+            for sheet, table in SHEET_TO_TABLE.items():
+                try:
+                    load_sheet_to_table(excel_path, sheet, table, conn)
+                except Exception as e:
+                    log(f"\n[ERRO] Falha ao processar '{sheet}' -> '{table}': {e}")
+                    raise
 
-            if df.empty:
-                print(f"  [AVISO] Planilha '{sheet}' está vazia após limpeza. Nenhuma linha inserida.")
-                continue
-
-            # Escreve no SQLite
-            rows_added = write_table(conn, df, table)
-            print(f"  [OK] Tabela '{table}' populada com {rows_added} linhas.")
-
-        conn.commit()
-        print(f"\n[FINALIZADO] Migração concluída com sucesso para o banco de dados '{DB_FILE}'.")
-        return 0
     except Exception as e:
-        print(f"\n[ERRO CRÍTICO] A migração falhou: {e}")
-        return 5
-    finally:
-        if 'conn' in locals() and conn:
-            conn.close()
+        log(f"\n[ERRO CRÍTICO] A migração falhou: {e}")
+        sys.exit(1)
 
+    log("\n[OK] Migração concluída com sucesso.")
 
 if __name__ == "__main__":
-    code = migrate_data()
-    sys.exit(code)
+    main()
