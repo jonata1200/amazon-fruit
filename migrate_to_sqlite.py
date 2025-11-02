@@ -60,7 +60,8 @@ SCHEMAS = {
             Genero TEXT,
             Localizacao TEXT,
             Gasto_Medio REAL,
-            Frequencia_Compra_Mensal INTEGER
+            Frequencia_Compra_Mensal INTEGER,
+            Canal_Origem TEXT
         );
     """,
     "Financas": """
