@@ -1,161 +1,210 @@
 # modules/dashboards/dashboard_fornecedores.py
 
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QTableWidget, QTableWidgetItem, QFrame, QHeaderView)
+from PyQt6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+    QFrame, QTableView
+)
 from PyQt6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-
 import pandas as pd
-from modules.ui.qt_utils import set_table_from_df
 import math
 
-# Classe inteligente para ordenação numérica
-class CustomTableWidgetItem(QTableWidgetItem):
-    def __lt__(self, other):
-        try:
-            return float(self.text()) < float(other.text())
-        except (ValueError, TypeError):
-            return super().__lt__(other)
+from modules.ui.qt_utils import set_table_from_df
+
 
 class DashboardFornecedores(QWidget):
+    """
+    Dashboard de Fornecedores.
+    - Respeita período global via DataHandler.load_table("Fornecedores")
+    - KPIs + Tabela + Gráficos (Avaliação, Tipos de Produtos)
+    - Segue o ciclo de vida padronizado (build_ui + refresh).
+    """
+
     def __init__(self, data_handler, theme_name='dark'):
         super().__init__()
         self.data_handler = data_handler
         self.theme_name = theme_name
-        self.main_layout = QVBoxLayout(self)
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.central_content_widget = None
-        self.build_ui()
 
+        # Data
+        self.df_fornecedores = pd.DataFrame()
+
+        # Widgets
+        self.kpi_total = None
+        self.kpi_avaliacao_media = None
+        self.table_fornecedores = None
+        self.canvas_rating = None
+        self.canvas_types = None
+
+        # Layouts para os gráficos (holders)
+        self.layout_rating = None
+        self.layout_types = None
+
+        # Inicia o ciclo de vida
+        self.build_ui()
+        self.refresh()
+
+    # ------------------------------------------------------------------
+    # UI (Criação da Estrutura Estática)
+    # ------------------------------------------------------------------
     def build_ui(self):
-        if self.central_content_widget:
-            self.central_content_widget.deleteLater()
-        self.central_content_widget = QWidget()
-        content_layout = QVBoxLayout(self.central_content_widget)
-        content_layout.setContentsMargins(20, 20, 20, 20)
-        content_layout.setSpacing(20)
-        self.df_fornecedores = self.data_handler.get_dataframe('Fornecedores')
-        title_label = QLabel("Dashboard de Fornecedores")
-        title_label.setStyleSheet("font-size: 28px; font-weight: bold; color: '#FF8C00';")
-        content_layout.addWidget(title_label)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(20, 20, 20, 20)
+        root.setSpacing(16)
+
+        # Título
+        title = QLabel("Dashboard de Fornecedores")
+        title.setStyleSheet("font-size: 24px; font-weight: bold;")
+        root.addWidget(title)
+
+        # ===== KPIs =====
         kpi_layout = QHBoxLayout()
-        total_fornecedores = len(self.df_fornecedores)
-        avaliacao_media = self.df_fornecedores['Avaliacao'].mean()
-        kpi_layout.addWidget(self._create_kpi_box("Total de Fornecedores", f"{total_fornecedores}"))
-        kpi_layout.addWidget(self._create_kpi_box("Avaliação Média", f"{avaliacao_media:.1f} / 5 ★"))
-        content_layout.addLayout(kpi_layout)
-        bottom_layout = QHBoxLayout()
-        bottom_layout.addWidget(self._create_supplier_table())
-        charts_layout = QVBoxLayout()
-        charts_layout.addWidget(self._create_rating_chart())
-        charts_layout.addWidget(self._create_products_supplied_chart())
-        bottom_layout.addLayout(charts_layout)
-        content_layout.addLayout(bottom_layout)
-        self.main_layout.addWidget(self.central_content_widget)
+        kpi_layout.setSpacing(16)
 
-    def update_theme(self, new_theme_name):
-        self.theme_name = new_theme_name
-        self.build_ui()
+        self.kpi_total = self._create_kpi_box("Total de Fornecedores")
+        self.kpi_avaliacao_media = self._create_kpi_box("Avaliação Média")
 
-    def _create_kpi_box(self, title, value, value_color=None):
-        kpi_frame = QFrame()
-        kpi_frame.setObjectName("KPIFrame")
-        layout = QVBoxLayout(kpi_frame)
-        title_label = QLabel(title)
-        title_label.setObjectName("KPITitleLabel")
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        value_label = QLabel(value)
-        value_label.setObjectName("KPIValueLabel")
-        value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        if value_color:
-            value_label.setStyleSheet(f"color: {value_color};")
-        layout.addWidget(title_label)
-        layout.addWidget(value_label)
-        return kpi_frame
+        kpi_layout.addWidget(self.kpi_total)
+        kpi_layout.addWidget(self.kpi_avaliacao_media)
+        root.addLayout(kpi_layout)
 
-    def _create_supplier_table(self):
-        table = QTableWidget()
-        table.setSortingEnabled(True)
-        table.setColumnCount(len(self.df_fornecedores.columns))
-        table.setRowCount(len(self.df_fornecedores))
-        table.setHorizontalHeaderLabels(self.df_fornecedores.columns)
-        for i, row in self.df_fornecedores.iterrows():
-            for j, value in enumerate(row):
-                item = CustomTableWidgetItem(str(value))
-                table.setItem(i, j, item)
-        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
-        return table
+        # ===== Tabela =====
+        table_frame = QFrame()
+        table_layout = QVBoxLayout(table_frame)
+        table_layout.setContentsMargins(0, 0, 0, 0)
+        self.table_fornecedores = QTableView()
+        table_layout.addWidget(self.table_fornecedores)
+        root.addWidget(table_frame)
 
-    def _create_rating_chart(self):
-        text_color = 'white' if self.theme_name == 'dark' else 'black'
-        bg_color = '#2E2E2E' if self.theme_name == 'dark' else '#F0F0F0'
-        df_sorted = self.df_fornecedores.sort_values('Avaliacao', ascending=True)
-        fig = Figure(figsize=(5, 3), dpi=100)
-        fig.patch.set_facecolor(bg_color)
-        ax = fig.add_subplot(111)
-        ax.barh(df_sorted['Nome_Fornecedor'], df_sorted['Avaliacao'], color='#2E8B57')
-        ax.set_title('Avaliação dos Fornecedores', color=text_color)
-        ax.tick_params(axis='x', colors=text_color)
-        ax.tick_params(axis='y', colors=text_color)
-        ax.set_facecolor(bg_color)
-        fig.tight_layout()
-        return FigureCanvas(fig)
+        # ===== Gráficos (Containers) =====
+        charts_row = QHBoxLayout()
+        charts_row.setSpacing(16)
 
-    def _create_products_supplied_chart(self):
-        text_color = 'white' if self.theme_name == 'dark' else 'black'
-        bg_color = '#2E2E2E' if self.theme_name == 'dark' else '#F0F0F0'
-        product_series = self.df_fornecedores['Produtos_Fornecidos'].str.split(', ').explode().value_counts()
-        fig = Figure(figsize=(5, 3), dpi=100)
-        fig.patch.set_facecolor(bg_color)
-        ax = fig.add_subplot(111)
-        ax.pie(product_series, labels=product_series.index, autopct='%1.1f%%', textprops={'color': text_color})
-        ax.set_title('Tipos de Produtos Fornecidos', color=text_color)
-        fig.tight_layout()
-        return FigureCanvas(fig)
-    
+        chart1_frame = QFrame()
+        self.layout_rating = QVBoxLayout(chart1_frame)
+        self.layout_rating.setContentsMargins(0, 0, 0, 0)
+        charts_row.addWidget(chart1_frame)
+
+        chart2_frame = QFrame()
+        self.layout_types = QVBoxLayout(chart2_frame)
+        self.layout_types.setContentsMargins(0, 0, 0, 0)
+        charts_row.addWidget(chart2_frame)
+
+        root.addLayout(charts_row)
+
+    # ------------------------------------------------------------------
+    # Ciclo de Atualização de Dados
+    # ------------------------------------------------------------------
+    def refresh(self):
+        """Orquestra a atualização completa do dashboard."""
+        self._reload_data()
+        self._rebuild_kpis()
+        self._rebuild_tables()
+        self._rebuild_charts()
+
     def _reload_data(self):
-        self.df_forn = self.data_handler.load_table("Fornecedores")
+        """Carrega/recarrega os dados do DataHandler."""
+        self.df_fornecedores = self.data_handler.load_table("Fornecedores")
 
     def _rebuild_kpis(self):
-        total = len(self.df_forn)
-        aval = float(pd.to_numeric(self.df_forn.get('Avaliacao'), errors='coerce').mean()) \
-            if 'Avaliacao' in self.df_forn else float('nan')
-        self.kpi_total_forn.setText(str(total))
-        self.kpi_media.setText(f"{aval:.1f} / 5 ★" if not math.isnan(aval) else "—")
+        """Calcula e atualiza os valores dos cards de KPI."""
+        df = self.df_fornecedores if self.df_fornecedores is not None else pd.DataFrame()
+
+        total = len(df)
+        aval_media = float('nan')
+        if not df.empty and 'Avaliacao' in df.columns:
+            aval_media = pd.to_numeric(df['Avaliacao'], errors='coerce').mean()
+
+        self._set_kpi_value(self.kpi_total, str(total))
+        self._set_kpi_value(self.kpi_avaliacao_media, self._fmt_rating(aval_media))
 
     def _rebuild_tables(self):
-        set_table_from_df(self.table_fornecedores, self.df_forn)
+        """Atualiza a tabela com os novos dados."""
+        set_table_from_df(self.table_fornecedores, self.df_fornecedores)
 
     def _rebuild_charts(self):
-        # Avaliação (barra horizontal)
-        if hasattr(self, "canvas_rate"):
-            self.layout_rate.removeWidget(self.canvas_rate); self.canvas_rate.setParent(None)
-        fig1 = Figure(figsize=(6.2, 3), dpi=100); ax1 = fig1.add_subplot(111)
-        if {'Nome_Fornecedor','Avaliacao'}.issubset(self.df_forn.columns):
-            dfx = self.df_forn.copy()
+        """Remove os gráficos antigos e desenha os novos."""
+        # Limpa canvases antigos (se existirem)
+        if self.canvas_rating is not None:
+            self.layout_rating.removeWidget(self.canvas_rating)
+            self.canvas_rating.setParent(None)
+            self.canvas_rating = None
+        if self.canvas_types is not None:
+            self.layout_types.removeWidget(self.canvas_types)
+            self.canvas_types.setParent(None)
+            self.canvas_types = None
+
+        df = self.df_fornecedores
+
+        # --- Gráfico 1: Avaliação (barra horizontal) ---
+        fig1 = Figure(figsize=(6.2, 3.8), dpi=100)
+        ax1 = fig1.add_subplot(111)
+        if not df.empty and {'Nome_Fornecedor', 'Avaliacao'}.issubset(df.columns):
+            dfx = df.copy()
             dfx['Avaliacao'] = pd.to_numeric(dfx['Avaliacao'], errors='coerce')
-            dfx = dfx.dropna(subset=['Avaliacao'])
+            dfx = dfx.dropna(subset=['Avaliacao']).sort_values('Avaliacao', ascending=True).tail(10)
             if not dfx.empty:
                 ax1.barh(dfx['Nome_Fornecedor'].astype(str), dfx['Avaliacao'], color='#2E8B57')
-                ax1.set_xlim(0, 5); ax1.invert_yaxis()
-        ax1.set_title("Avaliação dos Fornecedores")
-        self.canvas_rate = FigureCanvas(fig1); self.layout_rate.addWidget(self.canvas_rate)
+                ax1.set_xlim(0, 5)
+        ax1.set_title("Avaliação dos Fornecedores (Top 10)")
+        fig1.tight_layout()
+        self.canvas_rating = FigureCanvas(fig1)
+        self.layout_rating.addWidget(self.canvas_rating)
 
-        # Tipos de produtos (pizza)
-        if hasattr(self, "canvas_types"):
-            self.layout_types.removeWidget(self.canvas_types); self.canvas_types.setParent(None)
-        fig2 = Figure(figsize=(5.2, 3), dpi=100); ax2 = fig2.add_subplot(111)
-        if 'Produtos_Fornecidos' in self.df_forn:
+        # --- Gráfico 2: Tipos de produtos (pizza) ---
+        fig2 = Figure(figsize=(5.2, 3.8), dpi=100)
+        ax2 = fig2.add_subplot(111)
+        if not df.empty and 'Produtos_Fornecidos' in df.columns:
             all_types = []
-            for x in self.df_forn['Produtos_Fornecidos'].dropna().astype(str):
-                all_types += [t.strip() for t in x.split(',')]
-            import pandas as pd
-            s = pd.Series(all_types).value_counts()
-            if not s.empty:
-                ax2.pie(s.values, labels=s.index, autopct='%1.1f%%', startangle=90)
+            for item in df['Produtos_Fornecidos'].dropna().astype(str):
+                all_types.extend([t.strip() for t in item.split(',')])
+            
+            if all_types:
+                s = pd.Series(all_types).value_counts()
+                if not s.empty:
+                    ax2.pie(s.values, labels=s.index, autopct='%1.1f%%', startangle=90)
         ax2.set_title("Tipos de Produtos Fornecidos")
-        self.canvas_types = FigureCanvas(fig2); self.layout_types.addWidget(self.canvas_types)
+        fig2.tight_layout()
+        self.canvas_types = FigureCanvas(fig2)
+        self.layout_types.addWidget(self.canvas_types)
 
-    def refresh(self):
-        self._reload_data(); self._rebuild_kpis(); self._rebuild_tables(); self._rebuild_charts()
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+    def _create_kpi_box(self, title, value_color=None):
+        box = QFrame()
+        box.setObjectName("KPIFrame")
+        lay = QVBoxLayout(box)
+        lay.setContentsMargins(12, 10, 12, 10)
+
+        t = QLabel(title)
+        t.setObjectName("KPITitleLabel")
+        t.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        v = QLabel("—")
+        v.setObjectName("KPIValueLabel")
+        v.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        if value_color:
+            v.setStyleSheet(f"color: {value_color};")
+
+        lay.addWidget(t)
+        lay.addWidget(v)
+        box._value_label = v
+        return box
+
+    def _set_kpi_value(self, kpi_frame: QFrame, text: str):
+        if kpi_frame and hasattr(kpi_frame, "_value_label"):
+            kpi_frame._value_label.setText(text)
+
+    @staticmethod
+    def _fmt_rating(v):
+        if v is None or math.isnan(v):
+            return "—"
+        return f"{float(v):.1f} / 5 ★"
+
+    # ------------------------------------------------------------------
+    # Tema
+    # ------------------------------------------------------------------
+    def update_theme(self, new_theme_name):
+        self.theme_name = new_theme_name
+        self._rebuild_charts()
