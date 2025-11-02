@@ -8,17 +8,18 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 import pandas as pd
 
-# --- NOVAS IMPORTAÇÕES CENTRALIZADAS ---
+# --- IMPORTAÇÕES CENTRALIZADAS ---
 from modules.ui.qt_utils import set_table_from_df
 from modules.ui.widgets.kpi_widget import KPIWidget
 from modules.utils.formatters import fmt_currency
-
+# --- NOVA IMPORTAÇÃO DA CAMADA DE ANÁLISE ---
+from modules.analysis.hr_analysis import analyze_hr_kpis
 
 class DashboardRecursosHumanos(QWidget):
     """
     Dashboard de Recursos Humanos.
-    - Utiliza componentes reutilizáveis (KPIWidget) e formatadores centralizados.
-    - Segue o ciclo de vida padronizado (build_ui + refresh).
+    - Utiliza a camada de análise para obter os dados calculados.
+    - Focado apenas na apresentação dos dados.
     """
 
     def __init__(self, data_handler, theme_name='dark'):
@@ -26,24 +27,18 @@ class DashboardRecursosHumanos(QWidget):
         self.data_handler = data_handler
         self.theme_name = theme_name
 
-        # Data
         self.df_rh = pd.DataFrame()
-
-        # Widgets
         self.kpi_total_funcionarios = None
         self.kpi_custo_mensal = None
         self.table_rh = None
         self.canvas_salary = None
-
-        # Layout para o gráfico (holder)
         self.layout_salary = None
 
-        # Inicia o ciclo de vida
         self.build_ui()
         self.refresh()
 
     # ------------------------------------------------------------------
-    # UI (Criação da Estrutura Estática)
+    # UI (Estrutura Estática)
     # ------------------------------------------------------------------
     def build_ui(self):
         root = QVBoxLayout(self)
@@ -54,21 +49,16 @@ class DashboardRecursosHumanos(QWidget):
         title.setStyleSheet("font-size: 24px; font-weight: bold;")
         root.addWidget(title)
 
-        # ===== KPIs (Agora usando KPIWidget) =====
         kpi_layout = QHBoxLayout()
         kpi_layout.setSpacing(16)
-
         self.kpi_total_funcionarios = KPIWidget("Total de Funcionários")
         self.kpi_custo_mensal = KPIWidget("Custo Mensal da Equipe")
-
         kpi_layout.addWidget(self.kpi_total_funcionarios)
         kpi_layout.addWidget(self.kpi_custo_mensal)
         root.addLayout(kpi_layout)
 
-        # ===== Conteúdo Principal (Tabela e Gráfico) =====
         bottom_layout = QHBoxLayout()
         bottom_layout.setSpacing(16)
-
         table_frame = QFrame()
         table_layout = QVBoxLayout(table_frame)
         table_layout.setContentsMargins(0, 0, 0, 0)
@@ -96,16 +86,11 @@ class DashboardRecursosHumanos(QWidget):
         self.df_rh = self.data_handler.load_table("Recursos_Humanos")
 
     def _rebuild_kpis(self):
-        df = self.df_rh if self.df_rh is not None else pd.DataFrame()
+        """Usa a camada de análise para obter os KPIs e os exibe."""
+        kpi_data = analyze_hr_kpis(self.df_rh)
 
-        total = len(df)
-        custo_mensal = 0.0
-        if not df.empty and 'Salario' in df.columns:
-            custo_mensal = pd.to_numeric(df['Salario'], errors='coerce').fillna(0.0).sum()
-
-        # --- ATUALIZAÇÃO USANDO O MÉTODO .setValue() DO KPIWIDGET ---
-        self.kpi_total_funcionarios.setValue(str(total))
-        self.kpi_custo_mensal.setValue(fmt_currency(custo_mensal))
+        self.kpi_total_funcionarios.setValue(str(kpi_data['total_employees']))
+        self.kpi_custo_mensal.setValue(fmt_currency(kpi_data['total_monthly_cost']))
 
     def _rebuild_tables(self):
         set_table_from_df(self.table_rh, self.df_rh)

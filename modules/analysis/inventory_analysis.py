@@ -1,0 +1,39 @@
+# modules/analysis/inventory_analysis.py
+import pandas as pd
+
+def analyze_inventory_kpis(df: pd.DataFrame) -> dict:
+    """Analisa e retorna os principais KPIs do DataFrame de estoque."""
+    if df is None or df.empty:
+        return {'unique_products': 0, 'total_value': 0.0, 'low_stock_count': 0}
+
+    unique_products = df['ID_Produto'].nunique() if 'ID_Produto' in df.columns else len(df)
+    
+    total_value = 0.0
+    if {'Quantidade_Estoque', 'Preco_Custo'}.issubset(df.columns):
+        q = pd.to_numeric(df['Quantidade_Estoque'], errors='coerce').fillna(0)
+        c = pd.to_numeric(df['Preco_Custo'], errors='coerce').fillna(0.0)
+        total_value = float((q * c).sum())
+        
+    low_stock_count = 0
+    if {'Quantidade_Estoque', 'Nivel_Minimo_Estoque'}.issubset(df.columns):
+        q2 = pd.to_numeric(df['Quantidade_Estoque'], errors='coerce')
+        n2 = pd.to_numeric(df['Nivel_Minimo_Estoque'], errors='coerce')
+        low_stock_count = int((q2 <= n2).sum())
+        
+    return {
+        'unique_products': unique_products,
+        'total_value': total_value,
+        'low_stock_count': low_stock_count
+    }
+
+def get_low_stock_items(df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
+    """Retorna um DataFrame com os itens de estoque baixo."""
+    req = {'Nome_Produto', 'Quantidade_Estoque', 'Nivel_Minimo_Estoque'}
+    if df is None or df.empty or not req.issubset(df.columns):
+        return pd.DataFrame()
+        
+    dfx = df.copy()
+    dfx['gap'] = pd.to_numeric(dfx['Nivel_Minimo_Estoque'], errors='coerce') - \
+                 pd.to_numeric(dfx['Quantidade_Estoque'], errors='coerce')
+    
+    return dfx[dfx['gap'] > 0].sort_values('gap', ascending=False).head(top_n)
