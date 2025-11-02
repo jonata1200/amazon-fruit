@@ -4,19 +4,20 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QFrame, QTableView
 )
-from PyQt6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 import pandas as pd
 
+# --- NOVAS IMPORTAÇÕES CENTRALIZADAS ---
 from modules.ui.qt_utils import set_table_from_df
+from modules.ui.widgets.kpi_widget import KPIWidget
+from modules.utils.formatters import fmt_currency
 
 
 class DashboardFinancas(QWidget):
     """
     Dashboard Financeiro.
-    - Respeita período global via DataHandler.load_table("Financas")
-    - KPIs + Tabela + Gráficos (Receita vs. Despesa, Pizza de Despesas)
+    - Utiliza componentes reutilizáveis (KPIWidget) e formatadores centralizados.
     - Segue o ciclo de vida padronizado (build_ui + refresh).
     """
 
@@ -28,7 +29,7 @@ class DashboardFinancas(QWidget):
         # Data
         self.df_financas = pd.DataFrame()
 
-        # Widgets (serão criados em build_ui)
+        # Widgets
         self.kpi_receita = None
         self.kpi_despesas = None
         self.kpi_lucro = None
@@ -52,18 +53,17 @@ class DashboardFinancas(QWidget):
         root.setContentsMargins(20, 20, 20, 20)
         root.setSpacing(16)
 
-        # Título
         title = QLabel("Dashboard Financeiro")
         title.setStyleSheet("font-size: 24px; font-weight: bold;")
         root.addWidget(title)
 
-        # ===== KPIs =====
+        # ===== KPIs (Agora usando KPIWidget) =====
         kpi_layout = QHBoxLayout()
         kpi_layout.setSpacing(16)
 
-        self.kpi_receita = self._create_kpi_box("Receita Total", value_color="#2E8B57")
-        self.kpi_despesas = self._create_kpi_box("Despesas Totais", value_color="#C21807")
-        self.kpi_lucro = self._create_kpi_box("Lucro Líquido", value_color="#FF8C00")
+        self.kpi_receita = KPIWidget("Receita Total", value_color="#2E8B57")
+        self.kpi_despesas = KPIWidget("Despesas Totais", value_color="#C21807")
+        self.kpi_lucro = KPIWidget("Lucro Líquido", value_color="#FF8C00")
 
         kpi_layout.addWidget(self.kpi_receita)
         kpi_layout.addWidget(self.kpi_despesas)
@@ -98,18 +98,15 @@ class DashboardFinancas(QWidget):
     # Ciclo de Atualização de Dados
     # ------------------------------------------------------------------
     def refresh(self):
-        """Orquestra a atualização completa do dashboard."""
         self._reload_data()
         self._rebuild_kpis()
         self._rebuild_tables()
         self._rebuild_charts()
 
     def _reload_data(self):
-        """Carrega/recarrega os dados do DataHandler."""
         self.df_financas = self.data_handler.load_table("Financas")
 
     def _rebuild_kpis(self):
-        """Calcula e atualiza os valores dos cards de KPI."""
         df = self.df_financas if self.df_financas is not None else pd.DataFrame()
 
         receita = despesa = 0.0
@@ -120,29 +117,25 @@ class DashboardFinancas(QWidget):
             despesa = float(v[t.str.contains('saída', case=False)].sum())
         lucro = receita - despesa
 
-        self._set_kpi_value(self.kpi_receita, self._fmt_currency(receita))
-        self._set_kpi_value(self.kpi_despesas, self._fmt_currency(despesa))
-        self._set_kpi_value(self.kpi_lucro, self._fmt_currency(lucro))
+        # --- ATUALIZAÇÃO USANDO O MÉTODO .setValue() DO KPIWIDGET ---
+        self.kpi_receita.setValue(fmt_currency(receita))
+        self.kpi_despesas.setValue(fmt_currency(despesa))
+        self.kpi_lucro.setValue(fmt_currency(lucro))
 
     def _rebuild_tables(self):
-        """Atualiza a tabela com os novos dados."""
         set_table_from_df(self.table_financas, self.df_financas)
 
     def _rebuild_charts(self):
-        """Remove os gráficos antigos e desenha os novos."""
-        # Limpa canvas antigo (se existir)
         if self.canvas_revexp is not None:
             self.layout_revexp.removeWidget(self.canvas_revexp)
             self.canvas_revexp.setParent(None)
-            self.canvas_revexp = None
         if self.canvas_pie is not None:
             self.layout_pie.removeWidget(self.canvas_pie)
             self.canvas_pie.setParent(None)
-            self.canvas_pie = None
 
         df = self.df_financas
         
-        # --- Gráfico 1: Receita vs. Despesa (barras) ---
+        # Gráfico 1: Receita vs. Despesa
         fig1 = Figure(figsize=(5.8, 3.8), dpi=100)
         ax1 = fig1.add_subplot(111)
         
@@ -159,7 +152,7 @@ class DashboardFinancas(QWidget):
         self.canvas_revexp = FigureCanvas(fig1)
         self.layout_revexp.addWidget(self.canvas_revexp)
 
-        # --- Gráfico 2: Pizza de despesas por categoria ---
+        # Gráfico 2: Pizza de despesas
         fig2 = Figure(figsize=(5.2, 3.8), dpi=100)
         ax2 = fig2.add_subplot(111)
         
@@ -175,45 +168,8 @@ class DashboardFinancas(QWidget):
         self.layout_pie.addWidget(self.canvas_pie)
 
     # ------------------------------------------------------------------
-    # Helpers
-    # ------------------------------------------------------------------
-    def _create_kpi_box(self, title, value_color=None):
-        box = QFrame()
-        box.setObjectName("KPIFrame")
-        lay = QVBoxLayout(box)
-        lay.setContentsMargins(12, 10, 12, 10)
-
-        t = QLabel(title)
-        t.setObjectName("KPITitleLabel")
-        t.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        v = QLabel("—")
-        v.setObjectName("KPIValueLabel")
-        v.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        if value_color:
-            v.setStyleSheet(f"color: {value_color};")
-
-        lay.addWidget(t)
-        lay.addWidget(v)
-        box._value_label = v
-        return box
-
-    def _set_kpi_value(self, kpi_frame: QFrame, text: str):
-        if kpi_frame and hasattr(kpi_frame, "_value_label"):
-            kpi_frame._value_label.setText(text)
-
-    @staticmethod
-    def _fmt_currency(v):
-        try:
-            return f"R$ {float(v):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        except (Exception,):
-            return "R$ 0,00"
-
-    # ------------------------------------------------------------------
     # Tema
     # ------------------------------------------------------------------
     def update_theme(self, new_theme_name):
         self.theme_name = new_theme_name
-        # Apenas redesenha os gráficos, que podem ter cores dependentes do tema.
-        # O resto da UI é atualizado pelo stylesheet global do app.
         self._rebuild_charts()

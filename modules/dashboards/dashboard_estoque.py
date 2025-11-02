@@ -1,15 +1,15 @@
 # modules/dashboards/dashboard_estoque.py
+import pandas as pd
+
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
     QFrame, QTableView
 )
-from PyQt6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-import pandas as pd
-
 from modules.ui.qt_utils import set_table_from_df
-
+from modules.ui.widgets.kpi_widget import KPIWidget
+from modules.utils.formatters import fmt_currency
 
 class DashboardEstoque(QWidget):
     """
@@ -62,9 +62,9 @@ class DashboardEstoque(QWidget):
         kpi_grid = QGridLayout()
         kpi_grid.setSpacing(16)
 
-        self.kpi_produtos = self._create_kpi_box("Produtos Únicos")
-        self.kpi_valor_estoque = self._create_kpi_box("Valor do Estoque (Custo)", value_color="#2E8B57")
-        self.kpi_baixo = self._create_kpi_box("Itens com Estoque Baixo", value_color="#C21807")
+        self.kpi_produtos = KPIWidget("Produtos Únicos")
+        self.kpi_valor_estoque = KPIWidget("Valor do Estoque (Custo)", value_color="#2E8B57")
+        self.kpi_baixo = KPIWidget("Itens com Estoque Baixo", value_color="#C21807")
 
         kpi_grid.addWidget(self.kpi_produtos,      0, 0)
         kpi_grid.addWidget(self.kpi_valor_estoque, 0, 1)
@@ -136,9 +136,9 @@ class DashboardEstoque(QWidget):
             baixo = int((q2 <= n2).sum())
 
         # escreve nos cartões
-        self._set_kpi_value(self.kpi_produtos, str(total))
-        self._set_kpi_value(self.kpi_valor_estoque, self._fmt_currency(valor))
-        self._set_kpi_value(self.kpi_baixo, str(baixo))
+        self.kpi_produtos.setValue(str(total))
+        self.kpi_valor_estoque.setValue(fmt_currency(valor))
+        self.kpi_baixo.setValue(str(baixo))
 
     def _rebuild_tables(self):
         set_table_from_df(self.table_estoque, self.df_estoque)
@@ -182,44 +182,6 @@ class DashboardEstoque(QWidget):
         fig2.tight_layout()
         self.canvas_baixo = FigureCanvas(fig2)
         self.layout_baixo.addWidget(self.canvas_baixo)
-
-    # ------------------------------------------------------------------
-    # Helpers
-    # ------------------------------------------------------------------
-    def _create_kpi_box(self, title, value_color=None):
-        box = QFrame()
-        box.setObjectName("KPIFrame")
-        lay = QVBoxLayout(box)
-        lay.setContentsMargins(12, 10, 12, 10)
-
-        t = QLabel(title)
-        t.setObjectName("KPITitleLabel")
-        t.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        v = QLabel("—")
-        v.setObjectName("KPIValueLabel")
-        v.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        if value_color:
-            v.setStyleSheet(f"color: {value_color};")
-
-        lay.addWidget(t)
-        lay.addWidget(v)
-
-        # guardamos a referência do label no próprio frame
-        box._value_label = v
-        return box
-
-    def _set_kpi_value(self, kpi_frame: QFrame, text: str):
-        if kpi_frame is None or not hasattr(kpi_frame, "_value_label"):
-            return
-        kpi_frame._value_label.setText(text)
-
-    @staticmethod
-    def _fmt_currency(v):
-        try:
-            return f"R$ {float(v):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        except Exception:
-            return "R$ 0,00"
 
     # Tema (opcional)
     def update_theme(self, new_theme_name):

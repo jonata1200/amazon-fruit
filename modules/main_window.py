@@ -8,7 +8,7 @@ from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
 
 from .app_styles import get_stylesheet
-from modules.widgets.period_bar import PeriodBar
+from modules.ui.widgets.period_bar import PeriodBar
 from modules.data_handler import DataHandler
 
 from .dashboards.dashboard_geral import DashboardGeral

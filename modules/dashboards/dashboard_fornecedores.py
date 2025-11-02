@@ -4,20 +4,21 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QFrame, QTableView
 )
-from PyQt6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 import pandas as pd
 import math
 
+# --- NOVAS IMPORTAÇÕES CENTRALIZADAS ---
 from modules.ui.qt_utils import set_table_from_df
+from modules.ui.widgets.kpi_widget import KPIWidget
+from modules.utils.formatters import fmt_rating
 
 
 class DashboardFornecedores(QWidget):
     """
     Dashboard de Fornecedores.
-    - Respeita período global via DataHandler.load_table("Fornecedores")
-    - KPIs + Tabela + Gráficos (Avaliação, Tipos de Produtos)
+    - Utiliza componentes reutilizáveis (KPIWidget) e formatadores centralizados.
     - Segue o ciclo de vida padronizado (build_ui + refresh).
     """
 
@@ -52,17 +53,16 @@ class DashboardFornecedores(QWidget):
         root.setContentsMargins(20, 20, 20, 20)
         root.setSpacing(16)
 
-        # Título
         title = QLabel("Dashboard de Fornecedores")
         title.setStyleSheet("font-size: 24px; font-weight: bold;")
         root.addWidget(title)
 
-        # ===== KPIs =====
+        # ===== KPIs (Agora usando KPIWidget) =====
         kpi_layout = QHBoxLayout()
         kpi_layout.setSpacing(16)
 
-        self.kpi_total = self._create_kpi_box("Total de Fornecedores")
-        self.kpi_avaliacao_media = self._create_kpi_box("Avaliação Média")
+        self.kpi_total = KPIWidget("Total de Fornecedores")
+        self.kpi_avaliacao_media = KPIWidget("Avaliação Média")
 
         kpi_layout.addWidget(self.kpi_total)
         kpi_layout.addWidget(self.kpi_avaliacao_media)
@@ -96,18 +96,15 @@ class DashboardFornecedores(QWidget):
     # Ciclo de Atualização de Dados
     # ------------------------------------------------------------------
     def refresh(self):
-        """Orquestra a atualização completa do dashboard."""
         self._reload_data()
         self._rebuild_kpis()
         self._rebuild_tables()
         self._rebuild_charts()
 
     def _reload_data(self):
-        """Carrega/recarrega os dados do DataHandler."""
         self.df_fornecedores = self.data_handler.load_table("Fornecedores")
 
     def _rebuild_kpis(self):
-        """Calcula e atualiza os valores dos cards de KPI."""
         df = self.df_fornecedores if self.df_fornecedores is not None else pd.DataFrame()
 
         total = len(df)
@@ -115,28 +112,24 @@ class DashboardFornecedores(QWidget):
         if not df.empty and 'Avaliacao' in df.columns:
             aval_media = pd.to_numeric(df['Avaliacao'], errors='coerce').mean()
 
-        self._set_kpi_value(self.kpi_total, str(total))
-        self._set_kpi_value(self.kpi_avaliacao_media, self._fmt_rating(aval_media))
+        # --- ATUALIZAÇÃO USANDO O MÉTODO .setValue() DO KPIWIDGET ---
+        self.kpi_total.setValue(str(total))
+        self.kpi_avaliacao_media.setValue(fmt_rating(aval_media))
 
     def _rebuild_tables(self):
-        """Atualiza a tabela com os novos dados."""
         set_table_from_df(self.table_fornecedores, self.df_fornecedores)
 
     def _rebuild_charts(self):
-        """Remove os gráficos antigos e desenha os novos."""
-        # Limpa canvases antigos (se existirem)
         if self.canvas_rating is not None:
             self.layout_rating.removeWidget(self.canvas_rating)
             self.canvas_rating.setParent(None)
-            self.canvas_rating = None
         if self.canvas_types is not None:
             self.layout_types.removeWidget(self.canvas_types)
             self.canvas_types.setParent(None)
-            self.canvas_types = None
 
         df = self.df_fornecedores
 
-        # --- Gráfico 1: Avaliação (barra horizontal) ---
+        # Gráfico 1: Avaliação
         fig1 = Figure(figsize=(6.2, 3.8), dpi=100)
         ax1 = fig1.add_subplot(111)
         if not df.empty and {'Nome_Fornecedor', 'Avaliacao'}.issubset(df.columns):
@@ -151,7 +144,7 @@ class DashboardFornecedores(QWidget):
         self.canvas_rating = FigureCanvas(fig1)
         self.layout_rating.addWidget(self.canvas_rating)
 
-        # --- Gráfico 2: Tipos de produtos (pizza) ---
+        # Gráfico 2: Tipos de produtos
         fig2 = Figure(figsize=(5.2, 3.8), dpi=100)
         ax2 = fig2.add_subplot(111)
         if not df.empty and 'Produtos_Fornecidos' in df.columns:
@@ -167,40 +160,6 @@ class DashboardFornecedores(QWidget):
         fig2.tight_layout()
         self.canvas_types = FigureCanvas(fig2)
         self.layout_types.addWidget(self.canvas_types)
-
-    # ------------------------------------------------------------------
-    # Helpers
-    # ------------------------------------------------------------------
-    def _create_kpi_box(self, title, value_color=None):
-        box = QFrame()
-        box.setObjectName("KPIFrame")
-        lay = QVBoxLayout(box)
-        lay.setContentsMargins(12, 10, 12, 10)
-
-        t = QLabel(title)
-        t.setObjectName("KPITitleLabel")
-        t.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        v = QLabel("—")
-        v.setObjectName("KPIValueLabel")
-        v.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        if value_color:
-            v.setStyleSheet(f"color: {value_color};")
-
-        lay.addWidget(t)
-        lay.addWidget(v)
-        box._value_label = v
-        return box
-
-    def _set_kpi_value(self, kpi_frame: QFrame, text: str):
-        if kpi_frame and hasattr(kpi_frame, "_value_label"):
-            kpi_frame._value_label.setText(text)
-
-    @staticmethod
-    def _fmt_rating(v):
-        if v is None or math.isnan(v):
-            return "—"
-        return f"{float(v):.1f} / 5 ★"
 
     # ------------------------------------------------------------------
     # Tema
