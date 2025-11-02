@@ -64,7 +64,7 @@ class DashboardGeral(QWidget):
         title_label = QLabel("Visão Geral do Negócio")
         title_label.setStyleSheet("font-size: 28px; font-weight: bold; color: '#FF8C00';")
 
-        export_button = QPushButton("📄 Gerar Relatório Completo")
+        export_button = QPushButton("📄 Gerar Relatório")
         export_button.setObjectName("ActionButton")
         export_button.clicked.connect(self.export_full_report)
         export_button.setFixedWidth(220)

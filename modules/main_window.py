@@ -101,13 +101,19 @@ class MainWindow(QMainWindow):
         self.content_stack.addWidget(self.dash_fornecedores)
         self.content_stack.addWidget(self.dash_rh)
 
-        # Barra de período no topo do painel direito
+        # ===== Conteúdo (direita) =====
         right_panel = QWidget()
         right_layout = QVBoxLayout(right_panel)
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(0)
 
+        # 1) cria a barra
         self.period_bar = PeriodBar(on_apply=self._on_period_apply)
+
+        # 2) aplica o tema NA BARRA agora que ela existe
+        self.period_bar.set_theme(self.current_theme)
+
+        # 3) pilha de dashboards (já criados acima)
         right_layout.addWidget(self.period_bar)     # topo
         right_layout.addWidget(self.content_stack)  # abaixo da barra
 
@@ -161,12 +167,15 @@ class MainWindow(QMainWindow):
             self.theme_button.setText("☀️ Tema Claro")
 
         self.app.setStyleSheet(get_stylesheet(self.current_theme))
+        # atualizar barra de período depois de trocar o tema do app
+        if hasattr(self, "period_bar"):
+            self.period_bar.set_theme(self.current_theme)
 
-        # Atualiza todos os dashboards
+        # atualizar dashboards
         for i in range(self.content_stack.count()):
-            dashboard = self.content_stack.widget(i)
-            if hasattr(dashboard, 'update_theme'):
-                dashboard.update_theme(self.current_theme)
+            dash = self.content_stack.widget(i)
+            if hasattr(dash, 'update_theme'):
+                dash.update_theme(self.current_theme)
 
     # ---------------------------------------------------------
     # Filtro de período (callback da PeriodBar)
