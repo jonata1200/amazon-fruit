@@ -70,7 +70,6 @@ class MainWindow(QMainWindow):
         self.btn_publico_alvo = self.create_nav_button("Público-Alvo")
         self.btn_fornecedores = self.create_nav_button("Fornecedores")
         self.btn_rh = self.create_nav_button("Recursos Humanos")
-        self.btn_canais_venda = self.create_nav_button("Canais de Venda")
         self.btn_insights = self.create_nav_button("Insights")
 
         nav_layout.addWidget(self.btn_geral)
@@ -79,7 +78,6 @@ class MainWindow(QMainWindow):
         nav_layout.addWidget(self.btn_publico_alvo)
         nav_layout.addWidget(self.btn_fornecedores)
         nav_layout.addWidget(self.btn_rh)
-        nav_layout.addWidget(self.btn_canais_venda)
         nav_layout.addWidget(self.btn_insights)
         nav_layout.addStretch()
 
@@ -108,7 +106,6 @@ class MainWindow(QMainWindow):
         self.content_stack.addWidget(self.dash_publico_alvo)
         self.content_stack.addWidget(self.dash_fornecedores)
         self.content_stack.addWidget(self.dash_rh)
-        self.content_stack.addWidget(self.dash_canais_venda)
         self.content_stack.addWidget(self.dash_insights)
 
         # ===== Conteúdo (direita) =====
@@ -134,7 +131,6 @@ class MainWindow(QMainWindow):
         self.btn_publico_alvo.clicked.connect(self.switch_to_publico_alvo)
         self.btn_fornecedores.clicked.connect(self.switch_to_fornecedores)
         self.btn_rh.clicked.connect(self.switch_to_rh)
-        self.btn_canais_venda.clicked.connect(self.switch_to_canais_venda)
         self.btn_insights.clicked.connect(self.switch_to_insights)
 
         # Estado inicial
@@ -161,8 +157,7 @@ class MainWindow(QMainWindow):
     def update_button_states(self, clicked_button):
         all_buttons = [
             self.btn_geral, self.btn_estoque, self.btn_financas,
-            self.btn_publico_alvo, self.btn_fornecedores, self.btn_rh,
-            self.btn_canais_venda, self.btn_insights
+            self.btn_publico_alvo, self.btn_fornecedores, self.btn_rh, self.btn_insights
         ]
         for b in all_buttons:
             if b is not clicked_button:
@@ -215,7 +210,6 @@ class MainWindow(QMainWindow):
             self.dash_publico_alvo,
             self.dash_fornecedores,
             self.dash_rh,
-            self.dash_canais_venda,
             self.dash_insights
         ]
 
@@ -253,10 +247,6 @@ class MainWindow(QMainWindow):
     def switch_to_rh(self):
         self.content_stack.setCurrentWidget(self.dash_rh)
         self.update_button_states(self.btn_rh)
-
-    def switch_to_canais_venda(self):
-        self.content_stack.setCurrentWidget(self.dash_canais_venda)
-        self.update_button_states(self.btn_canais_venda)
 
     def switch_to_insights(self):
         self.content_stack.setCurrentWidget(self.dash_insights)
