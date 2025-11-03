@@ -79,7 +79,42 @@ class DashboardFinancas(QWidget):
         self.kpi_lucro.setValue(fmt_currency(s.get('lucro', 0.0)))
 
     def _rebuild_tables(self):
-        set_table_from_df(self.table_financas, self.df_financas)
+        df = self.df_financas.copy()
+
+        # 1) Formatar campos
+        if "Data" in df.columns:
+            df["Data"] = (
+                pd.to_datetime(df["Data"], errors="coerce")
+                .dt.strftime("%d/%m/%Y")
+            )
+        if "Valor" in df.columns:
+            df["Valor"] = (
+                pd.to_numeric(df["Valor"], errors="coerce").fillna(0.0)
+                .map(lambda v: f"R$ {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+            )
+
+        # 2) Ocultar colunas indesejadas
+        drop_cols = [c for c in ["ID_Lancamento", "Ano", "Mes"] if c in df.columns]
+        if drop_cols:
+            df = df.drop(columns=drop_cols)
+
+        # 3) Reordenar colunas para: Descricao, Categoria, Tipo, Metodo_Pagamento, Valor, Data
+        ordem = [c for c in ["Descricao", "Categoria", "Tipo", "Metodo_Pagamento", "Valor", "Data"] if c in df.columns]
+        outras = [c for c in df.columns if c not in ordem]
+        df = df[ordem + outras] if ordem else df
+
+        # 4) Renomear cabeçalhos para PT-BR correto (apenas exibição)
+        rename_map = {
+            "Descricao": "Descrição",
+            "Categoria": "Categoria",
+            "Tipo": "Tipo",
+            "Metodo_Pagamento": "Método de Pagamento",
+            "Valor": "Valor",
+            "Data": "Data",
+        }
+        df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
+
+        set_table_from_df(self.table_financas, df)
 
     def _rebuild_charts(self):
         if self.canvas_revexp: self.layout_revexp.removeWidget(self.canvas_revexp); self.canvas_revexp.setParent(None)

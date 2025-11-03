@@ -75,7 +75,53 @@ class DashboardEstoque(QWidget):
         self.kpi_baixo.setValue(str(baixo))
 
     def _rebuild_tables(self):
-        set_table_from_df(self.table_estoque, self.df_estoque)
+        df = self.df_estoque.copy()
+
+        # 1) Formatar datas e valores
+        if "Data_Validade" in df.columns:
+            df["Data_Validade"] = (
+                pd.to_datetime(df["Data_Validade"], errors="coerce")
+                .dt.strftime("%d/%m/%Y")
+            )
+        for col in ["Preco_Custo", "Preco_Venda"]:
+            if col in df.columns:
+                df[col] = (
+                    pd.to_numeric(df[col], errors="coerce").fillna(0.0)
+                    .map(lambda v: f"R$ {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+                )
+
+        # 2) Ocultar colunas indesejadas
+        drop_cols = [c for c in [
+            "ID_Produto", "Data_Snapshot",       # já ocultadas antes (mantemos)
+            "ID_Fornecedor", "Ano", "Mes"        # novas solicitações
+        ] if c in df.columns]
+        if drop_cols:
+            df = df.drop(columns=drop_cols)
+
+        # 3) Reordenar colunas
+        ordem = [c for c in [
+            "Nome_Produto", "Categoria",
+            "Quantidade_Estoque", "Nivel_Minimo_Estoque",
+            "Preco_Custo", "Preco_Venda",
+            "Data_Validade"
+        ] if c in df.columns]
+        outras = [c for c in df.columns if c not in ordem]
+        if ordem:
+            df = df[ordem + outras]
+
+        # 4) Cabeçalhos em PT-BR
+        rename_map = {
+            "Nome_Produto": "Nome do Produto",
+            "Categoria": "Categoria",
+            "Quantidade_Estoque": "Quantidade em Estoque",
+            "Nivel_Minimo_Estoque": "Nível Mínimo de Estoque",
+            "Preco_Custo": "Preço de Custo",
+            "Preco_Venda": "Preço de Venda",
+            "Data_Validade": "Data de Validade",
+        }
+        df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
+
+        set_table_from_df(self.table_estoque, df)
 
     def _rebuild_charts(self):
         if self.canvas_categoria: self.layout_categoria.removeWidget(self.canvas_categoria); self.canvas_categoria.setParent(None); self.canvas_categoria=None
