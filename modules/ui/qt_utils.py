@@ -1,6 +1,6 @@
 # modules/ui/qt_utils.py
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
-from PyQt6.QtWidgets import QTableView
+from PyQt6.QtWidgets import QTableView, QHeaderView
 import pandas as pd
 
 def df_to_model(df: pd.DataFrame) -> QStandardItemModel:
@@ -16,7 +16,10 @@ def df_to_model(df: pd.DataFrame) -> QStandardItemModel:
 
 def set_table_from_df(table: QTableView, df: pd.DataFrame):
     model = df_to_model(df)
-    table.setModel(model)
+    
     header = table.horizontalHeader()
-    from PyQt6.QtWidgets import QHeaderView
     header.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+    
+    table.setModel(model)
+    table.setAlternatingRowColors(True)
+    table.horizontalHeader().setStretchLastSection(False)
