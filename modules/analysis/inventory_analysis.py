@@ -1,5 +1,22 @@
 # modules/analysis/inventory_analysis.py
+from modules.utils.data_handler import DataRepository
 import pandas as pd
+
+repo = DataRepository()
+
+def snapshot():
+    return repo.load_estoque_snapshot()
+
+def estoque_por_mes():
+    df = repo.load_estoque_snapshot()
+    df["AnoMes"] = df["Data_Snapshot"].dt.to_period("M").astype(str)
+    return (df.groupby(["AnoMes"], as_index=False)["Quantidade_Estoque"]
+              .sum().rename(columns={"Quantidade_Estoque":"Qtd_Total"}))
+
+def rupturas():
+    df = repo.load_estoque_snapshot()
+    ult = df.sort_values("Data_Snapshot").groupby("ID_Produto").tail(1)
+    return ult[ult["Quantidade_Estoque"] < ult["Nivel_Minimo_Estoque"]]
 
 def analyze_inventory_kpis(df: pd.DataFrame) -> dict:
     """Analisa e retorna os principais KPIs do DataFrame de estoque."""

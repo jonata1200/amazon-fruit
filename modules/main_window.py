@@ -1,4 +1,5 @@
 # modules/main_window.py
+from pathlib import Path
 
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QLabel, QVBoxLayout,
@@ -9,7 +10,7 @@ from PyQt6.QtCore import Qt
 
 from .app_styles import get_stylesheet
 from modules.ui.widgets.period_bar import PeriodBar
-from modules.data_handler import DataHandler
+from modules.utils.data_handler import DataHandler
 
 from .dashboards.dashboard_geral import DashboardGeral
 from .dashboards.dashboard_estoque import DashboardEstoque
@@ -17,8 +18,8 @@ from .dashboards.dashboard_financas import DashboardFinancas
 from .dashboards.dashboard_publico_alvo import DashboardPublicoAlvo
 from .dashboards.dashboard_fornecedores import DashboardFornecedores
 from .dashboards.dashboard_recursos_humanos import DashboardRecursosHumanos
-from .dashboards.dashboard_canais_venda import DashboardCanaisVenda
 from .dashboards.dashboard_insights import DashboardInsights
+
 
 class MainWindow(QMainWindow):
     """
@@ -35,8 +36,9 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 1280, 720)
         self.app.setStyleSheet(get_stylesheet(self.current_theme))
 
-        # --- Data handler único ---
-        self.data_handler = DataHandler("amazon_fruit.db")
+        # --- Data handler: BASE SEMPRE = <raiz>/data ---
+        data_dir = Path(__file__).resolve().parents[1] / "data"
+        self.data_handler = DataHandler(base_dir=data_dir)
 
         # --- Layout principal (horizontal): nav à esquerda, conteúdo à direita ---
         main_layout = QHBoxLayout()
@@ -71,7 +73,6 @@ class MainWindow(QMainWindow):
         self.btn_canais_venda = self.create_nav_button("Canais de Venda")
         self.btn_insights = self.create_nav_button("Insights")
 
-
         nav_layout.addWidget(self.btn_geral)
         nav_layout.addWidget(self.btn_estoque)
         nav_layout.addWidget(self.btn_financas)
@@ -99,7 +100,6 @@ class MainWindow(QMainWindow):
         self.dash_publico_alvo = DashboardPublicoAlvo(self.data_handler, self.current_theme)
         self.dash_fornecedores = DashboardFornecedores(self.data_handler, self.current_theme)
         self.dash_rh = DashboardRecursosHumanos(self.data_handler, self.current_theme)
-        self.dash_canais_venda = DashboardCanaisVenda(self.data_handler, self.current_theme)
         self.dash_insights = DashboardInsights(self.data_handler, self.current_theme)
 
         self.content_stack.addWidget(self.dash_geral)
@@ -194,17 +194,20 @@ class MainWindow(QMainWindow):
     # Filtro de período (callback da PeriodBar)
     # ---------------------------------------------------------
     def _on_period_apply(self, start_iso: str, end_iso: str):
+        # garante handler válido e fixo na pasta data
         if not hasattr(self, "data_handler") or self.data_handler is None:
-            self.data_handler = DataHandler("amazon_fruit.db")
+            data_dir = Path(__file__).resolve().parents[1] / "data"
+            self.data_handler = DataHandler(base_dir=data_dir)
 
-        self.data_handler.set_period(start_iso, end_iso)
+        # se o DataHandler tiver set_period/clear_period, usa
+        if hasattr(self.data_handler, "set_period"):
+            self.data_handler.set_period(start_iso, end_iso)
 
         for dash in self._dashboards():
             if hasattr(dash, "refresh"):
                 dash.refresh()
 
     def _dashboards(self):
-        # Use os atributos reais criados acima (dash_*)
         return [
             self.dash_geral,
             self.dash_estoque,
@@ -218,7 +221,8 @@ class MainWindow(QMainWindow):
 
     def clear_period(self):
         if hasattr(self, "data_handler") and self.data_handler is not None:
-            self.data_handler.clear_period()
+            if hasattr(self.data_handler, "clear_period"):
+                self.data_handler.clear_period()
         for dash in self._dashboards():
             if hasattr(dash, "refresh"):
                 dash.refresh()

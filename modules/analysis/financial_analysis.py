@@ -1,5 +1,26 @@
 # modules/analysis/financial_analysis.py
+from modules.utils.data_handler import DataRepository
 import pandas as pd
+
+repo = DataRepository()
+
+def df_base():
+    return repo.load_financas()
+
+def kpis_mensais():
+    df = repo.load_financas()
+    df["AnoMes"] = df["Data"].dt.to_period("M").astype(str)
+    tot = df.groupby(["AnoMes","Tipo"], as_index=False)["Valor"].sum()
+    pivot = tot.pivot(index="AnoMes", columns="Tipo", values="Valor").fillna(0)
+    pivot["Saldo"] = pivot.get("Receita",0) - pivot.get("Despesa",0)
+    return pivot.reset_index()
+
+def top5_categorias(periodo:str|None=None):
+    df = repo.load_financas()
+    if periodo:
+        df = df[df["Data"].dt.to_period("M").astype(str).eq(periodo)]
+    return (df.groupby(["Tipo","Categoria"], as_index=False)["Valor"]
+              .sum().sort_values("Valor", ascending=False).head(5))
 
 def calculate_financial_summary(df: pd.DataFrame) -> dict:
     """Calcula o resumo financeiro (receita, despesa, lucro) a partir de um DataFrame."""

@@ -1,6 +1,14 @@
 # modules/analysis/suppliers_analysis.py
 import pandas as pd
-import math
+from modules.utils.data_handler import DataRepository
+
+repo = DataRepository()
+
+def ranking_fornecedores(top=10):
+    df = repo.load_fornecedores()
+    return df.sort_values("Avaliacao", ascending=False).head(top)[
+        ["ID_Fornecedor","Nome_Fornecedor","Avaliacao","Cidade","Estado","Produtos_Fornecidos"]
+    ]
 
 def analyze_suppliers_kpis(df: pd.DataFrame) -> dict:
     """

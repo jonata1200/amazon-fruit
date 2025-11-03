@@ -1,5 +1,17 @@
 # modules/analysis/hr_analysis.py
+from modules.utils.data_handler import DataRepository
 import pandas as pd
+
+repo = DataRepository()
+
+def headcount_por_departamento():
+    df = repo.load_rh()
+    return df.groupby("Departamento", as_index=False)["ID_Funcionario"].count() \
+             .rename(columns={"ID_Funcionario":"Headcount"})
+
+def massa_salarial():
+    df = repo.load_rh()
+    return df["Salario"].sum()
 
 def analyze_hr_kpis(df: pd.DataFrame) -> dict:
     """
