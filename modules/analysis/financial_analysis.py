@@ -30,8 +30,8 @@ def calculate_financial_summary(df: pd.DataFrame) -> dict:
     t = df['Tipo'].astype(str).str.lower()
     v = pd.to_numeric(df['Valor'], errors='coerce').fillna(0.0)
     
-    receita = float(v[t.str.contains('entrada', case=False)].sum())
-    despesa = float(v[t.str.contains('saída', case=False)].sum())
+    receita = float(v[t.str.contains('entrada|receita', case=False, regex=True)].sum())
+    despesa = float(v[t.str.contains('saída|despesa', case=False, regex=True)].sum())
     lucro = receita - despesa
 
     return {'receita': receita, 'despesa': despesa, 'lucro': lucro}

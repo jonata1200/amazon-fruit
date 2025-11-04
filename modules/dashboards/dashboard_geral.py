@@ -12,7 +12,7 @@ import pandas as pd
 from ..report.report_generator import ReportGenerator
 from modules.ui.widgets.kpi_widget import KPIWidget
 from modules.utils.formatters import fmt_currency
-# --- NOVA IMPORTAÇÃO DA CAMADA DE ANÁLISE ---
+# --- CAMADA DE ANÁLISE ---
 from modules.analysis.financial_analysis import calculate_financial_summary
 from modules.analysis.inventory_analysis import analyze_inventory_kpis
 
@@ -20,8 +20,8 @@ from modules.analysis.inventory_analysis import analyze_inventory_kpis
 class DashboardGeral(QWidget):
     """
     Visão geral do negócio.
-    - Utiliza a camada de análise para obter os dados calculados.
-    - Focado apenas na apresentação dos dados.
+    - Usa a camada de análise para KPIs.
+    - Gráfico robusto (converte tipos e trata vazio).
     """
     def __init__(self, data_handler, theme_name='dark'):
         super().__init__()
@@ -42,7 +42,7 @@ class DashboardGeral(QWidget):
         self.kpi_total_clientes = None
         self.kpi_total_funcionarios = None
 
-        # Canvas do gráfico
+        # Canvas do gráfico (receita x despesa)
         self.canvas_revexp = None
         self.chart_holder_layout = None
 
@@ -60,7 +60,7 @@ class DashboardGeral(QWidget):
         # Header
         header_layout = QHBoxLayout()
         title_label = QLabel("Visão Geral do Negócio")
-        title_label.setStyleSheet("font-size: 28px; font-weight: bold; color: '#FF8C00';")
+        title_label.setStyleSheet("font-size: 28px; font-weight: bold; color: #FF8C00;")
 
         export_button = QPushButton("📄 Gerar Relatório")
         export_button.setObjectName("ActionButton")
@@ -97,7 +97,7 @@ class DashboardGeral(QWidget):
         self.chart_holder_layout = QVBoxLayout(chart_holder)
         self.chart_holder_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(chart_holder)
-        main_layout.addStretch() # Empurra o gráfico para cima
+        main_layout.addStretch()  # Empurra o gráfico para cima
 
     # ---------------------------------------------------------------------
     # Ciclo de atualização
@@ -105,48 +105,79 @@ class DashboardGeral(QWidget):
     def refresh(self):
         self._reload_data()
         self._rebuild_kpis()
-        self._rebuild_charts()
+        self._rebuild_charts()  # agora o gráfico é sempre montado aqui
 
     def _reload_data(self):
+        # Carrega tabelas cruas (sem formatação de exibição)
         self.df_financas = self.data_handler.load_table("Financas")
         self.df_estoque = self.data_handler.load_table("Estoque")
         self.df_clientes = self.data_handler.load_table("Publico_Alvo")
         self.df_rh = self.data_handler.load_table("Recursos_Humanos")
 
     def _rebuild_kpis(self):
-        """Usa a camada de análise para obter os KPIs e os exibe."""
+        """Usa a camada de análise para obter os KPIs e exibe."""
         # Análise Financeira
         financial_data = calculate_financial_summary(self.df_financas)
-        self.kpi_lucro.setValue(fmt_currency(financial_data['lucro']))
-        self.kpi_receita.setValue(fmt_currency(financial_data['receita']))
-        
+        self.kpi_lucro.setValue(fmt_currency(financial_data.get('lucro', 0.0)))
+        self.kpi_receita.setValue(fmt_currency(financial_data.get('receita', 0.0)))
+
         # Análise de Estoque
         inventory_data = analyze_inventory_kpis(self.df_estoque)
-        self.kpi_baixo.setValue(str(inventory_data['low_stock_count']))
-        self.kpi_valor_estoque.setValue(fmt_currency(inventory_data['total_value']))
-        
+        self.kpi_baixo.setValue(str(inventory_data.get('low_stock_count', 0)))
+        self.kpi_valor_estoque.setValue(fmt_currency(inventory_data.get('total_value', 0.0)))
+
         # Contagens diretas
-        total_clientes = len(self.df_clientes) if self.df_clientes is not None else 0
-        total_funcionarios = len(self.df_rh) if self.df_rh is not None else 0
+        total_clientes = len(self.df_clientes) if isinstance(self.df_clientes, pd.DataFrame) else 0
+        total_funcionarios = len(self.df_rh) if isinstance(self.df_rh, pd.DataFrame) else 0
         self.kpi_total_clientes.setValue(str(total_clientes))
         self.kpi_total_funcionarios.setValue(str(total_funcionarios))
 
     def _rebuild_charts(self):
-        """Usa a camada de análise para obter os dados do gráfico."""
+        """Monta o gráfico Receita vs. Despesas de forma robusta."""
+        # Limpa canvas anterior, se existir
         if self.canvas_revexp is not None:
             self.chart_holder_layout.removeWidget(self.canvas_revexp)
             self.canvas_revexp.setParent(None)
+            self.canvas_revexp = None
 
-        # Obter dados da camada de análise
-        financial_data = calculate_financial_summary(self.df_financas)
-        receita = financial_data['receita']
-        despesa = financial_data['despesa']
+        # Prepara dados
+        df = self.df_financas.copy()
+        if not isinstance(df, pd.DataFrame):
+            df = pd.DataFrame()
+
+        # Converte tipos
+        if "Data" in df.columns:
+            df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
+        if "Valor" in df.columns:
+            df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce").fillna(0.0)
+
+        # Filtro de período (aceita dict {'start','end'} ou tupla (start, end))
+        start = end = None
+        if hasattr(self.data_handler, "get_period"):
+            p = self.data_handler.get_period()
+            if isinstance(p, dict):
+                start, end = p.get("start"), p.get("end")
+            elif isinstance(p, (list, tuple)) and len(p) >= 2:
+                start, end = p[0], p[1]
+        if start and end and "Data" in df.columns:
+            start = pd.to_datetime(start, errors="coerce")
+            end = pd.to_datetime(end, errors="coerce")
+            df = df[(df["Data"] >= start) & (df["Data"] <= end)]
+
+        # Agrega receita/despesa
+        receita = 0.0
+        despesa = 0.0
+        if {"Tipo", "Valor"}.issubset(df.columns):
+            tipo = df["Tipo"].astype(str).str.lower()
+            receita = df.loc[tipo.eq("receita"), "Valor"].sum()
+            despesa = df.loc[tipo.eq("despesa"), "Valor"].sum()
 
         # Cores por tema
         text_color = 'white' if self.theme_name == 'dark' else 'black'
         bg_color = '#2E2E2E' if self.theme_name == 'dark' else '#F0F0F0'
 
-        fig = Figure(figsize=(5.8, 3.6), dpi=100)
+        # Figura
+        fig = Figure(figsize=(5.8, 3.6), dpi=100, tight_layout=True)
         fig.patch.set_facecolor(bg_color)
         ax = fig.add_subplot(111)
         ax.set_facecolor(bg_color)
@@ -159,20 +190,33 @@ class DashboardGeral(QWidget):
             spine.set_color(text_color)
         ax.grid(axis='y', color='#999999', alpha=0.25)
 
-        fig.tight_layout()
+        # Rótulos no topo das barras (formato BRL)
+        def brl(n):
+            return f"R$ {n:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        for x, v in zip([0, 1], [receita, despesa]):
+            ax.text(x, v, brl(v), ha="center", va="bottom", fontsize=9, color=text_color)
+
         self.canvas_revexp = FigureCanvas(fig)
         self.chart_holder_layout.addWidget(self.canvas_revexp)
 
     # ---------------------------------------------------------------------
-    # Ações e Tema
+    # Tema e Relatório
     # ---------------------------------------------------------------------
     def update_theme(self, new_theme_name):
         self.theme_name = new_theme_name
         self._rebuild_charts()
 
     def export_full_report(self):
-        period = self.data_handler.get_period()
-        suffix = f"_{period[0]}_a_{period[1]}" if period else ""
+        # Aceita dict {'start','end'} ou tupla (start, end)
+        period = self.data_handler.get_period() if hasattr(self.data_handler, "get_period") else None
+        if isinstance(period, dict):
+            start, end = period.get("start"), period.get("end")
+        elif isinstance(period, (list, tuple)) and len(period) >= 2:
+            start, end = period[0], period[1]
+        else:
+            start = end = None
+
+        suffix = f"_{start}_a_{end}" if (start and end) else ""
         default_name = f"Relatorio_Amazon_Fruit{suffix}.pdf"
 
         file_path, _ = QFileDialog.getSaveFileName(

@@ -66,32 +66,30 @@ class DashboardPublicoAlvo(QWidget):
 
     def _rebuild_tables(self):
         df = self.df_publico.copy()
+        if df is None or df.empty:
+            set_table_from_df(self.table_publico, pd.DataFrame())
+            return
 
-        # 1) Ocultar colunas indesejadas
-        drop_cols = [c for c in ["ID_Cliente", "Ano", "Mes"] if c in df.columns]
-        if drop_cols:
-            df = df.drop(columns=drop_cols)
-
-        # 2) Reordenar colunas
-        ordem = [c for c in [
-            "Nome", "Idade", "Genero", "Estado", "Cidade", "Canal_de_venda"
-        ] if c in df.columns]
-        outras = [c for c in df.columns if c not in ordem]
-        if ordem:
-            df = df[ordem + outras]
-
-        # 3) Corrigir cabeçalhos (nomes PT-BR)
-        rename_map = {
-            "Nome": "Nome",
-            "Idade": "Idade",
+        # Renomeia colunas para melhor visualização
+        df = df.rename(columns={
+            "Nome": "Nome do Cliente",
             "Genero": "Gênero",
-            "Estado": "Estado",
-            "Cidade": "Cidade",
-            "Canal_de_venda": "Canal de Venda",
-        }
-        df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
+            "Idade": "Idade",
+            "Localizacao": "Localização",
+            "Preferencias": "Preferências",
+            "Frequencia_Compra_Mensal": "Compras/Mês",
+            "Gasto_Medio": "Gasto Médio (R$)"
+        })
 
-        set_table_from_df(self.table_publico, df)
+        # Define a ordem e quais colunas mostrar
+        cols_to_show = [
+            "Nome do Cliente", "Gênero", "Idade", "Localização",
+            "Compras/Mês", "Gasto Médio (R$)", "Preferências"
+        ]
+        existing_cols = [col for col in cols_to_show if col in df.columns]
+
+        # Atualiza a QTableView
+        set_table_from_df(self.table_publico, df[existing_cols])
 
     def _rebuild_charts(self):
         if self.canvas_location: self.layout_location.removeWidget(self.canvas_location); self.canvas_location.setParent(None)

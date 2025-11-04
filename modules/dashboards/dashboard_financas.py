@@ -79,42 +79,33 @@ class DashboardFinancas(QWidget):
         self.kpi_lucro.setValue(fmt_currency(s.get('lucro', 0.0)))
 
     def _rebuild_tables(self):
+        # --- dados base ---
         df = self.df_financas.copy()
 
-        # 1) Formatar campos
+        # --- Formatação para a tabela ---
         if "Data" in df.columns:
-            df["Data"] = (
-                pd.to_datetime(df["Data"], errors="coerce")
-                .dt.strftime("%d/%m/%Y")
-            )
+            # Converte para datetime e depois formata como texto para exibição
+            df["Data"] = pd.to_datetime(df["Data"], errors="coerce").dt.strftime('%d/%m/%Y')
         if "Valor" in df.columns:
-            df["Valor"] = (
-                pd.to_numeric(df["Valor"], errors="coerce").fillna(0.0)
-                .map(lambda v: f"R$ {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
-            )
+            # Aplica a formatação de moeda
+            df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce").fillna(0.0).apply(fmt_currency)
 
-        # 2) Ocultar colunas indesejadas
-        drop_cols = [c for c in ["ID_Lancamento", "Ano", "Mes"] if c in df.columns]
-        if drop_cols:
-            df = df.drop(columns=drop_cols)
-
-        # 3) Reordenar colunas para: Descricao, Categoria, Tipo, Metodo_Pagamento, Valor, Data
-        ordem = [c for c in ["Descricao", "Categoria", "Tipo", "Metodo_Pagamento", "Valor", "Data"] if c in df.columns]
-        outras = [c for c in df.columns if c not in ordem]
-        df = df[ordem + outras] if ordem else df
-
-        # 4) Renomear cabeçalhos para PT-BR correto (apenas exibição)
-        rename_map = {
-            "Descricao": "Descrição",
-            "Categoria": "Categoria",
-            "Tipo": "Tipo",
-            "Metodo_Pagamento": "Método de Pagamento",
-            "Valor": "Valor",
+        # Renomeia as colunas para melhor visualização
+        df = df.rename(columns={
             "Data": "Data",
-        }
-        df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
+            "Tipo": "Tipo",
+            "Categoria": "Categoria",
+            "Descricao": "Descrição",
+            "Valor": "Valor (R$)",
+            "Metodo_Pagamento": "Forma de Pagto."
+        })
 
-        set_table_from_df(self.table_financas, df)
+        # Define a ordem e quais colunas mostrar
+        cols_to_show = ["Data", "Tipo", "Categoria", "Descrição", "Valor (R$)", "Forma de Pagto."]
+        existing_cols = [col for col in cols_to_show if col in df.columns]
+
+        # Atualiza a QTableView
+        set_table_from_df(self.table_financas, df[existing_cols])
 
     def _rebuild_charts(self):
         if self.canvas_revexp: self.layout_revexp.removeWidget(self.canvas_revexp); self.canvas_revexp.setParent(None)
