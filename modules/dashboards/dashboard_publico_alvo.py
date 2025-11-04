@@ -65,7 +65,33 @@ class DashboardPublicoAlvo(QWidget):
         self.kpi_pct_fem.setValue(f"{k.get('pct_feminino', 0):.1f}%")
 
     def _rebuild_tables(self):
-        set_table_from_df(self.table_publico, self.df_publico)
+        df = self.df_publico.copy()
+
+        # 1) Ocultar colunas indesejadas
+        drop_cols = [c for c in ["ID_Cliente", "Ano", "Mes"] if c in df.columns]
+        if drop_cols:
+            df = df.drop(columns=drop_cols)
+
+        # 2) Reordenar colunas
+        ordem = [c for c in [
+            "Nome", "Idade", "Genero", "Estado", "Cidade", "Canal_de_venda"
+        ] if c in df.columns]
+        outras = [c for c in df.columns if c not in ordem]
+        if ordem:
+            df = df[ordem + outras]
+
+        # 3) Corrigir cabeçalhos (nomes PT-BR)
+        rename_map = {
+            "Nome": "Nome",
+            "Idade": "Idade",
+            "Genero": "Gênero",
+            "Estado": "Estado",
+            "Cidade": "Cidade",
+            "Canal_de_venda": "Canal de Venda",
+        }
+        df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
+
+        set_table_from_df(self.table_publico, df)
 
     def _rebuild_charts(self):
         if self.canvas_location: self.layout_location.removeWidget(self.canvas_location); self.canvas_location.setParent(None)

@@ -63,7 +63,37 @@ class DashboardFornecedores(QWidget):
         self.kpi_avaliacao_media.setValue(fmt_rating(k.get('avg_rating', 0)))
 
     def _rebuild_tables(self):
-        set_table_from_df(self.table_fornecedores, self.df_fornecedores)
+        df = self.df_fornecedores.copy()
+
+        # 1) Ocultar colunas indesejadas
+        drop_cols = [c for c in ["ID_Fornecedor"] if c in df.columns]
+        if drop_cols:
+            df = df.drop(columns=drop_cols)
+
+        # 2) Reordenar colunas
+        ordem = [c for c in [
+            "Nome_Fornecedor", "CNPJ", "Telefone", "Email",
+            "Endereco", "Estado", "Cidade", "Avaliacao", "Produtos_Fornecidos"
+        ] if c in df.columns]
+        outras = [c for c in df.columns if c not in ordem]
+        if ordem:
+            df = df[ordem + outras]
+
+        # 3) Renomear colunas para português correto
+        rename_map = {
+            "Nome_Fornecedor": "Nome do Fornecedor",
+            "CNPJ": "CNPJ",
+            "Telefone": "Telefone",
+            "Email": "E-mail",
+            "Endereco": "Endereço",
+            "Estado": "Estado",
+            "Cidade": "Cidade",
+            "Avaliacao": "Avaliação",
+            "Produtos_Fornecidos": "Produtos Fornecidos"
+        }
+        df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
+
+        set_table_from_df(self.table_fornecedores, df)
 
     def _rebuild_charts(self):
         if self.canvas_rating: self.layout_rating.removeWidget(self.canvas_rating); self.canvas_rating.setParent(None)

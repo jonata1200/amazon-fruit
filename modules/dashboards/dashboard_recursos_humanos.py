@@ -55,7 +55,42 @@ class DashboardRecursosHumanos(QWidget):
         self.kpi_custo_mensal.setValue(fmt_currency(k.get('total_monthly_cost',0.0)))
 
     def _rebuild_tables(self):
-        set_table_from_df(self.table_rh, self.df_rh)
+        df = self.df_rh.copy()
+
+        # 1) Data_Contratacao -> DD/MM/AAAA (sem 00:00:00)
+        if "Data_Contratacao" in df.columns:
+            df["Data_Contratacao"] = (
+                pd.to_datetime(df["Data_Contratacao"], errors="coerce")
+                .dt.strftime("%d/%m/%Y")
+            )
+
+        # 2) Ocultar colunas indesejadas
+        drop_cols = [c for c in ["ID_Funcionario"] if c in df.columns]  # mantém Data_Contratacao formatada
+        if drop_cols:
+            df = df.drop(columns=drop_cols)
+
+        # 3) Reordenar colunas
+        ordem = [c for c in [
+            "Nome", "Regime", "Departamento", "Cargo",
+            "Salario", "Telefone", "Data_Contratacao"
+        ] if c in df.columns]
+        outras = [c for c in df.columns if c not in ordem]
+        if ordem:
+            df = df[ordem + outras]
+
+        # 4) Renomear cabeçalhos para PT-BR correto
+        rename_map = {
+            "Nome": "Nome",
+            "Regime": "Regime",
+            "Departamento": "Departamento",
+            "Cargo": "Cargo",
+            "Salario": "Salário",
+            "Telefone": "Telefone",
+            "Data_Contratacao": "Data de Contratação",
+        }
+        df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
+
+        set_table_from_df(self.table_rh, df)
 
     def _rebuild_charts(self):
         if self.canvas_salary:
