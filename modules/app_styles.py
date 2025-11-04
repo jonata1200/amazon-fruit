@@ -49,6 +49,32 @@ def get_stylesheet(theme_name='dark') -> str:
         }}
         QMainWindow {{ background-color: {theme["BACKGROUND_COLOR"]}; }}
 
+        /* =================== ABAS (TABS) =================== */
+        QTabWidget::pane {{
+            border-top: 2px solid {theme["PRIMARY_COLOR"]};
+            margin-top: -2px;
+        }}
+        QTabBar::tab {{
+            background-color: {theme["BACKGROUND_COLOR"]};
+            color: {theme["TEXT_COLOR"]};
+            border: 1px solid {theme["PRIMARY_COLOR"]};
+            border-bottom: none;
+            padding: 8px 16px;
+            font-weight: bold;
+        }}
+        QTabBar::tab:hover {{
+            background-color: {theme["SECONDARY_COLOR"]};
+            color: #000000;
+        }}
+        QTabBar::tab:selected {{
+            background-color: {theme["PRIMARY_COLOR"]};
+            color: #FFFFFF;
+            border-color: {theme["PRIMARY_COLOR"]};
+        }}
+        QTabBar::tab:!selected {{
+            margin-top: 2px;
+        }}
+
         /* =================== NAVEGAÇÃO =================== */
         QFrame#NavFrame {{ background-color: {theme["NAV_BACKGROUND_COLOR"]}; }}
         QPushButton#NavButton {{
