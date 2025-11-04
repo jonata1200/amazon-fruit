@@ -40,6 +40,7 @@ class DashboardEstoque(QWidget):
         root = QVBoxLayout(self); root.setContentsMargins(20,20,20,20); root.setSpacing(16)
         title = QLabel("Estoque: Painel de Controle"); title.setStyleSheet("font-size: 24px; font-weight: bold;"); root.addWidget(title)
         
+        # --- KPIs (Permanecem no topo) ---
         kpi_grid = QGridLayout(); kpi_grid.setSpacing(16)
         self.kpi_produtos = KPIWidget("📦 Produtos Únicos")
         self.kpi_valor_estoque = KPIWidget("💰 Valor do Estoque (Custo)")
@@ -49,16 +50,40 @@ class DashboardEstoque(QWidget):
         kpi_grid.addWidget(self.kpi_baixo, 0, 2); kpi_grid.addWidget(self.kpi_compra_urgente, 0, 3)
         root.addLayout(kpi_grid)
         
+        # --- NOVO: Layout de Colunas (Esquerda e Direita) ---
+        column_layout = QHBoxLayout()
+        column_layout.setSpacing(16)
+
+        # --- Coluna da Esquerda (Tabelas) ---
         tab_widget = QTabWidget()
-        self.table_alertas = QTableView(); self.table_completo = QTableView()
+        self.table_alertas = QTableView()
+        self.table_completo = QTableView()
         tab_widget.addTab(self.table_alertas, "🚨 Alertas de Estoque")
         tab_widget.addTab(self.table_completo, "📋 Inventário Completo")
-        root.addWidget(tab_widget)
         
-        charts_row = QHBoxLayout(); charts_row.setSpacing(16)
-        chart1 = QFrame(); self.layout_categoria = QVBoxLayout(chart1); self.layout_categoria.setContentsMargins(0,0,0,0); charts_row.addWidget(chart1)
-        chart2 = QFrame(); self.layout_baixo = QVBoxLayout(chart2); self.layout_baixo.setContentsMargins(0,0,0,0); charts_row.addWidget(chart2)
-        root.addLayout(charts_row)
+        # Adiciona a tabela à coluna da esquerda
+        column_layout.addWidget(tab_widget, 2) # O '2' faz a tabela ocupar 2/3 do espaço
+
+        # --- Coluna da Direita (Gráficos) ---
+        # Cria um painel vertical para empilhar os gráficos
+        right_panel = QFrame()
+        right_layout = QVBoxLayout(right_panel)
+        right_layout.setSpacing(16)
+        right_layout.setContentsMargins(0,0,0,0)
+
+        # Os "holders" dos gráficos são os mesmos de antes
+        chart1 = QFrame(); self.layout_categoria = QVBoxLayout(chart1); self.layout_categoria.setContentsMargins(0,0,0,0)
+        chart2 = QFrame(); self.layout_baixo = QVBoxLayout(chart2); self.layout_baixo.setContentsMargins(0,0,0,0)
+        
+        # Adiciona os gráficos ao painel vertical da direita
+        right_layout.addWidget(chart1)
+        right_layout.addWidget(chart2)
+        
+        # Adiciona o painel da direita ao layout de colunas
+        column_layout.addWidget(right_panel, 1) # O '1' faz os gráficos ocuparem 1/3 do espaço
+        
+        # Adiciona o layout de colunas completo ao layout principal
+        root.addLayout(column_layout)
 
     def refresh(self):
         self._reload_data()
