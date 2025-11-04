@@ -8,18 +8,16 @@ import pandas as pd
 from modules.ui.qt_utils import set_table_from_df
 from modules.ui.widgets.kpi_widget import KPIWidget
 from modules.utils.formatters import fmt_currency
-
-# Camada de análise (ajuste estes nomes se seu módulo usar outros)
 from modules.analysis.financial_analysis import (
-    calculate_financial_summary,    # retorna dict {'receita','despesa','lucro'}
-    get_expense_distribution        # retorna Series por categoria (somente despesas)
+    calculate_financial_summary,
+    get_expense_distribution
 )
 
 class DashboardFinancas(QWidget):
-    def __init__(self, data_handler, theme_name='dark'):
+    def __init__(self, data_handler): # Argumento de tema removido
         super().__init__()
         self.data_handler = data_handler
-        self.theme_name = theme_name
+        # self.theme_name removido
 
         self.df_financas = pd.DataFrame()
         self.kpi_receita = None
@@ -36,15 +34,13 @@ class DashboardFinancas(QWidget):
 
     def build_ui(self):
         root = QVBoxLayout(self)
-        root.setContentsMargins(20, 20, 20, 20)
-        root.setSpacing(16)
+        root.setContentsMargins(20, 20, 20, 20); root.setSpacing(16)
 
         title = QLabel("Dashboard Financeiro")
         title.setStyleSheet("font-size: 24px; font-weight: bold;")
         root.addWidget(title)
 
-        kpi_layout = QHBoxLayout()
-        kpi_layout.setSpacing(16)
+        kpi_layout = QHBoxLayout(); kpi_layout.setSpacing(16)
         self.kpi_receita  = KPIWidget("Receita Total",  value_color="#2E8B57")
         self.kpi_despesas = KPIWidget("Despesas Totais", value_color="#C21807")
         self.kpi_lucro    = KPIWidget("Lucro Líquido",   value_color="#FF8C00")
@@ -81,53 +77,57 @@ class DashboardFinancas(QWidget):
         self.kpi_lucro.setValue(fmt_currency(s.get('lucro', 0.0)))
 
     def _rebuild_tables(self):
-        # --- dados base ---
         df = self.df_financas.copy()
+        if df is None or df.empty:
+            set_table_from_df(self.table_financas, pd.DataFrame())
+            return
 
-        # --- Formatação para a tabela ---
+        # Formatação para a tabela
         if "Data" in df.columns:
-            # Converte para datetime e depois formata como texto para exibição
             df["Data"] = pd.to_datetime(df["Data"], errors="coerce").dt.strftime('%d/%m/%Y')
         if "Valor" in df.columns:
-            # Aplica a formatação de moeda
             df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce").fillna(0.0).apply(fmt_currency)
 
-        # Renomeia as colunas para melhor visualização
-        df = df.rename(columns={
-            "Data": "Data",
-            "Tipo": "Tipo",
-            "Categoria": "Categoria",
-            "Descricao": "Descrição",
-            "Valor": "Valor (R$)",
+        # Renomeia e seleciona colunas
+        rename_map = {
+            "Data": "Data", "Tipo": "Tipo", "Categoria": "Categoria",
+            "Descricao": "Descrição", "Valor": "Valor",
             "Metodo_Pagamento": "Forma de Pagto."
-        })
-
-        # Define a ordem e quais colunas mostrar
-        cols_to_show = ["Data", "Tipo", "Categoria", "Descrição", "Valor (R$)", "Forma de Pagto."]
+        }
+        df = df.rename(columns=rename_map)
+        
+        cols_to_show = ["Data", "Tipo", "Categoria", "Descrição", "Valor", "Forma de Pagto."]
         existing_cols = [col for col in cols_to_show if col in df.columns]
-
-        # Atualiza a QTableView
+        
         set_table_from_df(self.table_financas, df[existing_cols])
 
     def _rebuild_charts(self):
         if self.canvas_revexp: self.layout_revexp.removeWidget(self.canvas_revexp); self.canvas_revexp.setParent(None)
         if self.canvas_pie:    self.layout_pie.removeWidget(self.canvas_pie);      self.canvas_pie.setParent(None)
 
-        # Barra: Receita vs Despesa
-        fig1 = Figure(figsize=(5.8, 3.8), dpi=100); ax1 = fig1.add_subplot(111)
+        # Cores fixas para o tema claro
+        text_color = 'black'
+        bg_color = '#FFFFFF'
+
+        # Gráfico 1: Barra Receita vs Despesa
+        fig1 = Figure(figsize=(5.8, 3.8), dpi=100); fig1.patch.set_facecolor(bg_color)
+        ax1 = fig1.add_subplot(111); ax1.set_facecolor(bg_color)
         s = calculate_financial_summary(self.df_financas)
-        ax1.bar(['Receita','Despesas'], [s.get('receita',0), s.get('despesa',0)])
-        ax1.set_title("Receita vs. Despesas"); fig1.tight_layout()
+        ax1.bar(['Receita','Despesas'], [s.get('receita',0), s.get('despesa',0)], color=['#2E8B57', '#C21807'])
+        ax1.set_title("Receita vs. Despesas", color=text_color)
+        ax1.tick_params(axis='x', colors=text_color)
+        ax1.tick_params(axis='y', colors=text_color)
+        fig1.tight_layout()
         self.canvas_revexp = FigureCanvas(fig1); self.layout_revexp.addWidget(self.canvas_revexp)
 
-        # Pizza: distribuição das despesas por categoria
-        fig2 = Figure(figsize=(5.2, 3.8), dpi=100); ax2 = fig2.add_subplot(111)
+        # Gráfico 2: Pizza de distribuição das despesas
+        fig2 = Figure(figsize=(5.2, 3.8), dpi=100); fig2.patch.set_facecolor(bg_color)
+        ax2 = fig2.add_subplot(111)
         ser = get_expense_distribution(self.df_financas)
         if not ser.empty:
-            ax2.pie(ser.values, labels=ser.index, autopct='%1.1f%%', startangle=90)
-        ax2.set_title("Distribuição de Despesas"); fig2.tight_layout()
+            wedges, texts, autotexts = ax2.pie(ser.values, autopct='%1.1f%%', startangle=90)
+            ax2.legend(wedges, ser.index, title="Categorias", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+        
+        ax2.set_title("Distribuição de Despesas", color=text_color)
+        fig2.tight_layout()
         self.canvas_pie = FigureCanvas(fig2); self.layout_pie.addWidget(self.canvas_pie)
-
-    def update_theme(self, new_theme_name):
-        self.theme_name = new_theme_name
-        self._rebuild_charts()

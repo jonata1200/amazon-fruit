@@ -1,3 +1,5 @@
+# modules/dashboards/dashboard_fornecedores.py
+
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QTableView
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -6,18 +8,16 @@ import pandas as pd
 from modules.ui.qt_utils import set_table_from_df
 from modules.ui.widgets.kpi_widget import KPIWidget
 from modules.utils.formatters import fmt_rating
-
-# Camada de análise
 from modules.analysis.suppliers_analysis import (
-    analyze_suppliers_kpis,          # {'total_suppliers','avg_rating'}
-    get_product_types_distribution   # Series com contagem por tipo (a partir de 'Produtos_Fornecidos')
+    analyze_suppliers_kpis,
+    get_product_types_distribution
 )
 
 class DashboardFornecedores(QWidget):
-    def __init__(self, data_handler, theme_name='dark'):
+    def __init__(self, data_handler): # Argumento de tema removido
         super().__init__()
         self.data_handler = data_handler
-        self.theme_name = theme_name
+        # self.theme_name removido
 
         self.df_fornecedores = pd.DataFrame()
         self.kpi_total = None
@@ -52,7 +52,10 @@ class DashboardFornecedores(QWidget):
         charts_row.addWidget(chart1); charts_row.addWidget(chart2); root.addLayout(charts_row)
 
     def refresh(self):
-        self._reload_data(); self._rebuild_kpis(); self._rebuild_tables(); self._rebuild_charts()
+        self._reload_data()
+        self._rebuild_kpis()
+        self._rebuild_tables()
+        self._rebuild_charts()
 
     def _reload_data(self):
         self.df_fornecedores = self.data_handler.load_table("Fornecedores")
@@ -64,61 +67,65 @@ class DashboardFornecedores(QWidget):
 
     def _rebuild_tables(self):
         df = self.df_fornecedores.copy()
+        if df is None or df.empty:
+            set_table_from_df(self.table_fornecedores, pd.DataFrame())
+            return
 
-        # 1) Ocultar colunas indesejadas
-        drop_cols = [c for c in ["ID_Fornecedor"] if c in df.columns]
-        if drop_cols:
-            df = df.drop(columns=drop_cols)
-
-        # 2) Reordenar colunas
-        ordem = [c for c in [
-            "Nome_Fornecedor", "CNPJ", "Telefone", "Email",
-            "Endereco", "Estado", "Cidade", "Avaliacao", "Produtos_Fornecidos"
-        ] if c in df.columns]
-        outras = [c for c in df.columns if c not in ordem]
-        if ordem:
-            df = df[ordem + outras]
-
-        # 3) Renomear colunas para português correto
+        # Ocultar, reordenar e renomear colunas
+        df = df.drop(columns=[c for c in ["ID_Fornecedor"] if c in df.columns], errors='ignore')
+        
         rename_map = {
-            "Nome_Fornecedor": "Nome do Fornecedor",
-            "CNPJ": "CNPJ",
-            "Telefone": "Telefone",
-            "Email": "E-mail",
-            "Endereco": "Endereço",
-            "Estado": "Estado",
-            "Cidade": "Cidade",
-            "Avaliacao": "Avaliação",
+            "Nome_Fornecedor": "Nome do Fornecedor", "CNPJ": "CNPJ",
+            "Telefone": "Telefone", "Email": "E-mail", "Endereco": "Endereço",
+            "Estado": "Estado", "Cidade": "Cidade", "Avaliacao": "Avaliação",
             "Produtos_Fornecidos": "Produtos Fornecidos"
         }
-        df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
+        df = df.rename(columns=rename_map)
 
-        set_table_from_df(self.table_fornecedores, df)
+        cols_order = [
+            "Nome do Fornecedor", "Avaliação", "E-mail", "Telefone",
+            "Cidade", "Estado", "Produtos Fornecidos"
+        ]
+        existing_cols = [col for col in cols_order if col in df.columns]
+
+        set_table_from_df(self.table_fornecedores, df[existing_cols])
 
     def _rebuild_charts(self):
         if self.canvas_rating: self.layout_rating.removeWidget(self.canvas_rating); self.canvas_rating.setParent(None)
         if self.canvas_types:  self.layout_types.removeWidget(self.canvas_types);  self.canvas_types.setParent(None)
 
-        df = self.df_fornecedores
+        # Cores fixas para o tema claro
+        text_color = 'black'
+        bg_color = '#FFFFFF'
 
-        # Top 10 por avaliação
-        fig1 = Figure(figsize=(6.2, 3.8), dpi=100); ax1 = fig1.add_subplot(111)
-        if not df.empty and {'Nome_Fornecedor','Avaliacao'}.issubset(df.columns):
-            dfx = df.copy(); dfx['Avaliacao'] = pd.to_numeric(dfx['Avaliacao'], errors='coerce')
+        # Gráfico 1: Top 10 por avaliação (Barra Horizontal)
+        fig1 = Figure(figsize=(6.2, 3.8), dpi=100); fig1.patch.set_facecolor(bg_color)
+        ax1 = fig1.add_subplot(111); ax1.set_facecolor(bg_color)
+
+        df_rating = self.df_fornecedores
+        if not df_rating.empty and {'Nome_Fornecedor','Avaliacao'}.issubset(df_rating.columns):
+            dfx = df_rating.copy()
+            dfx['Avaliacao'] = pd.to_numeric(dfx['Avaliacao'], errors='coerce')
             dfx = dfx.dropna(subset=['Avaliacao']).sort_values('Avaliacao', ascending=True).tail(10)
             if not dfx.empty:
-                ax1.barh(dfx['Nome_Fornecedor'].astype(str), dfx['Avaliacao']); ax1.set_xlim(0, 5)
-        ax1.set_title("Avaliação dos Fornecedores (Top 10)"); fig1.tight_layout()
+                ax1.barh(dfx['Nome_Fornecedor'].astype(str), dfx['Avaliacao'], color='#2E8B57')
+                ax1.set_xlim(0, 5)
+        
+        ax1.set_title("Avaliação dos Fornecedores (Top 10)", color=text_color)
+        ax1.tick_params(axis='x', colors=text_color)
+        ax1.tick_params(axis='y', colors=text_color)
+        fig1.tight_layout()
         self.canvas_rating = FigureCanvas(fig1); self.layout_rating.addWidget(self.canvas_rating)
 
-        # Pizza: tipos de produtos fornecidos
-        fig2 = Figure(figsize=(5.2, 3.8), dpi=100); ax2 = fig2.add_subplot(111)
-        ser = get_product_types_distribution(df)
-        if not ser.empty:
-            ax2.pie(ser.values, labels=ser.index, autopct='%1.1f%%', startangle=90)
-        ax2.set_title("Tipos de Produtos Fornecidos"); fig2.tight_layout()
-        self.canvas_types = FigureCanvas(fig2); self.layout_types.addWidget(self.canvas_types)
+        # Gráfico 2: Pizza de tipos de produtos fornecidos
+        fig2 = Figure(figsize=(5.2, 3.8), dpi=100); fig2.patch.set_facecolor(bg_color)
+        ax2 = fig2.add_subplot(111)
 
-    def update_theme(self, new_theme_name):
-        self.theme_name = new_theme_name
-        self._rebuild_charts()
+        ser = get_product_types_distribution(self.df_fornecedores)
+        if not ser.empty:
+            wedges, texts, autotexts = ax2.pie(ser.values, autopct='%1.1f%%', startangle=90)
+            ax2.legend(wedges, ser.index, title="Tipos de Produto", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+
+        ax2.set_title("Tipos de Produtos Fornecidos", color=text_color)
+        fig2.tight_layout()
+        self.canvas_types = FigureCanvas(fig2); self.layout_types.addWidget(self.canvas_types)
