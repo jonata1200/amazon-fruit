@@ -21,19 +21,25 @@ def perfil_demografico():
 def analyze_public_kpis(df: pd.DataFrame) -> dict:
     """Analisa e retorna os KPIs do público-alvo."""
     if df is None or df.empty:
-        return {'total_clients': 0, 'avg_age': float('nan'), 'avg_spend': float('nan')}
+        return {'total_clients': 0, 'avg_age': float('nan'), 'avg_spend': float('nan'), 'pct_female': float('nan')}
         
     total_clients = len(df)
-    
     avg_age = pd.to_numeric(df.get('Idade'), errors='coerce').mean()
     
     gasto_col = 'Gasto_Medio' if 'Gasto_Medio' in df.columns else 'Ticket_Medio'
     avg_spend = pd.to_numeric(df.get(gasto_col), errors='coerce').mean()
+
+    # --- LÓGICA ADICIONADA AQUI ---
+    pct_female = float('nan')
+    if 'Genero' in df.columns and not df.empty:
+        fem = (df["Genero"].astype(str).str.lower() == "feminino").sum()
+        pct_female = 100.0 * fem / len(df) if len(df) > 0 else 0.0
     
     return {
         'total_clients': total_clients,
         'avg_age': avg_age,
-        'avg_spend': avg_spend
+        'avg_spend': avg_spend,
+        'pct_female': pct_female # Retorna o novo KPI
     }
 
 def get_clients_by_location(df: pd.DataFrame, top_n: int = 10) -> pd.Series:

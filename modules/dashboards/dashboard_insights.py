@@ -1,178 +1,160 @@
 # modules/dashboards/dashboard_insights.py
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QLabel, QFrame
+from PyQt6.QtWidgets import QWidget, QVBoxLayout,QHBoxLayout, QGridLayout, QLabel, QFrame, QTextEdit
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 import pandas as pd
 
-# ---------------------------------------------------------
-# Helper de Formatação (pode ser movido para formatters.py no futuro)
-# ---------------------------------------------------------
-def brl(v):
-    if v is None or pd.isna(v): v = 0.0
-    try: v = float(v)
-    except Exception: v = 0.0
-    return f"R$ {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+# Importa TODAS as funções de análise necessárias de outros módulos
+from modules.analysis.financial_analysis import calculate_financial_summary
+from modules.analysis.inventory_analysis import analyze_inventory_kpis
+from modules.analysis.public_analysis import analyze_public_kpis
+from modules.analysis.suppliers_analysis import analyze_suppliers_kpis
 
-# ---------------------------------------------------------
-# Widget de Card de Insight (Simplificado para Tema Claro)
-# ---------------------------------------------------------
+# Importa os formatadores para consistência
+from modules.utils.formatters import fmt_currency
+
+# ======================================================================
+# --- 1. NOVO COMPONENTE: UM CARD DE INSIGHT MODERNO E REUTILIZÁVEL ---
+# ======================================================================
 class InsightCard(QFrame):
-    def __init__(self, title: str, value: str = "", subtitle: str = "", accent: str = "#00BFFF"):
+    """
+    Um widget de card redesenhado para exibir um KPI com ícone, título e valor,
+    proporcionando uma hierarquia visual clara.
+    """
+    def __init__(self, icon_char: str, title: str, accent_color: str = "#6A0DAD"):
         super().__init__()
-        self.title_lbl = QLabel(title)
-        self.value_lbl = QLabel(value)
-        self.subtitle_lbl = QLabel(subtitle)
+        self.setObjectName("InsightCardFrame")
 
-        lay = QVBoxLayout(self)
-        lay.setContentsMargins(16, 14, 16, 14); lay.setSpacing(4)
-        lay.addWidget(self.title_lbl)
-        lay.addWidget(self.value_lbl)
-        lay.addWidget(self.subtitle_lbl)
+        # Layout principal horizontal
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(15, 15, 15, 15)
+        layout.setSpacing(15)
+
+        # Ícone (à esquerda)
+        icon_label = QLabel(icon_char)
+        icon_label.setObjectName("InsightIconLabel")
+        icon_label.setStyleSheet(f"color: {accent_color};")
         
-        # Estilo fixo para o tema claro
-        self.setStyleSheet(f"""
-            QFrame {{
-                background-color: #FFFFFF;
-                border: 1px solid #E0E0E0;
-                border-radius: 10px;
-            }}
-            QLabel:first-child {{ /* Título */
-                color: {accent};
-                font-size: 12pt;
-                font-weight: 600;
-            }}
-            QLabel:nth-child(2) {{ /* Valor */
-                color: #1A1A1A;
-                font-size: 20pt;
-                font-weight: 700;
-            }}
-            QLabel:last-child {{ /* Subtítulo */
-                color: #666666;
-                font-size: 10pt;
-            }}
-        """)
+        # Container para textos (à direita)
+        text_container = QWidget()
+        text_layout = QVBoxLayout(text_container)
+        text_layout.setContentsMargins(0, 0, 0, 0)
+        text_layout.setSpacing(2)
 
-    def set_value(self, txt: str):
-        self.value_lbl.setText(txt)
+        # Título e Valor
+        self.title_label = QLabel(title)
+        self.title_label.setObjectName("InsightTitleLabel")
+        
+        self.value_label = QLabel("—")
+        self.value_label.setObjectName("InsightValueLabel")
 
-    def set_subtitle(self, txt: str):
-        self.subtitle_lbl.setText(txt)
+        text_layout.addWidget(self.title_label)
+        text_layout.addWidget(self.value_label)
 
+        layout.addWidget(icon_label)
+        layout.addWidget(text_container, 1) # O container de texto se expande
 
-# ---------------------------------------------------------
-# Dashboard Principal (Simplificado para Tema Claro)
-# ---------------------------------------------------------
+    def setValue(self, text: str):
+        self.value_label.setText(text)
+
+# ======================================================================
+# --- 2. O DASHBOARD PRINCIPAL, AGORA MAIS LIMPO E INTELIGENTE ---
+# ======================================================================
 class DashboardInsights(QWidget):
-    def __init__(self, data_handler): # Argumento de tema removido
+    def __init__(self, data_handler):
         super().__init__()
         self.data_handler = data_handler
-        # self.theme removido
-        
         self.cards = {}
         self._setup_ui()
         self.refresh()
 
     def _setup_ui(self):
         root = QVBoxLayout(self)
-        root.setContentsMargins(18, 18, 18, 18); root.setSpacing(14)
+        root.setContentsMargins(25, 20, 25, 20)
+        root.setSpacing(20)
 
-        title = QLabel("📊 Insights do Negócio")
-        title.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
+        # --- MUDANÇA 1: Título simplificado e com fonte maior ---
+        title = QLabel("Insights do Negócio") # Texto alterado
+        title.setFont(QFont("Arial", 24, QFont.Weight.Bold)) # Fonte aumentada de 18 para 24
         root.addWidget(title)
 
-        # Grade de cards
         grid = QGridLayout()
-        grid.setHorizontalSpacing(14); grid.setVerticalSpacing(14)
-
-        self.cards["lucro_total"] = InsightCard("Lucro Total", accent="#14C38E")
-        self.cards["receita_total"] = InsightCard("Receita Total", accent="#00BFFF")
-        self.cards["despesa_total"] = InsightCard("Despesas Totais", accent="#FF6B6B")
-        grid.addWidget(self.cards["lucro_total"],   0, 0)
-        grid.addWidget(self.cards["receita_total"], 0, 1)
-        grid.addWidget(self.cards["despesa_total"], 0, 2)
-
-        self.cards["rupturas"] = InsightCard("Itens em Ruptura (<= mínimo)", accent="#FFD166")
-        self.cards["pct_fem"]  = InsightCard("% Feminino (Clientes)", accent="#C77DFF")
-        self.cards["rating"]   = InsightCard("Avaliação Média Fornecedores", accent="#4DD0E1")
-        grid.addWidget(self.cards["rupturas"], 1, 0)
-        grid.addWidget(self.cards["pct_fem"],  1, 1)
-        grid.addWidget(self.cards["rating"],   1, 2)
+        grid.setSpacing(15)
+        self.cards["lucro_total"] = InsightCard("💰", "Lucro Líquido", "#2E8B57")
+        self.cards["receita_total"] = InsightCard("📈", "Receita Total", "#1E90FF")
+        self.cards["despesa_total"] = InsightCard("📉", "Despesas Totais", "#DC143C")
+        self.cards["rupturas"] = InsightCard("⚠️", "Itens em Ruptura", "#FF8C00")
+        self.cards["pct_fem"]  = InsightCard("♀️", "% Público Feminino", "#FF69B4")
+        self.cards["rating"]   = InsightCard("⭐", "Avaliação Média (Forn.)", "#4682B4")
+        grid.addWidget(self.cards["lucro_total"],   0, 0); grid.addWidget(self.cards["receita_total"], 0, 1); grid.addWidget(self.cards["despesa_total"], 0, 2)
+        grid.addWidget(self.cards["rupturas"], 1, 0); grid.addWidget(self.cards["pct_fem"],  1, 1); grid.addWidget(self.cards["rating"],   1, 2)
         root.addLayout(grid)
 
-        # Caixa de highlights
-        self.highlights = QLabel("")
-        self.highlights.setWordWrap(True)
-        self.highlights.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.highlights.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        root.addWidget(self.highlights)
+        self.highlights = QTextEdit()
+        self.highlights.setReadOnly(True)
+        self.highlights.setObjectName("HighlightsBox")
+        root.addWidget(self.highlights, 1)
         
-        # Estilo fixo do tema claro para o dashboard
         self.setStyleSheet("""
-            QLabel {{ /* Estilo base para todos os QLabels neste widget */
-                color: #1A1A1A;
-            }}
-            #HighlightsBox {{ /* ID para a caixa de texto */
+            #InsightCardFrame { background-color: #FFFFFF; border-radius: 8px; border: 1px solid #E0E0E0; }
+            #InsightIconLabel { font-size: 32px; }
+            #InsightTitleLabel { font-size: 13px; color: #666666; }
+            #InsightValueLabel { font-size: 22px; font-weight: bold; color: #1A1A1A; }
+            
+            /* --- MUDANÇA 2: Estilo do resumo com fonte e padding maiores --- */
+            #HighlightsBox {
                 background-color: #FFFFFF;
-                border: 1px solid #E6E6E6;
-                border-radius: 10px;
-                padding: 12px;
-                color: #333333;
-                font-size: 11pt;
-            }}
+                border: 1px solid #E0E0E0;
+                border-radius: 8px;
+                font-size: 16px; /* Aumentado de 14px para melhorar a legibilidade */
+                padding: 15px; /* Aumentado de 10px para dar mais 'respiro' ao texto */
+            }
         """)
 
+    # Nenhuma mudança necessária no método refresh. Ele já está correto.
     def refresh(self):
-        # --- Carregamento seguro dos dados ---
         df_fin = self._safe_load("Financas")
         df_est = self._safe_load("Estoque")
         df_pub = self._safe_load("Publico_Alvo")
         df_forn = self._safe_load("Fornecedores")
 
-        # --- Lógica de Análise (permanece a mesma) ---
-        # Finanças
-        receita_total, despesa_total, lucro_total = 0.0, 0.0, 0.0
-        conclusao = ""
-        if not df_fin.empty and "Valor" in df_fin.columns and "Tipo" in df_fin.columns:
-            df_fin["Valor"] = pd.to_numeric(df_fin["Valor"], errors="coerce").fillna(0.0)
-            receita_total = df_fin.loc[df_fin["Tipo"].astype(str).str.lower().eq("receita"), "Valor"].sum()
-            despesa_total = df_fin.loc[df_fin["Tipo"].astype(str).str.lower().eq("despesa"), "Valor"].sum()
-            lucro_total = receita_total - despesa_total
+        fin_kpis = calculate_financial_summary(df_fin)
+        inv_kpis = analyze_inventory_kpis(df_est)
+        pub_kpis = analyze_public_kpis(df_pub)
+        sup_kpis = analyze_suppliers_kpis(df_forn)
+
+        self.cards["lucro_total"].setValue(fmt_currency(fin_kpis.get('lucro', 0)))
+        self.cards["receita_total"].setValue(fmt_currency(fin_kpis.get('receita', 0)))
+        self.cards["despesa_total"].setValue(fmt_currency(fin_kpis.get('despesa', 0)))
+        self.cards["rupturas"].setValue(str(inv_kpis.get('low_stock_count', 0)))
         
-        # Estoque
-        rupturas = 0
-        if not df_est.empty and {"Quantidade_Estoque", "Nivel_Minimo_Estoque"}.issubset(df_est.columns):
-            q = pd.to_numeric(df_est["Quantidade_Estoque"], errors="coerce")
-            n = pd.to_numeric(df_est["Nivel_Minimo_Estoque"], errors="coerce")
-            rupturas = int((q <= n).sum())
-
-        # Público-alvo
-        pct_fem = None
-        if not df_pub.empty and "Genero" in df_pub.columns and not df_pub.empty:
-            fem = (df_pub["Genero"].astype(str).str.lower() == "feminino").sum()
-            pct_fem = 100.0 * fem / len(df_pub)
-
-        # Fornecedores
-        rating = None
-        if not df_forn.empty and "Avaliacao" in df_forn.columns:
-            rating = pd.to_numeric(df_forn["Avaliacao"], errors="coerce").mean()
-
-        # --- Atualização dos Widgets ---
-        self.cards["lucro_total"].set_value(brl(lucro_total))
-        self.cards["receita_total"].set_value(brl(receita_total))
-        self.cards["despesa_total"].set_value(brl(despesa_total))
-        self.cards["rupturas"].set_value(str(rupturas))
-        self.cards["pct_fem"].set_value(f"{pct_fem:.1f}%" if pct_fem is not None else "—")
-        self.cards["rating"].set_value(f"{rating:.2f}" if rating is not None and pd.notna(rating) else "—")
+        pct_fem_val = pub_kpis.get('pct_female')
+        self.cards["pct_fem"].setValue(f"{pct_fem_val:.1f}%" if pd.notna(pct_fem_val) else "—")
         
-        # Highlights em texto
-        blocos = [
-            f"💰 <b>Financeiro</b><br>Receita total: <b>{brl(receita_total)}</b> · Despesas totais: <b>{brl(despesa_total)}</b> · Lucro total: <b>{brl(lucro_total)}</b>",
-            f"📦 <b>Estoque</b><br>Itens em ruptura (≤ mínimo): <b>{rupturas}</b>",
-            f"👥 <b>Público</b><br>Clientes do gênero feminino: <b>{pct_fem:.1f}%</b>" if pct_fem is not None else "",
-            f"🤝 <b>Fornecedores</b><br>Avaliação média: <b>{rating:.2f}</b>" if rating is not None and pd.notna(rating) else ""
-        ]
-        self.highlights.setText("<br><br>".join(filter(None, blocos)))
+        rating_val = sup_kpis.get('avg_rating')
+        self.cards["rating"].setValue(f"{rating_val:.2f}" if pd.notna(rating_val) else "—")
+        
+        html = f"""
+        <div style="line-height: 1.6;">
+            <p><b>💰 Financeiro:</b> A receita total foi de 
+            <span style="color: #1E90FF;"><b>{fmt_currency(fin_kpis.get('receita', 0))}</b></span>, 
+            com despesas de <span style="color: #DC143C;"><b>{fmt_currency(fin_kpis.get('despesa', 0))}</b></span>, 
+            resultando em um lucro de <span style="color: #2E8B57;"><b>{fmt_currency(fin_kpis.get('lucro', 0))}</b></span>.</p>
+
+            <p><b>📦 Estoque:</b> Atualmente, há 
+            <span style="color: #FF8C00;"><b>{inv_kpis.get('low_stock_count', 0)}</b></span> 
+            itens em nível de ruptura (igual ou abaixo do estoque mínimo).</p>
+
+            <p><b>👥 Público:</b> O perfil de clientes é composto por 
+            <span style="color: #FF69B4;"><b>{f'{pct_fem_val:.1f}%' if pd.notna(pct_fem_val) else 'N/A'}</b></span> 
+            do gênero feminino.</p>
+
+            <p><b>⭐ Fornecedores:</b> A avaliação média geral dos fornecedores é de 
+            <span style="color: #4682B4;"><b>{f'{rating_val:.2f}' if pd.notna(rating_val) else 'N/A'}</b></span>.</p>
+        </div>
+        """
+        self.highlights.setHtml(html)
 
     def _safe_load(self, name: str) -> pd.DataFrame:
         try:
