@@ -31,7 +31,7 @@ class DashboardFinancas(QWidget):
 
     def build_ui(self):
         root = QVBoxLayout(self); root.setContentsMargins(20, 20, 20, 20); root.setSpacing(16)
-        title = QLabel("Dashboard Financeiro"); title.setStyleSheet("font-size: 24px; font-weight: bold;"); root.addWidget(title)
+        title = QLabel("Dashboard de Finanças"); title.setStyleSheet("font-size: 24px; font-weight: bold;"); root.addWidget(title)
         kpi_layout = QGridLayout(); kpi_layout.setSpacing(16)
         self.kpi_receita  = KPIWidget("Receita Total",  value_color="#2E8B57")
         self.kpi_despesas = KPIWidget("Despesas Totais", value_color="#C21807")

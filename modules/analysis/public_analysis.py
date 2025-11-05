@@ -1,4 +1,5 @@
 # modules/analysis/public_analysis.py
+
 import pandas as pd
 from modules.utils.data_handler import DataRepository
 
@@ -36,13 +37,25 @@ def analyze_public_kpis(df: pd.DataFrame) -> dict:
     }
 
 def get_clients_by_location(df: pd.DataFrame, top_n: int = 10) -> pd.Series:
-    """Retorna a contagem de clientes por localização."""
-    if df is None or df.empty or 'Localizacao' not in df.columns:
+    """Retorna a contagem de clientes por cidade (a coluna de localização nos dados)."""
+    # A coluna de localização nos dados de origem é 'Cidade'.
+    # Trocamos 'Localizacao' por 'Cidade'.
+    location_col = 'Cidade'
+    
+    if df is None or df.empty or location_col not in df.columns:
         return pd.Series(dtype='object')
-    return df['Localizacao'].astype(str).value_counts().head(top_n)
+        
+    return df[location_col].astype(str).value_counts().head(top_n)
 
 def get_clients_by_gender(df: pd.DataFrame) -> pd.Series:
     """Retorna a contagem de clientes por gênero."""
     if df is None or df.empty or 'Genero' not in df.columns:
         return pd.Series(dtype='object')
     return df['Genero'].astype(str).value_counts()
+
+# --- NOVA FUNÇÃO ADICIONADA AQUI ---
+def get_clients_by_channel(df: pd.DataFrame) -> pd.Series:
+    """Retorna a contagem de clientes por canal de venda."""
+    if df is None or df.empty or 'Canal_de_venda' not in df.columns:
+        return pd.Series(dtype='object')
+    return df['Canal_de_venda'].astype(str).value_counts()
