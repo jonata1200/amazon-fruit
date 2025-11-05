@@ -18,29 +18,35 @@ def perfil_demografico():
     idade = df["Idade"].describe()[["mean","min","max"]].to_frame("Valor").reset_index()
     return {"genero": gen, "idade_stats": idade}
 
-def analyze_public_kpis(df: pd.DataFrame) -> dict:
-    """Analisa e retorna os KPIs do público-alvo."""
-    if df is None or df.empty:
-        return {'total_clients': 0, 'avg_age': float('nan'), 'avg_spend': float('nan'), 'pct_female': float('nan')}
-        
-    total_clients = len(df)
-    avg_age = pd.to_numeric(df.get('Idade'), errors='coerce').mean()
-    
-    gasto_col = 'Gasto_Medio' if 'Gasto_Medio' in df.columns else 'Ticket_Medio'
-    avg_spend = pd.to_numeric(df.get(gasto_col), errors='coerce').mean()
+def _get_change(current, previous):
+    if previous is None or pd.isna(previous) or previous == 0:
+        return None
+    return (current - previous) / previous
 
-    # --- LÓGICA ADICIONADA AQUI ---
-    pct_female = float('nan')
-    if 'Genero' in df.columns and not df.empty:
-        fem = (df["Genero"].astype(str).str.lower() == "feminino").sum()
-        pct_female = 100.0 * fem / len(df) if len(df) > 0 else 0.0
-    
-    return {
-        'total_clients': total_clients,
-        'avg_age': avg_age,
-        'avg_spend': avg_spend,
-        'pct_female': pct_female # Retorna o novo KPI
-    }
+def analyze_public_kpis(df_current: pd.DataFrame, df_previous: pd.DataFrame = None) -> dict:
+    """Analisa e retorna os KPIs do público-alvo para o período atual e a variação."""
+
+    def _calculate(df: pd.DataFrame):
+        if df is None or df.empty:
+            return {'total_clients': 0, 'avg_age': float('nan'), 'avg_spend': float('nan')}
+        
+        total_clients = len(df)
+        avg_age = pd.to_numeric(df.get('Idade'), errors='coerce').mean()
+        gasto_col = 'Gasto_Medio' if 'Gasto_Medio' in df.columns else 'Ticket_Medio'
+        avg_spend = pd.to_numeric(df.get(gasto_col), errors='coerce').mean()
+        
+        return {
+            'total_clients': total_clients,
+            'avg_age': avg_age,
+            'avg_spend': avg_spend
+        }
+
+    summary_current = _calculate(df_current)
+    summary_previous = _calculate(df_previous)
+
+    summary_current['total_clients_change'] = _get_change(summary_current['total_clients'], summary_previous['total_clients'])
+
+    return summary_current
 
 def get_clients_by_location(df: pd.DataFrame, top_n: int = 10) -> pd.Series:
     """Retorna a contagem de clientes por cidade (a coluna de localização nos dados)."""

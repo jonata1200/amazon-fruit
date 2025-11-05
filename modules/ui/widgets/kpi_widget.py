@@ -2,72 +2,70 @@
 
 from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel
 from PyQt6.QtCore import Qt
+import pandas as pd
 
 class KPIWidget(QFrame):
-    """
-    Um widget de card reutilizável para exibir um Indicador Chave de Performance (KPI).
-    Encapsula o título e o valor, facilitando a atualização.
-    """
     def __init__(self, title: str, value_color: str = None, parent=None):
         super().__init__(parent)
         self.setObjectName("KPIFrame")
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 10, 12, 10)
+        layout.setSpacing(4) # Espaçamento menor para acomodar o novo texto
 
-        title_label = QLabel(title)
-        title_label.setObjectName("KPITitleLabel")
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.title_label = QLabel(title)
+        self.title_label.setObjectName("KPITitleLabel")
+        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.value_label = QLabel("—") # Valor inicial é um placeholder
+        self.value_label = QLabel("—")
         self.value_label.setObjectName("KPIValueLabel")
-        self.value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         if value_color:
             self.value_label.setStyleSheet(f"color: {value_color};")
+        self.value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        layout.addWidget(title_label)
+        # --- MUDANÇA 1: Adicionar um label para a comparação ---
+        self.comparison_label = QLabel("") # Inicialmente vazio
+        self.comparison_label.setObjectName("KPIComparisonLabel")
+        self.comparison_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        layout.addWidget(self.title_label)
         layout.addWidget(self.value_label)
+        layout.addWidget(self.comparison_label) # Adiciona o novo label ao layout
 
     def setValue(self, text: str):
-        """Atualiza o texto do valor exibido no KPI."""
+        """Método antigo para compatibilidade com outros dashboards."""
         self.value_label.setText(text)
+        self.comparison_label.setText("") # Limpa a comparação
 
-    # dentro da classe KPIWidget
-    def setText(self, value):
+    # --- MUDANÇA 2: Novo método para popular o widget com dados ricos ---
+    def update_values(self, main_value, comparison_change: float | None, formatter_func):
         """
-        Aceita str/int/float, formata e escreve no label de valor.
-        Mantém compatibilidade com chamadas existentes no app.
+        Atualiza o KPI com um valor principal e uma variação percentual.
+        - main_value: O valor a ser exibido (ex: 1500000)
+        - comparison_change: A variação percentual (ex: 0.15 para +15%)
+        - formatter_func: A função para formatar o valor principal (ex: fmt_currency)
         """
-        # tenta formatar número (pt-BR), senão vira string simples
-        try:
-            if isinstance(value, (int, float)):
-                # formatação 1.234,56 (sem depender de locale do SO)
-                txt = f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        # Formata e exibe o valor principal
+        self.value_label.setText(formatter_func(main_value))
+
+        # Lida com a variação
+        if comparison_change is not None and pd.notna(comparison_change):
+            # Formata o percentual com sinal de '+' ou '-'
+            change_text = f"{comparison_change:+.1%}"
+            
+            # Define o ícone e a cor com base no valor
+            if comparison_change > 0:
+                icon = "▲"
+                color = "#2E8B57" # Verde
+            elif comparison_change < 0:
+                icon = "▼"
+                color = "#C21807" # Vermelho
             else:
-                txt = str(value)
-        except Exception:
-            txt = str(value)
-
-        # tenta achar o label principal
-        lbl = getattr(self, "value_label", None) or getattr(self, "label_value", None)
-        if lbl is not None:
-            lbl.setText(txt)
+                icon = ""
+                color = "#666666" # Cinza
+            
+            self.comparison_label.setText(f"{icon} {change_text}")
+            self.comparison_label.setStyleSheet(f"color: {color};")
         else:
-            # última tentativa: se existir algum QLabel filho, usa o primeiro
-            try:
-                # funciona com PyQt6 ou PySide6
-                for child in self.findChildren(type(getattr(self, "title_label", object()))):
-                    # se title_label for QLabel, acima pode dar ruim; vamos só procurar por objetos com setText
-                    pass
-                # fallback genérico: percorre filhos e acha algo com setText
-                for child in self.children():
-                    if hasattr(child, "setText"):
-                        child.setText(txt)
-                        return
-            except Exception:
-                pass
-            # se não houver nenhum label, evita quebrar o app
-            setattr(self, "_last_text", txt)
-
-    # opcional: alias mais explícito se em algum lugar chamarem set_value
-    set_value = setText
+            # Se não houver variação, limpa o texto
+            self.comparison_label.setText("")
