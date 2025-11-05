@@ -1,8 +1,8 @@
 # modules/dashboards/dashboard_financas.py
 
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QFrame, QTableView, QTabWidget, QGridLayout
+    QWidget, QVBoxLayout, QLabel, QHeaderView,
+    QTableView, QTabWidget, QGridLayout
 )
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -101,18 +101,45 @@ class DashboardFinancas(QWidget):
         if df is None or df.empty:
             set_table_from_df(self.table_extrato, pd.DataFrame()); return
 
+        # --- Preparação dos Dados (permanece igual) ---
         if "Data" in df.columns:
             df["Data"] = pd.to_datetime(df["Data"], errors="coerce").dt.strftime('%d/%m/%Y')
         if "Valor" in df.columns:
             df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce").fillna(0.0).apply(fmt_currency)
 
-        rename_map = {"Data": "Data", "Tipo": "Tipo", "Categoria": "Categoria", "Descricao": "Descrição", "Valor": "Valor", "Metodo_Pagamento": "Forma de Pagto."}
+        rename_map = {"Data": "Data", "Tipo": "Tipo", "Categoria": "Categoria", "Descricao": "Descrição", "Valor": "Valor", "Metodo_Pagamento": "Forma de Pagamento"}
         df = df.rename(columns=rename_map)
         
-        cols_to_show = ["Data", "Tipo", "Categoria", "Descrição", "Valor", "Forma de Pagto."]
+        cols_to_show = ["Data", "Tipo", "Categoria", "Descrição", "Valor", "Forma de Pagamento"]
         existing_cols = [col for col in cols_to_show if col in df.columns]
         
-        set_table_from_df(self.table_extrato, df[existing_cols])
+        # Pega o DataFrame final com as colunas na ordem certa
+        df_display = df[existing_cols]
+        
+        # Popula a tabela com os dados
+        set_table_from_df(self.table_extrato, df_display)
+
+        # --- NOVO: Lógica de Redimensionamento Híbrido ---
+        header = self.table_extrato.horizontalHeader()
+        model = self.table_extrato.model()
+        if model is None: return
+
+        try:
+            # Pega os nomes das colunas como estão na tabela
+            column_names = [df_display.columns[i] for i in range(df_display.shape[1])]
+            desc_index = column_names.index("Descrição")
+
+            # Itera sobre as colunas e define o modo de redimensionamento para cada uma
+            for i in range(len(column_names)):
+                if i == desc_index:
+                    # A coluna "Descrição" se estica para preencher o espaço
+                    header.setSectionResizeMode(i, QHeaderView.ResizeMode.Stretch)
+                else:
+                    # As outras colunas se ajustam ao conteúdo
+                    header.setSectionResizeMode(i, QHeaderView.ResizeMode.ResizeToContents)
+        except ValueError:
+            # Caso a coluna "Descrição" não seja encontrada, usa o modo Stretch para todas
+            header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
     def _rebuild_charts(self):
         # Limpa os canvases antigos se existirem

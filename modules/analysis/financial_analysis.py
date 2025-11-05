@@ -1,4 +1,5 @@
 # modules/analysis/financial_analysis.py
+
 from modules.utils.data_handler import DataRepository
 import pandas as pd
 
@@ -41,5 +42,5 @@ def get_expense_distribution(df: pd.DataFrame) -> pd.Series:
     if df is None or df.empty or not {'Categoria', 'Tipo', 'Valor'}.issubset(df.columns):
         return pd.Series(dtype='float64')
     
-    expenses_df = df[df['Tipo'].astype(str).str.lower().str.contains('saída', case=False)]
+    expenses_df = df[df['Tipo'].astype(str).str.lower() == 'despesa']
     return expenses_df.groupby('Categoria')['Valor'].sum().sort_values(ascending=False)
