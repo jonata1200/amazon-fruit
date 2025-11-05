@@ -17,14 +17,10 @@ def df_to_model(df: pd.DataFrame) -> QStandardItemModel:
 
 def set_table_from_df(table: QTableView, df: pd.DataFrame):
     model = df_to_model(df)
-    
     header = table.horizontalHeader()
-    # MODO CORRIGIDO: Distribui o espaço entre todas as colunas
     header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-    
     table.setModel(model)
     table.setAlternatingRowColors(True)
-    # A linha 'setStretchLastSection' foi removida
 
 def set_table_with_conditional_formatting(table: QTableView, df: pd.DataFrame):
     model = df_to_model(df)
@@ -35,16 +31,20 @@ def set_table_with_conditional_formatting(table: QTableView, df: pd.DataFrame):
 
     for i, row_data in df.iterrows():
         try:
-            qtd_str = str(row_data.get('Quantidade em Estoque', '0')).replace('R$', '').replace('.', '').replace(',', '.').strip()
-            min_str = str(row_data.get('Nível Mínimo de Estoque', '0')).replace('R$', '').replace('.', '').replace(',', '.').strip()
+            # --- MUDANÇA PRINCIPAL AQUI ---
+            # Procurando pelos nomes de coluna novos que você definiu
+            qtd_str = str(row_data.get('Estoque Atual', '0')).replace('R$', '').replace('.', '').replace(',', '.').strip()
+            min_str = str(row_data.get('Estoque Mínimo', '0')).replace('R$', '').replace('.', '').replace(',', '.').strip()
+            # --- FIM DA MUDANÇA ---
+            
             qtd = float(qtd_str)
             minimo = float(min_str)
             
             color = None
             if qtd <= minimo:
-                color = QColor("#C21807")
+                color = QColor("#C21807") # Vermelho para alerta
             elif qtd <= minimo * 1.2:
-                color = QColor("#FFBF00")
+                color = QColor("#FFBF00") # Amarelo para atenção
 
             if color:
                 for j in range(model.columnCount()):
@@ -54,7 +54,5 @@ def set_table_with_conditional_formatting(table: QTableView, df: pd.DataFrame):
 
     table.setModel(model)
     header = table.horizontalHeader()
-    # MODO CORRIGIDO: Distribui o espaço entre todas as colunas
     header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
     table.setAlternatingRowColors(True)
-    # A linha 'setStretchLastSection' foi removida
