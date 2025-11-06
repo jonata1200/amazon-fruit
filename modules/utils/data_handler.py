@@ -178,3 +178,20 @@ class DataHandler:
         if key == "recursos_humanos": return self._repo.load_rh()
         if key == "fornecedores": return self._repo.load_fornecedores()
         return pd.DataFrame()
+    
+    def get_date_range(self) -> tuple[pd.Timestamp | None, pd.Timestamp | None]:
+        """
+        Carrega a tabela de finanças completa e retorna a data mínima e máxima.
+        """
+        # Usa o método que ignora filtros para garantir que pegamos o intervalo completo.
+        df_fin = self.load_full_unfiltered_table("Financas")
+        
+        if df_fin is None or df_fin.empty or 'Data' not in df_fin.columns:
+            return None, None
+            
+        # Remove quaisquer datas inválidas antes de calcular min/max
+        valid_dates = df_fin['Data'].dropna()
+        if valid_dates.empty:
+            return None, None
+            
+        return valid_dates.min(), valid_dates.max()

@@ -78,3 +78,10 @@ class PeriodBar(QWidget):
             QTableView#qt_calendar_calendarview::item:!enabled { color: #9E9E9E; }
             QTableView#qt_calendar_calendarview QHeaderView::section { background: #F5F5F5; color: #202124; }
         """)
+
+    def set_dates(self, start_date, end_date):
+        """Define as datas dos widgets de calendário externamente."""
+        if start_date:
+            self.dt_start.setDate(start_date)
+        if end_date:
+            self.dt_end.setDate(end_date)
