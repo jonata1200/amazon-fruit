@@ -52,3 +52,25 @@ def create_supplier_product_matrix(df: pd.DataFrame) -> pd.DataFrame:
     matrix = pd.crosstab(df_exp['Nome_Fornecedor'], df_exp['Produtos_Fornecidos'])
     
     return matrix
+
+def get_top_bottom_suppliers(df: pd.DataFrame, n: int = 5) -> dict:
+    """Retorna os N melhores e os N piores fornecedores por avaliação."""
+    if df is None or df.empty or 'Avaliacao' not in df.columns:
+        return {'top': pd.DataFrame(), 'bottom': pd.DataFrame()}
+
+    # Garante que a avaliação é numérica e remove fornecedores sem nota
+    df_sorted = df.copy()
+    df_sorted['Avaliacao'] = pd.to_numeric(df_sorted['Avaliacao'], errors='coerce')
+    df_sorted.dropna(subset=['Avaliacao'], inplace=True)
+
+    top = df_sorted.sort_values('Avaliacao', ascending=False).head(n)
+    bottom = df_sorted.sort_values('Avaliacao', ascending=True).head(n)
+    
+    return {'top': top, 'bottom': bottom}
+
+def get_suppliers_by_state(df: pd.DataFrame) -> pd.Series:
+    """Retorna a contagem de fornecedores por estado."""
+    if df is None or df.empty or 'Estado' not in df.columns:
+        return pd.Series(dtype='object')
+        
+    return df['Estado'].value_counts()
