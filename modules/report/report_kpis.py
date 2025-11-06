@@ -1,4 +1,5 @@
 # modules/report/report_kpis.py
+from ..analysis.financial_analysis import calculate_financial_summary
 from reportlab.platypus import Table, TableStyle, Spacer, Paragraph
 from reportlab.lib import colors
 from reportlab.lib.units import inch
@@ -66,13 +67,20 @@ def add_kpis_estoque(story, df, colors_dict):
     ], colors_dict)
 
 def add_kpis_financas(story, df, colors_dict):
-    if df is None or df.empty: return
-    if not {'Valor','Tipo'}.issubset(df.columns): return
-    tipo = df['Tipo'].astype(str).str.lower()
-    val  = pd.to_numeric(df['Valor'], errors='coerce').fillna(0.0)
-    receita = float(val[tipo.str.startswith('entrada')].sum())
-    despesa = float(val[tipo.str.startswith('saída')].sum())
-    lucro = receita - despesa
+    """
+    Usa a função de análise centralizada para calcular e exibir os KPIs financeiros.
+    """
+    if df is None:
+        df = pd.DataFrame() # Garante que a função receba um DataFrame
+
+    # --- MUDANÇA 2: Usa a mesma função que o dashboard ---
+    # Chamamos a função sem um DataFrame anterior, pois o relatório mostra apenas o período selecionado.
+    summary = calculate_financial_summary(df)
+    
+    receita = summary.get('receita', 0.0)
+    despesa = summary.get('despesa', 0.0)
+    lucro = summary.get('lucro', 0.0)
+    
     _kpi_table(story, [
         {"title":"Receita Total", "value": _fmt_currency(receita), "color":"#2E8B57"},
         {"title":"Despesas Totais", "value": _fmt_currency(despesa), "color":"#D62728"},

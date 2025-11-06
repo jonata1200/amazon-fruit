@@ -1,20 +1,17 @@
 # modules/dashboards/dashboard_fornecedores.py
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableView, QTabWidget
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableView, QTabWidget
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from modules.analysis.suppliers_analysis import analyze_suppliers_kpis
 from modules.ui.qt_utils import set_table_from_df
 from modules.ui.widgets.kpi_widget import KPIWidget
 from modules.utils.formatters import fmt_rating
-from modules.analysis.suppliers_analysis import (
-    analyze_suppliers_kpis,
-    create_supplier_product_matrix,
-    get_top_bottom_suppliers,
-    get_suppliers_by_state
+from .chart_generator import (
+    create_supplier_ranking_chart,
+    create_supplier_geo_chart,
+    create_supplier_heatmap
 )
 
 class DashboardFornecedores(QWidget):
@@ -86,41 +83,21 @@ class DashboardFornecedores(QWidget):
         set_table_from_df(self.table_fornecedores, df[existing_cols])
 
     def _rebuild_charts(self):
-        # Limpa todos os canvases
         if self.canvas_ranking: self.layout_ranking.removeWidget(self.canvas_ranking); self.canvas_ranking.deleteLater(); self.canvas_ranking = None
         if self.canvas_geografico: self.layout_geografico.removeWidget(self.canvas_geografico); self.canvas_geografico.deleteLater(); self.canvas_geografico = None
         if self.canvas_heatmap: self.layout_heatmap.removeWidget(self.canvas_heatmap); self.canvas_heatmap.deleteLater(); self.canvas_heatmap = None
 
-        text_color = 'black'; bg_color = '#FFFFFF'
+        # Gráfico 1: Ranking (Top/Bottom)
+        fig1 = create_supplier_ranking_chart(self.df_fornecedores)
+        self.canvas_ranking = FigureCanvas(fig1)
+        self.layout_ranking.addWidget(self.canvas_ranking)
 
-        # --- MUDANÇA 3: A lógica de plotagem é a mesma, só muda onde cada gráfico é adicionado ---
+        # Gráfico 2: Geográfico
+        fig2 = create_supplier_geo_chart(self.df_fornecedores)
+        self.canvas_geografico = FigureCanvas(fig2)
+        self.layout_geografico.addWidget(self.canvas_geografico)
 
-        # Gráfico 1: Top e Bottom 5 Fornecedores
-        fig1, (ax_top, ax_bottom) = plt.subplots(2, 1, figsize=(8, 8), tight_layout=True)
-        fig1.patch.set_facecolor(bg_color)
-        suppliers = get_top_bottom_suppliers(self.df_fornecedores, n=5)
-        top5 = suppliers['top']; bottom5 = suppliers['bottom']
-        if not top5.empty:
-            top5.sort_values('Avaliacao', ascending=True).plot(kind='barh', x='Nome_Fornecedor', y='Avaliacao', ax=ax_top, color='#2ECC71', legend=False)
-            ax_top.set_title("Top 5 Melhores Fornecedores", color=text_color); ax_top.set_xlim(0, 5)
-        if not bottom5.empty:
-            bottom5.sort_values('Avaliacao', ascending=False).plot(kind='barh', x='Nome_Fornecedor', y='Avaliacao', ax=ax_bottom, color='#E74C3C', legend=False)
-            ax_bottom.set_title("Top 5 Piores Fornecedores", color=text_color); ax_bottom.set_xlim(0, 5)
-        self.canvas_ranking = FigureCanvas(fig1); self.layout_ranking.addWidget(self.canvas_ranking)
-
-        # Gráfico 2: Fornecedores por Estado
-        fig2 = Figure(tight_layout=True); fig2.patch.set_facecolor(bg_color); ax2 = fig2.add_subplot(111); ax2.set_facecolor(bg_color)
-        by_state = get_suppliers_by_state(self.df_fornecedores)
-        if not by_state.empty:
-            by_state.sort_values().plot(kind='barh', ax=ax2, color='#3498DB')
-            ax2.set_title("Distribuição de Fornecedores por Estado", color=text_color)
-        self.canvas_geografico = FigureCanvas(fig2); self.layout_geografico.addWidget(self.canvas_geografico)
-
-        # Gráfico 3: Matriz (Heatmap)
-        fig3 = Figure(figsize=(10, 8), tight_layout=True); fig3.patch.set_facecolor(bg_color); ax3 = fig3.add_subplot(111)
-        matrix = create_supplier_product_matrix(self.df_fornecedores)
-        if not matrix.empty:
-            sns.heatmap(matrix, ax=ax3, cmap="YlGn", linewidths=.5, linecolor='lightgray', cbar=False)
-            ax3.set_title("Matriz de Fornecedores por Produtos", color=text_color, fontsize=14)
-            ax3.tick_params(axis='x', labelrotation=45, colors=text_color); ax3.tick_params(axis='y', colors=text_color)
-        self.canvas_heatmap = FigureCanvas(fig3); self.layout_heatmap.addWidget(self.canvas_heatmap)
+        # Gráfico 3: Heatmap
+        fig3 = create_supplier_heatmap(self.df_fornecedores)
+        self.canvas_heatmap = FigureCanvas(fig3)
+        self.layout_heatmap.addWidget(self.canvas_heatmap)

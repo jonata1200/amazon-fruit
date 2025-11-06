@@ -1,21 +1,19 @@
 # modules/dashboards/dashboard_recursos_humanos.py
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableView, QTabWidget, QGridLayout
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 import pandas as pd
-import matplotlib.pyplot as plt
 
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableView, QTabWidget, QGridLayout
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from modules.analysis.hr_analysis import analyze_hr_kpis
 from modules.ui.qt_utils import set_table_from_df
 from modules.ui.widgets.kpi_widget import KPIWidget
 from modules.utils.formatters import fmt_currency
 # Importa as novas funções de análise
-from modules.analysis.hr_analysis import (
-    analyze_hr_kpis,
-    get_headcount_by_department,
-    get_cost_by_department,
-    get_headcount_by_role,
-    get_hiring_over_time
+from .chart_generator import (
+    create_hr_headcount_chart,
+    create_hr_cost_chart,
+    create_hr_role_chart,
+    create_hr_hiring_chart
 )
 
 class DashboardRecursosHumanos(QWidget):
@@ -85,7 +83,6 @@ class DashboardRecursosHumanos(QWidget):
         self.kpi_custo_mensal.setValue(fmt_currency(k.get('total_monthly_cost',0.0)))
         
     def _rebuild_tables(self):
-        # ... (código deste método permanece o mesmo) ...
         df = self.df_rh.copy()
         if df is None or df.empty: set_table_from_df(self.table_rh, pd.DataFrame()); return
         if "Data_Contratacao" in df.columns: df["Data_Contratacao"] = pd.to_datetime(df["Data_Contratacao"], errors="coerce").dt.strftime("%d/%m/%Y")
@@ -97,41 +94,27 @@ class DashboardRecursosHumanos(QWidget):
         set_table_from_df(self.table_rh, df[existing_cols])
 
     def _rebuild_charts(self):
-        # Limpa todos os canvases
         if self.canvas_headcount: self.layout_headcount.removeWidget(self.canvas_headcount); self.canvas_headcount.deleteLater(); self.canvas_headcount = None
         if self.canvas_cost: self.layout_cost.removeWidget(self.canvas_cost); self.canvas_cost.deleteLater(); self.canvas_cost = None
         if self.canvas_role: self.layout_role.removeWidget(self.canvas_role); self.canvas_role.deleteLater(); self.canvas_role = None
         if self.canvas_hiring: self.layout_hiring.removeWidget(self.canvas_hiring); self.canvas_hiring.deleteLater(); self.canvas_hiring = None
 
-        text_color = 'black'; bg_color = '#FFFFFF'
-
-        # --- Geração dos 4 Gráficos ---
-
         # Gráfico 1: Headcount por Departamento
-        fig1 = Figure(tight_layout=True); fig1.patch.set_facecolor(bg_color); ax1 = fig1.add_subplot(111); ax1.set_facecolor(bg_color)
-        headcount = get_headcount_by_department(self.df_rh)
-        if not headcount.empty: headcount.sort_values().plot(kind='barh', ax=ax1, color='#6A0DAD')
-        ax1.set_title("Nº de Funcionários por Depto.", color=text_color)
-        self.canvas_headcount = FigureCanvas(fig1); self.layout_headcount.addWidget(self.canvas_headcount)
+        fig1 = create_hr_headcount_chart(self.df_rh)
+        self.canvas_headcount = FigureCanvas(fig1)
+        self.layout_headcount.addWidget(self.canvas_headcount)
         
         # Gráfico 2: Custo por Departamento
-        fig2 = Figure(tight_layout=True); fig2.patch.set_facecolor(bg_color); ax2 = fig2.add_subplot(111); ax2.set_facecolor(bg_color)
-        cost = get_cost_by_department(self.df_rh)
-        if not cost.empty: cost.plot(kind='barh', ax=ax2, color='#3498DB')
-        ax2.set_title("Custo Mensal por Depto.", color=text_color)
-        self.canvas_cost = FigureCanvas(fig2); self.layout_cost.addWidget(self.canvas_cost)
+        fig2 = create_hr_cost_chart(self.df_rh)
+        self.canvas_cost = FigureCanvas(fig2)
+        self.layout_cost.addWidget(self.canvas_cost)
         
         # Gráfico 3: Distribuição por Cargo
-        fig3 = Figure(tight_layout=True); fig3.patch.set_facecolor(bg_color); ax3 = fig3.add_subplot(111); ax3.set_facecolor(bg_color)
-        roles = get_headcount_by_role(self.df_rh)
-        if not roles.empty: roles.sort_values().plot(kind='barh', ax=ax3, color='#2ECC71')
-        ax3.set_title("Top 10 Cargos na Empresa", color=text_color)
-        self.canvas_role = FigureCanvas(fig3); self.layout_role.addWidget(self.canvas_role)
+        fig3 = create_hr_role_chart(self.df_rh)
+        self.canvas_role = FigureCanvas(fig3)
+        self.layout_role.addWidget(self.canvas_role)
         
         # Gráfico 4: Histórico de Contratações
-        fig4 = Figure(tight_layout=True); fig4.patch.set_facecolor(bg_color); ax4 = fig4.add_subplot(111); ax4.set_facecolor(bg_color)
-        hiring = get_hiring_over_time(self.df_rh)
-        if not hiring.empty: hiring.plot(kind='line', ax=ax4, marker='o', color='#E67E22')
-        ax4.set_title("Contratações ao Longo do Tempo", color=text_color)
-        ax4.tick_params(axis='x', rotation=45, labelsize=8)
-        self.canvas_hiring = FigureCanvas(fig4); self.layout_hiring.addWidget(self.canvas_hiring)
+        fig4 = create_hr_hiring_chart(self.df_rh)
+        self.canvas_hiring = FigureCanvas(fig4)
+        self.layout_hiring.addWidget(self.canvas_hiring)

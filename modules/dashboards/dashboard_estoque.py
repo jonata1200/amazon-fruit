@@ -1,15 +1,17 @@
 # modules/dashboards/dashboard_estoque.py
 
 import pandas as pd
+
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QLabel, QTableView, QTabWidget
-from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from modules.ui.qt_utils import set_table_with_conditional_formatting
 from modules.ui.widgets.kpi_widget import KPIWidget
 from modules.utils.formatters import fmt_currency
-
-from modules.analysis.financial_analysis import get_top_selling_items, get_least_selling_items
-from modules.analysis.inventory_analysis import get_low_stock_items
+from .chart_generator import (
+    create_top_selling_chart,
+    create_least_selling_chart,
+    create_stock_rupture_chart
+)
 
 class DashboardEstoque(QWidget):
     def __init__(self, data_handler):
@@ -112,22 +114,17 @@ class DashboardEstoque(QWidget):
         if self.canvas_menos_vendidos: self.layout_menos_vendidos.removeWidget(self.canvas_menos_vendidos); self.canvas_menos_vendidos.deleteLater(); self.canvas_menos_vendidos = None
         if self.canvas_ruptura: self.layout_ruptura.removeWidget(self.canvas_ruptura); self.canvas_ruptura.deleteLater(); self.canvas_ruptura = None
         
-        text_color = 'black'; bg_color = '#FFFFFF'
-        
-        fig1 = Figure(tight_layout=True); fig1.patch.set_facecolor(bg_color); ax1 = fig1.add_subplot(111); ax1.set_facecolor(bg_color)
-        ser_prod = get_top_selling_items(self.df_financas, self.df_estoque_completo, top_n=10)
-        if not ser_prod.empty: ser_prod.sort_values().plot(kind='barh', ax=ax1, color='#2ECC71')
-        ax1.set_title("Top 10 Produtos por Faturamento de Vendas", color=text_color); ax1.set_ylabel(""); ax1.set_xlabel("Valor Total Vendido (R$)", color=text_color)
-        self.canvas_top_vendidos = FigureCanvas(fig1); self.layout_top_vendidos.addWidget(self.canvas_top_vendidos)
+        # Gráfico 1: Top Produtos Vendidos
+        fig1 = create_top_selling_chart(self.df_financas, self.df_estoque_completo)
+        self.canvas_top_vendidos = FigureCanvas(fig1)
+        self.layout_top_vendidos.addWidget(self.canvas_top_vendidos)
 
-        fig2 = Figure(tight_layout=True); fig2.patch.set_facecolor(bg_color); ax2 = fig2.add_subplot(111); ax2.set_facecolor(bg_color)
-        ser_least = get_least_selling_items(self.df_financas, self.df_estoque_completo, top_n=10)
-        if not ser_least.empty: ser_least.sort_values(ascending=False).plot(kind='barh', ax=ax2, color='#F39C12')
-        ax2.set_title("10 Produtos com Menor Faturamento (Incluindo Vendas Nulas)", color=text_color); ax2.set_ylabel(""); ax2.set_xlabel("Valor Total Vendido (R$)", color=text_color)
-        self.canvas_menos_vendidos = FigureCanvas(fig2); self.layout_menos_vendidos.addWidget(self.canvas_menos_vendidos)
+        # Gráfico 2: Produtos Menos Vendidos
+        fig2 = create_least_selling_chart(self.df_financas, self.df_estoque_completo)
+        self.canvas_menos_vendidos = FigureCanvas(fig2)
+        self.layout_menos_vendidos.addWidget(self.canvas_menos_vendidos)
         
-        fig3 = Figure(tight_layout=True); fig3.patch.set_facecolor(bg_color); ax3 = fig3.add_subplot(111); ax3.set_facecolor(bg_color)
-        df_ruptura = get_low_stock_items(self.df_estoque, top_n=10)
-        if not df_ruptura.empty: df_ruptura.sort_values('gap', ascending=True).plot(kind='barh', x='Nome_Produto', y='gap', ax=ax3, legend=False, color='#E74C3C')
-        ax3.set_title("Maiores Rupturas de Estoque (Gap)", color=text_color); ax3.set_ylabel("")
-        self.canvas_ruptura = FigureCanvas(fig3); self.layout_ruptura.addWidget(self.canvas_ruptura)
+        # Gráfico 3: Maiores Rupturas
+        fig3 = create_stock_rupture_chart(self.df_estoque)
+        self.canvas_ruptura = FigureCanvas(fig3)
+        self.layout_ruptura.addWidget(self.canvas_ruptura)

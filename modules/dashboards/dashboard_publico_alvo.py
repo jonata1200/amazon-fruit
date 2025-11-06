@@ -1,24 +1,21 @@
 # modules/dashboards/dashboard_publico_alvo.py
 
-from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QGridLayout, QLabel, QTableView, QTabWidget
-)
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 import pandas as pd
 import numpy as np
 
-# 1. IMPORTAÇÕES CENTRALIZADAS
-# Importa as funções de análise para manter a lógica de negócio separada da UI
-from modules.analysis.public_analysis import (
-    analyze_public_kpis,
-    get_clients_by_location,
-    get_clients_by_gender,
-    get_clients_by_channel
+from PyQt6.QtWidgets import (
+    QWidget, QVBoxLayout, QGridLayout, QLabel, QTableView, QTabWidget
 )
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from modules.ui.qt_utils import set_table_from_df
 from modules.ui.widgets.kpi_widget import KPIWidget
 from modules.utils.formatters import fmt_currency, fmt_age
+from modules.analysis.public_analysis import analyze_public_kpis
+from .chart_generator import (
+    create_public_location_chart,
+    create_public_gender_chart,
+    create_public_channel_chart
+)
 
 class DashboardPublicoAlvo(QWidget):
     def __init__(self, data_handler):
@@ -144,50 +141,21 @@ class DashboardPublicoAlvo(QWidget):
         set_table_from_df(self.table_clientes, df[existing_cols])
 
     def _rebuild_charts(self):
-        # Limpeza dos canvases antigos
-        if self.canvas_location and self.canvas_location.parent() is not None: self.layout_location.removeWidget(self.canvas_location); self.canvas_location.deleteLater()
-        if self.canvas_gender and self.canvas_gender.parent() is not None: self.layout_gender.removeWidget(self.canvas_gender); self.canvas_gender.deleteLater()
-        # --- MUDANÇA 4: Adicionar limpeza para o novo canvas ---
-        if self.canvas_canal and self.canvas_canal.parent() is not None: self.layout_canal.removeWidget(self.canvas_canal); self.canvas_canal.deleteLater()
+        if self.canvas_location: self.layout_location.removeWidget(self.canvas_location); self.canvas_location.deleteLater()
+        if self.canvas_gender: self.layout_gender.removeWidget(self.canvas_gender); self.canvas_gender.deleteLater()
+        if self.canvas_canal: self.layout_canal.removeWidget(self.canvas_canal); self.canvas_canal.deleteLater()
 
-        text_color = 'black'
-        bg_color = '#FFFFFF'
+        # Gráfico 1: Localização
+        fig1 = create_public_location_chart(self.df_publico)
+        self.canvas_location = FigureCanvas(fig1)
+        self.layout_location.addWidget(self.canvas_location)
 
-        # Gráfico 1: Barras por Localização (sem mudanças)
-        fig1 = Figure(tight_layout=True); fig1.patch.set_facecolor(bg_color)
-        ax1 = fig1.add_subplot(111); ax1.set_facecolor(bg_color)
-        ser_loc = get_clients_by_location(self.df_publico, top_n=10)
-        if not ser_loc.empty: ser_loc.sort_values().plot(kind='barh', ax=ax1, color='#6A0DAD')
-        ax1.set_title("Top 10 Clientes por Localização", color=text_color)
-        ax1.tick_params(axis='x', colors=text_color); ax1.tick_params(axis='y', colors=text_color)
-        self.canvas_location = FigureCanvas(fig1); self.layout_location.addWidget(self.canvas_location)
+        # Gráfico 2: Gênero
+        fig2 = create_public_gender_chart(self.df_publico)
+        self.canvas_gender = FigureCanvas(fig2)
+        self.layout_gender.addWidget(self.canvas_gender)
 
-        # Gráfico 2: Pizza por Gênero
-        fig2 = Figure(tight_layout=True); fig2.patch.set_facecolor(bg_color)
-        ax2 = fig2.add_subplot(111); ax2.set_facecolor(bg_color)
-        ser_gen = get_clients_by_gender(self.df_publico)
-        if not ser_gen.empty:
-            # --- MUDANÇA 5: Lógica de cores customizada ---
-            color_map = {
-                "Feminino": "#FF69B4",  # Rosa choque
-                "Masculino": "#1E90FF"  # Azul dodger
-            }
-            # Cria a lista de cores na mesma ordem que os dados
-            pie_colors = [color_map.get(label, '#CCCCCC') for label in ser_gen.index]
-
-            ax2.pie(ser_gen.values, labels=ser_gen.index, autopct='%1.1f%%', startangle=90, colors=pie_colors)
-        ax2.set_title("Distribuição por Gênero", color=text_color)
-        self.canvas_gender = FigureCanvas(fig2); self.layout_gender.addWidget(self.canvas_gender)
-
-        # --- MUDANÇA 6: Código para o novo gráfico de canais de venda ---
-        fig3 = Figure(tight_layout=True); fig3.patch.set_facecolor(bg_color)
-        ax3 = fig3.add_subplot(111); ax3.set_facecolor(bg_color)
-        
-        # Usa a nova função de análise
-        ser_canal = get_clients_by_channel(self.df_publico)
-        if not ser_canal.empty:
-            ser_canal.sort_values().plot(kind='barh', ax=ax3, color='#FFA500') # Laranja para destacar
-        
-        ax3.set_title("Contagem de Clientes por Canal de Venda", color=text_color)
-        ax3.tick_params(axis='x', colors=text_color); ax3.tick_params(axis='y', colors=text_color)
-        self.canvas_canal = FigureCanvas(fig3); self.layout_canal.addWidget(self.canvas_canal)
+        # Gráfico 3: Canal de Venda
+        fig3 = create_public_channel_chart(self.df_publico)
+        self.canvas_canal = FigureCanvas(fig3)
+        self.layout_canal.addWidget(self.canvas_canal)

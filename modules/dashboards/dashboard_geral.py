@@ -1,13 +1,13 @@
 # modules/dashboards/dashboard_geral.py
 
+import pandas as pd
+
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QFrame, QPushButton, QFileDialog, QMessageBox
 )
-from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-import pandas as pd
-
+from .chart_generator import create_general_evolution_chart
 from ..report.report_generator import ReportGenerator
 
 class DashboardGeral(QWidget):
@@ -39,46 +39,16 @@ class DashboardGeral(QWidget):
         self.df_financas = self.data_handler.load_table("Financas")
 
     def _rebuild_charts(self):
-        """
-        Altera o tipo e as cores do gráfico para corresponder ao estilo do dashboard de Finanças.
-        """
-        if self.canvas_crescimento: self.layout_crescimento.removeWidget(self.canvas_crescimento); self.canvas_crescimento.deleteLater(); self.canvas_crescimento = None
+        # --- LÓGICA DE PLOTAGEM REMOVIDA DAQUI ---
+        if self.canvas_crescimento:
+            self.layout_crescimento.removeWidget(self.canvas_crescimento)
+            self.canvas_crescimento.deleteLater()
+            self.canvas_crescimento = None
         
-        text_color = 'black'
-        bg_color = '#FFFFFF'
+        # Chama a função centralizada para obter o gráfico pronto
+        fig = create_general_evolution_chart(self.df_financas)
         
-        fig = Figure(figsize=(10, 6), tight_layout=True); fig.patch.set_facecolor(bg_color); ax1 = fig.add_subplot(111); ax1.set_facecolor(bg_color)
-
-        df_fin = self.df_financas.copy()
-        if not df_fin.empty and 'Data' in df_fin.columns:
-            df_fin['MesAno'] = pd.to_datetime(df_fin['Data'], errors='coerce').dt.to_period('M').astype(str)
-            monthly = df_fin.groupby(['MesAno', 'Tipo'])['Valor'].sum().unstack(fill_value=0)
-            if 'Receita' not in monthly: monthly['Receita'] = 0
-            if 'Despesa' not in monthly: monthly['Despesa'] = 0
-            monthly['Lucro'] = monthly['Receita'] - monthly['Despesa']
-            
-            # --- MUDANÇA APLICADA AQUI ---
-            # O código hexadecimal foi alterado para um laranja mais escuro.
-            cor_faturamento = '#E67E22'  # Laranja Escuro (antes era '#FFA500')
-            cor_lucro = '#006400'      # Verde Escuro (permanece o mesmo)
-
-            ax1.bar(monthly.index, monthly['Receita'], color=cor_faturamento, label='Faturamento (Receita)', width=0.8)
-            ax1.set_xlabel("Mês/Ano", color=text_color)
-            ax1.set_ylabel("Faturamento (R$)", color=cor_faturamento)
-            ax1.tick_params(axis='y', labelcolor=cor_faturamento)
-            ax1.tick_params(axis='x', rotation=45, labelsize=10)
-
-            ax2 = ax1.twinx()
-            ax2.plot(monthly.index, monthly['Lucro'], color=cor_lucro, marker='o', linestyle='-', label='Lucro Líquido')
-            ax2.set_ylabel("Lucro (R$)", color=cor_lucro)
-            ax2.tick_params(axis='y', labelcolor=cor_lucro)
-
-            fig.suptitle("Evolução Mensal: Faturamento vs. Lucro", fontsize=16, color=text_color)
-            
-            lines, labels = ax1.get_legend_handles_labels()
-            lines2, labels2 = ax2.get_legend_handles_labels()
-            ax2.legend(lines + lines2, labels + labels2, loc='upper right')
-
+        # Apenas exibe o resultado
         self.canvas_crescimento = FigureCanvas(fig)
         self.layout_crescimento.addWidget(self.canvas_crescimento)
 
