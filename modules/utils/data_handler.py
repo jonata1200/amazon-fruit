@@ -162,6 +162,14 @@ class DataHandler:
 
         return df_current, df_previous
 
+    def load_full_unfiltered_table(self, name: str) -> pd.DataFrame:
+        """
+        Carrega uma tabela completa diretamente do repositório, ignorando qualquer filtro de data.
+        Essencial para obter listas completas de entidades como 'produtos'.
+        """
+        # Chama diretamente a função de carregamento do repositório, que tem cache e não aplica filtros.
+        return self._load_table_by_name(name)
+
     def _load_table_by_name(self, name: str) -> pd.DataFrame:
         key = str(name).strip().lower()
         if key == "financas": return self._repo.load_financas()

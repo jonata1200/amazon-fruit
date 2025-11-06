@@ -72,3 +72,29 @@ def get_top_selling_items(df_financas: pd.DataFrame, df_estoque: pd.DataFrame, t
         return pd.Series(dtype='float64')
 
     return top_selling.set_index('Nome_Produto')['Valor']
+
+def get_least_selling_items(df_financas: pd.DataFrame, df_estoque: pd.DataFrame, top_n: int = 10) -> pd.Series:
+    """
+    Identifica os produtos menos vendidos, incluindo aqueles que nunca foram vendidos.
+    """
+    if df_estoque is None or df_estoque.empty:
+        return pd.Series(dtype='float64')
+
+    # 1. Pega uma lista única de TODOS os produtos existentes.
+    all_products = df_estoque[['ID_Produto', 'Nome_Produto']].drop_duplicates().set_index('ID_Produto')
+
+    # 2. Calcula o faturamento dos produtos que foram vendidos.
+    sales_summary = pd.Series(dtype='float64')
+    if df_financas is not None and not df_financas.empty:
+        sales_df = df_financas[(df_financas['Tipo'].astype(str).str.lower() == 'receita') & (df_financas['ID_Produto'].notna())]
+        if not sales_df.empty:
+            sales_summary = sales_df.groupby('ID_Produto')['Valor'].sum()
+
+    # 3. Junta a lista de TODOS os produtos com os dados de vendas.
+    # Produtos que não foram vendidos terão 'NaN' na coluna de valor.
+    combined = all_products.join(sales_summary)
+
+    # 4. Preenche os produtos não vendidos com valor 0 e ordena do menor para o maior.
+    least_selling = combined.fillna(0).sort_values('Valor', ascending=True).head(top_n)
+
+    return least_selling.set_index('Nome_Produto')['Valor']
