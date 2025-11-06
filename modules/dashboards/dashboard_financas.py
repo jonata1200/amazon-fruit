@@ -15,7 +15,7 @@ from modules.utils.formatters import fmt_currency
 from modules.analysis.financial_analysis import (
     calculate_financial_summary,
     get_expense_distribution,
-    get_revenue_distribution # Nova importação
+    get_revenue_distribution
 )
 
 class DashboardFinancas(QWidget):

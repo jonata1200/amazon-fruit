@@ -7,9 +7,6 @@ from functools import lru_cache
 import pandas as pd
 from calendar import monthrange
 
-# Importação para cálculo de datas
-from pandas.tseries.offsets import DateOffset
-
 # O início do arquivo e a classe DataRepository permanecem os mesmos
 BASE_DIR = Path(__file__).resolve().parents[2] / "data"
 MESES = {"Jan":1,"Fev":2,"Mar":3,"Abr":4,"Mai":5,"Jun":6,"Jul":7,"Ago":8,"Set":9,"Out":10,"Nov":11,"Dez":12}
@@ -50,12 +47,30 @@ class DataRepository:
         path = self.base_dir / "recursos_humanos" / "recursos_humanos.xlsx"; df = pd.read_excel(path, sheet_name=0, engine="openpyxl"); df["ID_Funcionario"] = pd.to_numeric(df["ID_Funcionario"], errors="coerce").astype("Int64"); df["Data_Contratacao"] = pd.to_datetime(df["Data_Contratacao"], errors="coerce"); df["Salario"] = pd.to_numeric(df["Salario"], errors="coerce"); return df
     @lru_cache(maxsize=1)
     def load_financas(self) -> pd.DataFrame:
-        frames = [];
+        """Concatena todos os anos/abas e retorna uma tabela única de lançamentos."""
+        frames = []
         for ano, fp in self._iter_year_files("financas", "financas.xlsx"):
             xls = pd.ExcelFile(fp, engine="openpyxl")
-            for sheet in xls.sheet_names: mes, _ = _sheet_to_period(sheet); df = pd.read_excel(xls, sheet_name=sheet); df["Data"] = pd.to_datetime(df.get("Data"), errors="coerce"); df["Ano"] = ano; df["Mes"] = mes; frames.append(df)
-        if not frames: return pd.DataFrame()
-        df = pd.concat(frames, ignore_index=True); df["ID_Lancamento"] = pd.to_numeric(df.get("ID_Lancamento"), errors="coerce").astype("Int64"); df["Valor"] = pd.to_numeric(df.get("Valor"), errors="coerce"); return df
+            for sheet in xls.sheet_names:
+                mes, _ = _sheet_to_period(sheet)
+                df = pd.read_excel(xls, sheet_name=sheet)
+                df["Data"] = pd.to_datetime(df.get("Data"), errors="coerce")
+                df["Ano"] = ano
+                df["Mes"] = mes
+                frames.append(df)
+        if not frames:
+            return pd.DataFrame()
+        
+        df = pd.concat(frames, ignore_index=True)
+        df["ID_Lancamento"] = pd.to_numeric(df.get("ID_Lancamento"), errors="coerce").astype("Int64")
+        df["Valor"] = pd.to_numeric(df.get("Valor"), errors="coerce")
+        
+        # --- CORREÇÃO ADICIONADA AQUI ---
+        # Garante que a coluna ID_Produto, se existir, seja do mesmo tipo que na tabela de estoque.
+        if "ID_Produto" in df.columns:
+            df["ID_Produto"] = pd.to_numeric(df["ID_Produto"], errors="coerce").astype("Int64")
+            
+        return df
     @lru_cache(maxsize=1)
     def load_estoque_snapshot(self) -> pd.DataFrame:
         frames = [];
