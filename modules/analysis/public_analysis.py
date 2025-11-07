@@ -1,19 +1,22 @@
 # modules/analysis/public_analysis.py
 
 import pandas as pd
-from modules.utils.data_handler import DataRepository
 
-repo = DataRepository()
+# A importação do DataRepository e a instância 'repo' foram REMOVIDAS.
 
-def dist_por_canal(ano:int|None=None, mes:int|None=None):
-    df = repo.load_publico_alvo()
+def dist_por_canal(df: pd.DataFrame, ano:int|None=None, mes:int|None=None):
+    # A função agora recebe o DataFrame em vez de carregá-lo.
+    if df is None or df.empty:
+        return pd.DataFrame()
     if ano is not None: df = df[df["Ano"].eq(ano)]
     if mes is not None: df = df[df["Mes"].eq(mes)]
     return (df.groupby("Canal_de_venda", as_index=False)["ID_Cliente"]
               .count().rename(columns={"ID_Cliente":"Qtd_Clientes"}))
 
-def perfil_demografico():
-    df = repo.load_publico_alvo()
+def perfil_demografico(df: pd.DataFrame):
+    # A função agora recebe o DataFrame em vez de carregá-lo.
+    if df is None or df.empty:
+        return {"genero": pd.DataFrame(), "idade_stats": pd.DataFrame()}
     gen = df["Genero"].value_counts().rename_axis("Genero").reset_index(name="Qtd")
     idade = df["Idade"].describe()[["mean","min","max"]].to_frame("Valor").reset_index()
     return {"genero": gen, "idade_stats": idade}
@@ -50,8 +53,6 @@ def analyze_public_kpis(df_current: pd.DataFrame, df_previous: pd.DataFrame = No
 
 def get_clients_by_location(df: pd.DataFrame, top_n: int = 10) -> pd.Series:
     """Retorna a contagem de clientes por cidade (a coluna de localização nos dados)."""
-    # A coluna de localização nos dados de origem é 'Cidade'.
-    # Trocamos 'Localizacao' por 'Cidade'.
     location_col = 'Cidade'
     
     if df is None or df.empty or location_col not in df.columns:
@@ -65,7 +66,6 @@ def get_clients_by_gender(df: pd.DataFrame) -> pd.Series:
         return pd.Series(dtype='object')
     return df['Genero'].astype(str).value_counts()
 
-# --- NOVA FUNÇÃO ADICIONADA AQUI ---
 def get_clients_by_channel(df: pd.DataFrame) -> pd.Series:
     """Retorna a contagem de clientes por canal de venda."""
     if df is None or df.empty or 'Canal_de_venda' not in df.columns:

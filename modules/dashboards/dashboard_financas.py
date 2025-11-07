@@ -1,6 +1,7 @@
 # modules/dashboards/dashboard_financas.py
 
 import pandas as pd
+import matplotlib.pyplot as plt  # <-- MUDANÇA AQUI
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QGridLayout, QLabel,
@@ -11,7 +12,6 @@ from modules.analysis.financial_analysis import calculate_financial_summary
 from modules.ui.qt_utils import df_to_model
 from modules.ui.widgets.kpi_widget import KPIWidget
 from modules.utils.formatters import fmt_currency
-# --- MUDANÇA 1: Importar a nova função de análise ---
 from .chart_generator import (
     create_finance_evolution_chart,
     create_top_expenses_chart,
@@ -26,10 +26,9 @@ class DashboardFinancas(QWidget):
         self.kpi_receita, self.kpi_despesas, self.kpi_lucro, self.kpi_margem_lucro = None, None, None, None
         self.table_extrato = None
 
-        # --- MUDANÇA 2: Inicializar variáveis para o novo gráfico ---
         self.canvas_evolucao, self.canvas_top_despesas, self.canvas_top_receitas = None, None, None
         self.layout_evolucao, self.layout_top_despesas = QVBoxLayout(), QVBoxLayout()
-        self.layout_top_receitas = QVBoxLayout() # Novo layout
+        self.layout_top_receitas = QVBoxLayout()
 
         self.build_ui()
         self.refresh()
@@ -52,7 +51,6 @@ class DashboardFinancas(QWidget):
         top_despesas_widget = QWidget(); top_despesas_widget.setLayout(self.layout_top_despesas)
         tab_widget.addTab(top_despesas_widget, "📊 Top Despesas")
 
-        # --- MUDANÇA 3: Adicionar a nova aba para o gráfico de receitas ---
         top_receitas_widget = QWidget(); top_receitas_widget.setLayout(self.layout_top_receitas)
         tab_widget.addTab(top_receitas_widget, "💰 Top Receitas")
 
@@ -70,12 +68,10 @@ class DashboardFinancas(QWidget):
         self.df_financas = self.data_handler.load_table("Financas")
 
     def _rebuild_kpis(self):
-        # Este método não precisa de alterações
         s = calculate_financial_summary(self.df_financas); receita = s.get('receita', 0.0); lucro = s.get('lucro', 0.0); margem = (lucro / receita) * 100 if receita > 0 else 0.0
         self.kpi_receita.setValue(fmt_currency(receita)); self.kpi_despesas.setValue(fmt_currency(s.get('despesa', 0.0))); self.kpi_lucro.setValue(fmt_currency(lucro)); self.kpi_margem_lucro.setValue(f"{margem:.1f}%")
 
     def _rebuild_tables(self):
-        # Este método não precisa de alterações
         df = self.df_financas.copy()
         if df is None or df.empty: self.table_extrato.setModel(None); return
         if "Data" in df.columns: df["Data"] = pd.to_datetime(df["Data"], errors="coerce").dt.strftime('%d/%m/%Y')
@@ -99,13 +95,16 @@ class DashboardFinancas(QWidget):
         fig1 = create_finance_evolution_chart(self.df_financas)
         self.canvas_evolucao = FigureCanvas(fig1)
         self.layout_evolucao.addWidget(self.canvas_evolucao)
+        plt.close(fig1)  # <-- MUDANÇA AQUI
         
         # Gráfico 2: Top 5 Despesas
         fig2 = create_top_expenses_chart(self.df_financas)
         self.canvas_top_despesas = FigureCanvas(fig2)
         self.layout_top_despesas.addWidget(self.canvas_top_despesas)
+        plt.close(fig2)  # <-- MUDANÇA AQUI
 
         # Gráfico 3: Top 5 Receitas
         fig3 = create_top_revenues_chart(self.df_financas)
         self.canvas_top_receitas = FigureCanvas(fig3)
         self.layout_top_receitas.addWidget(self.canvas_top_receitas)
+        plt.close(fig3)  # <-- MUDANÇA AQUI

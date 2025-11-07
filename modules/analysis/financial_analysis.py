@@ -21,26 +21,18 @@ def calculate_financial_summary(df_current: pd.DataFrame, df_previous: pd.DataFr
     return summary_current
 
 def get_expense_distribution(df: pd.DataFrame) -> pd.Series:
-    """Retorna a distribuição de despesas por categoria."""
     if df is None or df.empty or not {'Categoria', 'Tipo', 'Valor'}.issubset(df.columns):
         return pd.Series(dtype='float64')
     expenses_df = df[df['Tipo'].astype(str).str.lower() == 'despesa']
     return expenses_df.groupby('Categoria')['Valor'].sum().sort_values(ascending=False)
 
 def get_revenue_distribution(df: pd.DataFrame, top_n: int = 5) -> pd.Series:
-    """Retorna a distribuição de receitas por categoria."""
     if df is None or df.empty or not {'Categoria', 'Tipo', 'Valor'}.issubset(df.columns):
         return pd.Series(dtype='float64')
-    
-    # A lógica é a mesma da função de despesas, mas filtrando por 'receita'
     revenue_df = df[df['Tipo'].astype(str).str.lower() == 'receita']
     return revenue_df.groupby('Categoria')['Valor'].sum().sort_values(ascending=False).head(top_n)
 
 def get_top_selling_items(df_financas: pd.DataFrame, df_estoque: pd.DataFrame, top_n: int = 10) -> pd.Series:
-    """
-    Identifica os produtos mais vendidos a partir dos dados de finanças e estoque,
-    usando um método de junção de dados robusto e seguindo as melhores práticas do Pandas.
-    """
     if df_financas is None or df_estoque is None or df_financas.empty or df_estoque.empty:
         return pd.Series(dtype='float64')
 
@@ -51,19 +43,26 @@ def get_top_selling_items(df_financas: pd.DataFrame, df_estoque: pd.DataFrame, t
 
     if sales_df.empty:
         return pd.Series(dtype='float64')
+        
+    # --- MUDANÇA AQUI (Início) ---
+    # Força que a coluna de junção (ID_Produto) seja do mesmo tipo numérico em ambos os DataFrames.
+    # Isso evita erros de junção onde '1234' (inteiro) não corresponde a '1234.0' (float).
+    sales_df['ID_Produto'] = pd.to_numeric(sales_df['ID_Produto'], errors='coerce')
+    df_estoque['ID_Produto'] = pd.to_numeric(df_estoque['ID_Produto'], errors='coerce')
+
+    # Remove quaisquer linhas onde a conversão falhou (resultou em NaT/NaN)
+    sales_df.dropna(subset=['ID_Produto'], inplace=True)
+    df_estoque.dropna(subset=['ID_Produto'], inplace=True)
+    # --- MUDANÇA AQUI (Fim) ---
 
     sales_summary = sales_df.groupby('ID_Produto')['Valor'].sum().reset_index()
-
     product_name_map = df_estoque[['ID_Produto', 'Nome_Produto']].drop_duplicates()
 
     if product_name_map.empty:
         return pd.Series(dtype='float64')
 
     merged_df = pd.merge(sales_summary, product_name_map, on='ID_Produto', how='left')
-
-    # --- CORREÇÃO APLICADA AQUI ---
-    # Substituímos a operação 'inplace' por uma atribuição direta,
-    # que é a forma recomendada pelo Pandas para evitar o aviso.
+    
     merged_df['Nome_Produto'] = merged_df['Nome_Produto'].fillna('Produto Desconhecido')
     
     top_selling = merged_df.sort_values('Valor', ascending=False).head(top_n)
@@ -74,27 +73,21 @@ def get_top_selling_items(df_financas: pd.DataFrame, df_estoque: pd.DataFrame, t
     return top_selling.set_index('Nome_Produto')['Valor']
 
 def get_least_selling_items(df_financas: pd.DataFrame, df_estoque: pd.DataFrame, top_n: int = 10) -> pd.Series:
-    """
-    Identifica os produtos menos vendidos, incluindo aqueles que nunca foram vendidos.
-    """
     if df_estoque is None or df_estoque.empty:
         return pd.Series(dtype='float64')
 
-    # 1. Pega uma lista única de TODOS os produtos existentes.
+    # Garante a consistência dos tipos de ID, assim como na função de top selling
+    df_estoque['ID_Produto'] = pd.to_numeric(df_estoque['ID_Produto'], errors='coerce')
     all_products = df_estoque[['ID_Produto', 'Nome_Produto']].drop_duplicates().set_index('ID_Produto')
 
-    # 2. Calcula o faturamento dos produtos que foram vendidos.
     sales_summary = pd.Series(dtype='float64')
     if df_financas is not None and not df_financas.empty:
-        sales_df = df_financas[(df_financas['Tipo'].astype(str).str.lower() == 'receita') & (df_financas['ID_Produto'].notna())]
+        sales_df = df_financas[(df_financas['Tipo'].astype(str).str.lower() == 'receita') & (df_financas['ID_Produto'].notna())].copy()
         if not sales_df.empty:
+            sales_df['ID_Produto'] = pd.to_numeric(sales_df['ID_Produto'], errors='coerce')
             sales_summary = sales_df.groupby('ID_Produto')['Valor'].sum()
 
-    # 3. Junta a lista de TODOS os produtos com os dados de vendas.
-    # Produtos que não foram vendidos terão 'NaN' na coluna de valor.
     combined = all_products.join(sales_summary)
-
-    # 4. Preenche os produtos não vendidos com valor 0 e ordena do menor para o maior.
     least_selling = combined.fillna(0).sort_values('Valor', ascending=True).head(top_n)
 
     return least_selling.set_index('Nome_Produto')['Valor']

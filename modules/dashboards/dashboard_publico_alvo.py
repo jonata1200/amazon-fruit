@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt  # <-- MUDANÇA AQUI
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QGridLayout, QLabel, QTableView, QTabWidget
@@ -23,7 +24,6 @@ class DashboardPublicoAlvo(QWidget):
         self.data_handler = data_handler
         self.df_publico = pd.DataFrame()
 
-        # Widgets da interface
         self.kpi_total = None
         self.kpi_idade_media = None
         self.kpi_gasto_medio = None
@@ -41,7 +41,6 @@ class DashboardPublicoAlvo(QWidget):
         self.refresh()
 
     def build_ui(self):
-        """Constrói a interface visual do dashboard."""
         root = QVBoxLayout(self)
         root.setContentsMargins(20, 20, 20, 20)
         root.setSpacing(16)
@@ -62,82 +61,51 @@ class DashboardPublicoAlvo(QWidget):
 
         main_tab_widget = QTabWidget()
 
-        # Aba 1: Gráfico de Clientes por Localização
         location_widget = QWidget()
         location_widget.setLayout(self.layout_location)
         main_tab_widget.addTab(location_widget, "📍 Clientes por Localização")
 
-        # Aba 2: Gráfico de Distribuição por Gênero
         gender_widget = QWidget()
         gender_widget.setLayout(self.layout_gender)
         main_tab_widget.addTab(gender_widget, "🚻 Distribuição por Gênero")
 
-        # Aba 3: Gráfico de Distribuição por Canais de Venda
         canal_widget = QWidget()
         canal_widget.setLayout(self.layout_canal)
         main_tab_widget.addTab(canal_widget, "📊 Vendas por Canal")
 
-        # Aba 4: Tabela de Clientes
         self.table_clientes = QTableView()
         main_tab_widget.addTab(self.table_clientes, "👥 Clientes")
 
         root.addWidget(main_tab_widget)
 
     def refresh(self):
-        """Ponto de entrada para atualizar todos os dados do dashboard."""
         self._reload_data()
         self._rebuild_kpis()
         self._rebuild_tables()
         self._rebuild_charts()
 
     def _reload_data(self):
-        """Carrega (ou recarrega) os dados do DataHandler."""
         self.df_publico = self.data_handler.load_table("Publico_Alvo")
 
     def _rebuild_kpis(self):
-        """
-        2. LÓGICA DE KPI SIMPLIFICADA
-        Chama a função de análise e apenas exibe os resultados.
-        """
-        # A função analyze_public_kpis centraliza toda a lógica de cálculo.
         kpis = analyze_public_kpis(self.df_publico)
-        
         self.kpi_total.setValue(str(kpis.get('total_clients', 0)))
         self.kpi_idade_media.setValue(fmt_age(kpis.get('avg_age', np.nan)))
-        
-        # Nota: O KPI de gasto médio funcionará automaticamente quando uma coluna
-        # 'Gasto_Medio' ou 'Ticket_Medio' for adicionada ao seu arquivo Excel.
         self.kpi_gasto_medio.setValue(fmt_currency(kpis.get('avg_spend', np.nan)))
 
     def _rebuild_tables(self):
-        """
-        3. TABELA CORRIGIDA
-        Prepara e exibe o DataFrame na tabela da UI com as colunas corretas.
-        """
         df = self.df_publico.copy()
         if df is None or df.empty:
             set_table_from_df(self.table_clientes, pd.DataFrame())
             return
 
-        # Mapa de renomeação para nomes mais amigáveis na interface.
         rename_map = {
-            "Nome": "Nome do Cliente", 
-            "Genero": "Gênero", 
-            "Idade": "Idade",
-            "Cidade": "Cidade",
-            "Estado": "UF",
-            "Canal_de_venda": "Canal de Venda"
+            "Nome": "Nome do Cliente", "Genero": "Gênero", "Idade": "Idade",
+            "Cidade": "Cidade", "Estado": "UF", "Canal_de_venda": "Canal de Venda"
         }
         df = df.rename(columns=rename_map)
-
-        # Lista define quais colunas e em que ordem aparecerão na tabela.
-        cols_to_show = [
-            "Nome do Cliente", "Gênero", "Idade", "Cidade", "UF", "Canal de Venda"
-        ]
-        
-        # Filtra apenas as colunas que realmente existem para evitar erros.
+        cols_to_show = ["Nome do Cliente", "Gênero", "Idade", "Cidade", "UF", "Canal de Venda"]
         existing_cols = [col for col in cols_to_show if col in df.columns]
-        
         set_table_from_df(self.table_clientes, df[existing_cols])
 
     def _rebuild_charts(self):
@@ -149,13 +117,16 @@ class DashboardPublicoAlvo(QWidget):
         fig1 = create_public_location_chart(self.df_publico)
         self.canvas_location = FigureCanvas(fig1)
         self.layout_location.addWidget(self.canvas_location)
+        plt.close(fig1)  # <-- MUDANÇA AQUI
 
         # Gráfico 2: Gênero
         fig2 = create_public_gender_chart(self.df_publico)
         self.canvas_gender = FigureCanvas(fig2)
         self.layout_gender.addWidget(self.canvas_gender)
+        plt.close(fig2)  # <-- MUDANÇA AQUI
 
         # Gráfico 3: Canal de Venda
         fig3 = create_public_channel_chart(self.df_publico)
         self.canvas_canal = FigureCanvas(fig3)
         self.layout_canal.addWidget(self.canvas_canal)
+        plt.close(fig3)  # <-- MUDANÇA AQUI

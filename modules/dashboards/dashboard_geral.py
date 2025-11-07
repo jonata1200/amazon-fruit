@@ -1,6 +1,7 @@
 # modules/dashboards/dashboard_geral.py
 
 import pandas as pd
+import matplotlib.pyplot as plt  # <-- MUDANÇA AQUI
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
@@ -39,18 +40,16 @@ class DashboardGeral(QWidget):
         self.df_financas = self.data_handler.load_table("Financas")
 
     def _rebuild_charts(self):
-        # --- LÓGICA DE PLOTAGEM REMOVIDA DAQUI ---
         if self.canvas_crescimento:
             self.layout_crescimento.removeWidget(self.canvas_crescimento)
             self.canvas_crescimento.deleteLater()
             self.canvas_crescimento = None
         
-        # Chama a função centralizada para obter o gráfico pronto
         fig = create_general_evolution_chart(self.df_financas)
         
-        # Apenas exibe o resultado
         self.canvas_crescimento = FigureCanvas(fig)
         self.layout_crescimento.addWidget(self.canvas_crescimento)
+        plt.close(fig) # <-- MUDANÇA AQUI
 
     def export_full_report(self):
         period = self.data_handler.get_period(); start, end = (period[0], period[1]) if period and len(period) >= 2 else (None, None)

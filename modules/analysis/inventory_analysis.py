@@ -1,21 +1,21 @@
 # modules/analysis/inventory_analysis.py
 
-from modules.utils.data_handler import DataRepository
 import pandas as pd
 
-repo = DataRepository()
+# A importação do DataRepository e a instância 'repo' foram REMOVIDAS.
 
-def snapshot():
-    return repo.load_estoque_snapshot()
-
-def estoque_por_mes():
-    df = repo.load_estoque_snapshot()
+def estoque_por_mes(df: pd.DataFrame):
+    # A função agora recebe o DataFrame em vez de carregá-lo.
+    if df is None or df.empty or "Data_Snapshot" not in df.columns:
+        return pd.DataFrame()
     df["AnoMes"] = df["Data_Snapshot"].dt.to_period("M").astype(str)
     return (df.groupby(["AnoMes"], as_index=False)["Quantidade_Estoque"]
               .sum().rename(columns={"Quantidade_Estoque":"Qtd_Total"}))
 
-def rupturas():
-    df = repo.load_estoque_snapshot()
+def rupturas(df: pd.DataFrame):
+    # A função agora recebe o DataFrame em vez de carregá-lo.
+    if df is None or df.empty:
+        return pd.DataFrame()
     ult = df.sort_values("Data_Snapshot").groupby("ID_Produto").tail(1)
     return ult[ult["Quantidade_Estoque"] < ult["Nivel_Minimo_Estoque"]]
 

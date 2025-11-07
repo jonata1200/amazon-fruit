@@ -1,6 +1,7 @@
 # modules/dashboards/dashboard_fornecedores.py
 
 import pandas as pd
+import matplotlib.pyplot as plt  # <-- MUDANÇA AQUI
 
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableView, QTabWidget
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -23,7 +24,6 @@ class DashboardFornecedores(QWidget):
         self.kpi_total = None; self.kpi_avaliacao_media = None
         self.table_fornecedores = None
         
-        # --- MUDANÇA 1: Renomear layouts para maior clareza ---
         self.canvas_ranking = None; self.layout_ranking = QVBoxLayout()
         self.canvas_geografico = None; self.layout_geografico = QVBoxLayout()
         self.canvas_heatmap = None; self.layout_heatmap = QVBoxLayout()
@@ -42,21 +42,15 @@ class DashboardFornecedores(QWidget):
 
         main_tab_widget = QTabWidget()
 
-        # --- MUDANÇA 2: Nova estrutura com uma aba para cada gráfico ---
-
-        # Aba 1: Gráfico de Ranking (Top e Bottom)
         ranking_widget = QWidget(); ranking_widget.setLayout(self.layout_ranking)
         main_tab_widget.addTab(ranking_widget, "⭐ Ranking por Avaliação")
 
-        # Aba 2: Gráfico de Distribuição Geográfica
         geografico_widget = QWidget(); geografico_widget.setLayout(self.layout_geografico)
         main_tab_widget.addTab(geografico_widget, "📍 Distribuição Geográfica")
 
-        # Aba 3: Matriz Fornecedor x Produto
         heatmap_widget = QWidget(); heatmap_widget.setLayout(self.layout_heatmap)
         main_tab_widget.addTab(heatmap_widget, "📊 Matriz Fornecedor x Produto")
 
-        # Aba 4: Tabela de Fornecedores
         self.table_fornecedores = QTableView()
         main_tab_widget.addTab(self.table_fornecedores, "📋 Lista de Fornecedores")
         
@@ -91,13 +85,16 @@ class DashboardFornecedores(QWidget):
         fig1 = create_supplier_ranking_chart(self.df_fornecedores)
         self.canvas_ranking = FigureCanvas(fig1)
         self.layout_ranking.addWidget(self.canvas_ranking)
+        plt.close(fig1)  # <-- MUDANÇA AQUI
 
         # Gráfico 2: Geográfico
         fig2 = create_supplier_geo_chart(self.df_fornecedores)
         self.canvas_geografico = FigureCanvas(fig2)
         self.layout_geografico.addWidget(self.canvas_geografico)
+        plt.close(fig2)  # <-- MUDANÇA AQUI
 
         # Gráfico 3: Heatmap
         fig3 = create_supplier_heatmap(self.df_fornecedores)
         self.canvas_heatmap = FigureCanvas(fig3)
         self.layout_heatmap.addWidget(self.canvas_heatmap)
+        plt.close(fig3)  # <-- MUDANÇA AQUI

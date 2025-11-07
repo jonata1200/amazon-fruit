@@ -101,7 +101,16 @@ def create_least_selling_chart(df_fin: pd.DataFrame, df_estoque: pd.DataFrame) -
     fig, ax = plt.subplots(tight_layout=True)
     fig.patch.set_facecolor('#FFFFFF'); ax.set_facecolor('#FFFFFF')
     ser_least = get_least_selling_items(df_fin, df_estoque, top_n=10)
-    if not ser_least.empty: ser_least.sort_values(ascending=False).plot(kind='barh', ax=ax, color='#F39C12')
+    
+    if not ser_least.empty:
+        ser_least.sort_values(ascending=False).plot(kind='barh', ax=ax, color='#F39C12')
+        # --- MUDANÇA AQUI ---
+        # Define o limite esquerdo do eixo X como 0.
+        # Isso garante que as barras de valor zero tenham uma linha de base visível.
+        # Adicionamos um pequeno espaço à direita para o faturamento máximo, caso não seja zero.
+        ax.set_xlim(left=0, right=max(1, ser_least.max() * 1.1))
+        # --- FIM DA MUDANÇA ---
+
     ax.set_title("10 Produtos com Menor Faturamento"); ax.set_ylabel(""), ax.set_xlabel("Valor Total Vendido (R$)")
     return fig
     

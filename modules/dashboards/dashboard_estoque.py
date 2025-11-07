@@ -1,6 +1,7 @@
 # modules/dashboards/dashboard_estoque.py
 
 import pandas as pd
+import matplotlib.pyplot as plt  # <-- MUDANÇA AQUI
 
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QLabel, QTableView, QTabWidget
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -35,8 +36,6 @@ class DashboardEstoque(QWidget):
         root = QVBoxLayout(self); root.setContentsMargins(20,20,20,20); root.setSpacing(16)
         title = QLabel("Dashboard de Estoque"); title.setStyleSheet("font-size: 24px; font-weight: bold;"); root.addWidget(title)
         
-        # --- CÓDIGO CORRIGIDO/RESTAURADO AQUI ---
-        # Este bloco, que cria os KPIs, estava faltando na minha resposta anterior.
         kpi_grid = QGridLayout(); kpi_grid.setSpacing(16)
         self.kpi_produtos = KPIWidget("📦 Produtos Únicos")
         self.kpi_valor_estoque = KPIWidget("💰 Valor do Estoque (Custo)")
@@ -47,7 +46,6 @@ class DashboardEstoque(QWidget):
         kpi_grid.addWidget(self.kpi_baixo, 0, 2)
         kpi_grid.addWidget(self.kpi_compra_urgente, 0, 3)
         root.addLayout(kpi_grid)
-        # --- FIM DA CORREÇÃO ---
         
         main_tab_widget = QTabWidget()
         top_vendidos_widget = QWidget(); top_vendidos_widget.setLayout(self.layout_top_vendidos)
@@ -118,13 +116,16 @@ class DashboardEstoque(QWidget):
         fig1 = create_top_selling_chart(self.df_financas, self.df_estoque_completo)
         self.canvas_top_vendidos = FigureCanvas(fig1)
         self.layout_top_vendidos.addWidget(self.canvas_top_vendidos)
+        plt.close(fig1)  # <-- MUDANÇA AQUI
 
         # Gráfico 2: Produtos Menos Vendidos
         fig2 = create_least_selling_chart(self.df_financas, self.df_estoque_completo)
         self.canvas_menos_vendidos = FigureCanvas(fig2)
         self.layout_menos_vendidos.addWidget(self.canvas_menos_vendidos)
+        plt.close(fig2)  # <-- MUDANÇA AQUI
         
         # Gráfico 3: Maiores Rupturas
         fig3 = create_stock_rupture_chart(self.df_estoque)
         self.canvas_ruptura = FigureCanvas(fig3)
         self.layout_ruptura.addWidget(self.canvas_ruptura)
+        plt.close(fig3)  # <-- MUDANÇA AQUI
