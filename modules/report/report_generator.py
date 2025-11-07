@@ -15,16 +15,20 @@ class ReportGenerator:
     def __init__(self, data_handler):
         self.data_handler = data_handler
         self.story = []
-        self.styles = self._setup_styles()
-        # --- CORREÇÃO APLICADA AQUI ---
+
+        # --- CORREÇÃO PRINCIPAL: A ORDEM FOI INVERTIDA ---
+        # 1. Primeiro, definimos o dicionário de cores.
         self.colors = {
             'primary': colors.HexColor('#6A0DAD'), 'text': colors.HexColor('#333333'),
             'row_bg': colors.HexColor('#F7F7F9')
         }
+        # 2. Depois, chamamos a função que USA as cores.
+        self.styles = self._setup_styles()
         # --- FIM DA CORREÇÃO ---
 
     def _setup_styles(self):
         styles = getSampleStyleSheet()
+        # Agora, quando esta linha for executada, self.colors já existirá.
         base_style = dict(fontName='Helvetica', fontSize=10, leading=14, textColor=self.colors['text'])
         styles.add(ParagraphStyle(name='WrappedBody', **base_style))
         styles.add(ParagraphStyle(name='Cell', parent=styles['Normal'], fontSize=8))
@@ -38,13 +42,12 @@ class ReportGenerator:
 
         add_cover(self.story, self.styles, self.colors)
         
-        # --- Resumo Geral ---
+        # O resto do arquivo permanece o mesmo...
         self.story.append(Paragraph("Resumo Geral", self.styles['SectionTitle']))
         period = self.data_handler.get_period()
         period_str = f"de {period[0]} a {period[1]}" if period else "todos os dados"
         self.story.append(Paragraph(f"Relatório gerado em {datetime.now():%d/%m/%Y %H:%M}. Período selecionado: {period_str}.", self.styles['WrappedBody']))
 
-        # --- Seção de Estoque ---
         self.story.append(PageBreak())
         self.story.append(Paragraph("Estoque", self.styles['SectionTitle']))
         df_est = self.data_handler.load_table("Estoque")
@@ -55,7 +58,6 @@ class ReportGenerator:
         add_table(self.story, df_est_fmt, self.styles, doc.width, self.colors)
         add_inventory_charts(self.story, df_fin, df_est_full_unfiltered)
 
-        # --- Seção de Finanças ---
         self.story.append(PageBreak())
         self.story.append(Paragraph("Finanças", self.styles['SectionTitle']))
         add_kpis_financas(self.story, df_fin, self.colors)
@@ -63,7 +65,6 @@ class ReportGenerator:
         add_table(self.story, df_fin_fmt, self.styles, doc.width, self.colors)
         add_finance_charts(self.story, df_fin)
 
-        # --- Seção de Público-Alvo ---
         self.story.append(PageBreak())
         self.story.append(Paragraph("Público-Alvo", self.styles['SectionTitle']))
         df_pub = self.data_handler.load_table("Publico_Alvo")
@@ -72,7 +73,6 @@ class ReportGenerator:
         add_table(self.story, df_pub_fmt, self.styles, doc.width, self.colors)
         add_public_charts(self.story, df_pub)
 
-        # --- Seção de Fornecedores ---
         self.story.append(PageBreak())
         self.story.append(Paragraph("Fornecedores", self.styles['SectionTitle']))
         df_forn = self.data_handler.load_table("Fornecedores")
@@ -81,7 +81,6 @@ class ReportGenerator:
         add_table(self.story, df_forn_fmt, self.styles, doc.width, self.colors)
         add_suppliers_charts(self.story, df_forn)
 
-        # --- Seção de Recursos Humanos ---
         self.story.append(PageBreak())
         self.story.append(Paragraph("Recursos Humanos", self.styles['SectionTitle']))
         df_rh = self.data_handler.load_table("Recursos_Humanos")
