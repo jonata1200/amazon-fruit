@@ -1,131 +1,93 @@
 # modules/report/report_generator.py
-import locale
+
 from datetime import datetime
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
-from reportlab.lib.enums import TA_LEFT
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 from .report_cover import add_cover
 from .report_table import add_table
-from .report_charts import (
-    add_finance_charts, add_inventory_charts, add_public_charts,
-    add_suppliers_charts, add_hr_charts
-)
-from .report_kpis import (
-    add_kpis_estoque, add_kpis_financas, add_kpis_publico,
-    add_kpis_fornecedores, add_kpis_rh
-)
+from .report_kpis import add_kpis_estoque, add_kpis_financas, add_kpis_publico, add_kpis_fornecedores, add_kpis_rh
+from .report_charts import add_finance_charts, add_inventory_charts, add_public_charts, add_suppliers_charts, add_hr_charts
+from .report_formatter import format_df_for_report
 
 class ReportGenerator:
     def __init__(self, data_handler):
         self.data_handler = data_handler
         self.story = []
-        self.available_width = None
-
+        self.styles = self._setup_styles()
+        # --- CORREÇÃO APLICADA AQUI ---
         self.colors = {
-            'primary': colors.HexColor('#6A0DAD'),
-            'secondary': colors.HexColor('#FF8C00'),
-            'accent': colors.HexColor('#2E8B57'),
-            'text': colors.HexColor('#333333'),
+            'primary': colors.HexColor('#6A0DAD'), 'text': colors.HexColor('#333333'),
             'row_bg': colors.HexColor('#F7F7F9')
         }
-        self.styles = self._setup_styles()
-
-        try:
-            locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
-        except locale.Error:
-            pass
+        # --- FIM DA CORREÇÃO ---
 
     def _setup_styles(self):
         styles = getSampleStyleSheet()
-        styles.add(ParagraphStyle(
-            name='WrappedBody', parent=styles['Normal'], alignment=TA_LEFT,
-            fontSize=10, leading=14, textColor=self.colors['text'], spaceAfter=6
-        ))
-        styles.add(ParagraphStyle(
-            name='Cell', parent=styles['Normal'], fontSize=8, leading=10,
-            textColor=self.colors['text']
-        ))
-        styles.add(ParagraphStyle(
-            name='HeaderCell', parent=styles['Normal'], fontSize=9,
-            leading=11, textColor=colors.white
-        ))
-        styles.add(ParagraphStyle(
-            name='SectionTitle', parent=styles['Normal'], fontSize=14,
-            textColor=self.colors['primary']
-        ))
-        styles.add(ParagraphStyle(
-            name='ReportTitle', parent=styles['Normal'], fontSize=20,
-            textColor=self.colors['primary']
-        ))
+        base_style = dict(fontName='Helvetica', fontSize=10, leading=14, textColor=self.colors['text'])
+        styles.add(ParagraphStyle(name='WrappedBody', **base_style))
+        styles.add(ParagraphStyle(name='Cell', parent=styles['Normal'], fontSize=8))
+        styles.add(ParagraphStyle(name='HeaderCell', parent=styles['Normal'], fontSize=8, textColor=colors.white, fontName='Helvetica-Bold'))
+        styles.add(ParagraphStyle(name='SectionTitle', parent=styles['h2'], fontSize=14, textColor=self.colors['primary'], spaceBefore=12))
         return styles
 
-    def _section(self, title):
-        self.story.append(Spacer(1, 8))
-        self.story.append(Paragraph(title, self.styles['SectionTitle']))
-        self.story.append(Spacer(1, 6))
-
-    def _p(self, text): self.story.append(Paragraph(text, self.styles['WrappedBody']))
-
     def generate_report(self, file_path: str):
-        doc = SimpleDocTemplate(
-            file_path, pagesize=(612, 792),
-            leftMargin=45, rightMargin=45, topMargin=40, bottomMargin=40
-        )
-        self.available_width = doc.width
+        doc = SimpleDocTemplate(file_path, pagesize=(595.27, 841.89), leftMargin=45, rightMargin=45, topMargin=45, bottomMargin=45)
         self.story = []
 
-        # Capa
         add_cover(self.story, self.styles, self.colors)
-
-        # Resumo
-        self._section("Resumo Geral")
-        now = datetime.now().strftime('%d/%m/%Y %H:%M')
+        
+        # --- Resumo Geral ---
+        self.story.append(Paragraph("Resumo Geral", self.styles['SectionTitle']))
         period = self.data_handler.get_period()
-        if period:
-            s, e = period
-            self._p(f"Relatório gerado em {now}. Período selecionado: {s} a {e}.")
-        else:
-            self._p(f"Relatório gerado em {now}. Período: todos os dados.")
+        period_str = f"de {period[0]} a {period[1]}" if period else "todos os dados"
+        self.story.append(Paragraph(f"Relatório gerado em {datetime.now():%d/%m/%Y %H:%M}. Período selecionado: {period_str}.", self.styles['WrappedBody']))
 
-        # -------- ESTOQUE --------
-        df_estoque = self.data_handler.load_table("Estoque")
-        self._section("Estoque")
-        add_kpis_estoque(self.story, df_estoque, self.colors)
-        add_table(self.story, df_estoque, self.styles, self.available_width, self.colors)
-        add_inventory_charts(self.story, df_estoque)
+        # --- Seção de Estoque ---
         self.story.append(PageBreak())
-
-        # -------- FINANÇAS --------
+        self.story.append(Paragraph("Estoque", self.styles['SectionTitle']))
+        df_est = self.data_handler.load_table("Estoque")
         df_fin = self.data_handler.load_table("Financas")
-        self._section("Finanças")
+        df_est_full_unfiltered = self.data_handler.load_full_unfiltered_table("Estoque")
+        add_kpis_estoque(self.story, df_est, self.colors)
+        df_est_fmt = format_df_for_report(df_est, "Estoque")
+        add_table(self.story, df_est_fmt, self.styles, doc.width, self.colors)
+        add_inventory_charts(self.story, df_fin, df_est_full_unfiltered)
+
+        # --- Seção de Finanças ---
+        self.story.append(PageBreak())
+        self.story.append(Paragraph("Finanças", self.styles['SectionTitle']))
         add_kpis_financas(self.story, df_fin, self.colors)
-        add_table(self.story, df_fin, self.styles, self.available_width, self.colors)
+        df_fin_fmt = format_df_for_report(df_fin, "Financas")
+        add_table(self.story, df_fin_fmt, self.styles, doc.width, self.colors)
         add_finance_charts(self.story, df_fin)
-        self.story.append(PageBreak())
 
-        # -------- PÚBLICO-ALVO --------
+        # --- Seção de Público-Alvo ---
+        self.story.append(PageBreak())
+        self.story.append(Paragraph("Público-Alvo", self.styles['SectionTitle']))
         df_pub = self.data_handler.load_table("Publico_Alvo")
-        self._section("Público-Alvo")
         add_kpis_publico(self.story, df_pub, self.colors)
-        add_table(self.story, df_pub, self.styles, self.available_width, self.colors)
+        df_pub_fmt = format_df_for_report(df_pub, "Publico_Alvo")
+        add_table(self.story, df_pub_fmt, self.styles, doc.width, self.colors)
         add_public_charts(self.story, df_pub)
-        self.story.append(PageBreak())
 
-        # -------- FORNECEDORES --------
+        # --- Seção de Fornecedores ---
+        self.story.append(PageBreak())
+        self.story.append(Paragraph("Fornecedores", self.styles['SectionTitle']))
         df_forn = self.data_handler.load_table("Fornecedores")
-        self._section("Fornecedores")
         add_kpis_fornecedores(self.story, df_forn, self.colors)
-        add_table(self.story, df_forn, self.styles, self.available_width, self.colors)
+        df_forn_fmt = format_df_for_report(df_forn, "Fornecedores")
+        add_table(self.story, df_forn_fmt, self.styles, doc.width, self.colors)
         add_suppliers_charts(self.story, df_forn)
-        self.story.append(PageBreak())
 
-        # -------- RH --------
+        # --- Seção de Recursos Humanos ---
+        self.story.append(PageBreak())
+        self.story.append(Paragraph("Recursos Humanos", self.styles['SectionTitle']))
         df_rh = self.data_handler.load_table("Recursos_Humanos")
-        self._section("Recursos Humanos")
         add_kpis_rh(self.story, df_rh, self.colors)
-        add_table(self.story, df_rh, self.styles, self.available_width, self.colors)
+        df_rh_fmt = format_df_for_report(df_rh, "Recursos_Humanos")
+        add_table(self.story, df_rh_fmt, self.styles, doc.width, self.colors)
         add_hr_charts(self.story, df_rh)
 
         doc.build(self.story)
