@@ -74,9 +74,10 @@ class DashboardInsights(QWidget):
         root.setContentsMargins(25, 20, 25, 20)
         root.setSpacing(20)
 
-        # --- MUDANÇA 1: Título simplificado e com fonte maior ---
-        title = QLabel("Insights do Negócio") # Texto alterado
-        title.setFont(QFont("Arial", 24, QFont.Weight.Bold)) # Fonte aumentada de 18 para 24
+        # --- MUDANÇA 1: Adicionar um 'ObjectName' para estilização específica ---
+        title = QLabel("Insights do Negócio")
+        title.setObjectName("InsightsTitleLabel") # Identificador para o CSS
+        # A linha setFont foi removida para centralizar o estilo no QSS
         root.addWidget(title)
 
         grid = QGridLayout()
@@ -96,19 +97,26 @@ class DashboardInsights(QWidget):
         self.highlights.setObjectName("HighlightsBox")
         root.addWidget(self.highlights, 1)
         
+        # --- MUDANÇA 2: Adicionar a regra de estilo para o novo título ---
         self.setStyleSheet("""
+            #InsightsTitleLabel {
+                font-size: 28px;
+                font-weight: bold;
+                color: #333333;
+                margin-bottom: 10px; /* Adiciona um espaço abaixo do título */
+            }
+
             #InsightCardFrame { background-color: #FFFFFF; border-radius: 8px; border: 1px solid #E0E0E0; }
             #InsightIconLabel { font-size: 32px; }
             #InsightTitleLabel { font-size: 13px; color: #666666; }
             #InsightValueLabel { font-size: 22px; font-weight: bold; color: #1A1A1A; }
             
-            /* --- MUDANÇA 2: Estilo do resumo com fonte e padding maiores --- */
             #HighlightsBox {
                 background-color: #FFFFFF;
                 border: 1px solid #E0E0E0;
                 border-radius: 8px;
-                font-size: 16px; /* Aumentado de 14px para melhorar a legibilidade */
-                padding: 15px; /* Aumentado de 10px para dar mais 'respiro' ao texto */
+                font-size: 16px;
+                padding: 15px;
             }
         """)
 
