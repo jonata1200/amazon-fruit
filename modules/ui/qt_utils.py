@@ -31,11 +31,8 @@ def set_table_with_conditional_formatting(table: QTableView, df: pd.DataFrame):
 
     for i, row_data in df.iterrows():
         try:
-            # --- MUDANÇA PRINCIPAL AQUI ---
-            # Procurando pelos nomes de coluna novos que você definiu
             qtd_str = str(row_data.get('Estoque Atual', '0')).replace('R$', '').replace('.', '').replace(',', '.').strip()
             min_str = str(row_data.get('Estoque Mínimo', '0')).replace('R$', '').replace('.', '').replace(',', '.').strip()
-            # --- FIM DA MUDANÇA ---
             
             qtd = float(qtd_str)
             minimo = float(min_str)
@@ -53,6 +50,5 @@ def set_table_with_conditional_formatting(table: QTableView, df: pd.DataFrame):
             continue
 
     table.setModel(model)
-    header = table.horizontalHeader()
-    header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+    # A linha que definia o modo de redimensionamento foi removida daqui.
     table.setAlternatingRowColors(True)

@@ -119,7 +119,11 @@ def create_stock_rupture_chart(df_estoque: pd.DataFrame) -> Figure:
     fig, ax = plt.subplots(tight_layout=True)
     fig.patch.set_facecolor('#FFFFFF'); ax.set_facecolor('#FFFFFF')
     df_ruptura = get_low_stock_items(df_estoque, top_n=10)
-    if not df_ruptura.empty: df_ruptura.sort_values('gap', ascending=True).plot(kind='barh', x='Nome_Produto', y='gap', ax=ax, legend=False, color='#E74C3C')
+    
+    # --- MUDANÇA AQUI: Corrigido de x='Nome_Produto' para x='Produto' ---
+    if not df_ruptura.empty: 
+        df_ruptura.sort_values('gap', ascending=True).plot(kind='barh', x='Produto', y='gap', ax=ax, legend=False, color='#E74C3C')
+
     ax.set_title("Maiores Rupturas de Estoque (Gap)"); ax.set_ylabel("")
     return fig
 

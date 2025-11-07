@@ -3,7 +3,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt  # <-- MUDANÇA AQUI
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QLabel, QTableView, QTabWidget
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QLabel, QTableView, QTabWidget, QHeaderView
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from modules.ui.qt_utils import set_table_with_conditional_formatting
 from modules.ui.widgets.kpi_widget import KPIWidget
@@ -95,17 +95,60 @@ class DashboardEstoque(QWidget):
     def _format_df_for_display(self, df_original: pd.DataFrame):
         if df_original is None or df_original.empty: return pd.DataFrame()
         df = df_original.copy()
-        if "Data_Validade" in df.columns: df["Data_Validade"] = pd.to_datetime(df["Data_Validade"], errors="coerce").dt.strftime("%d/%m/%Y")
+        
+        # --- MUDANÇAS APLICADAS AQUI ---
+
+        # 1. Formata as colunas de data para o formato DD/MM/YYYY
+        if "Data_Validade" in df.columns: 
+            df["Data_Validade"] = pd.to_datetime(df["Data_Validade"], errors="coerce").dt.strftime("%d/%m/%Y")
+        if "Data_Venda" in df.columns:
+            df["Data_Venda"] = pd.to_datetime(df["Data_Venda"], errors="coerce").dt.strftime("%d/%m/%Y")
+
+        # Formata colunas de moeda
         for col in ["Preco_Custo", "Preco_Venda"]:
             if col in df.columns: df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0.0).map(fmt_currency)
+        
+        # Remove colunas técnicas que não precisam ser exibidas
         cols_to_drop = ["ID_Produto", "ID_Fornecedor", "Ano", "Mes", "Data_Snapshot"]
         df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors='ignore')
-        rename_map = {"Nome_Produto": "Nome do Produto", "Categoria": "Categoria", "Quantidade_Estoque": "Estoque Atual", "Nivel_Minimo_Estoque": "Estoque Mínimo", "Preco_Custo": "Preço de Custo", "Preco_Venda": "Preço de Venda", "Data_Validade": "Data de Validade"}
-        df = df.rename(columns=rename_map); return df
+        
+        # 2. Renomeia as colunas para nomes mais amigáveis, incluindo as novas
+        rename_map = {
+            "Produto": "Produto",  # Corrigido de "Nome_Produto"
+            "Categoria": "Categoria", 
+            "Quantidade_Estoque": "Estoque Atual", 
+            "Nivel_Minimo_Estoque": "Estoque Mínimo", 
+            "Preco_Custo": "Preço de Custo", 
+            "Preco_Venda": "Preço de Venda", 
+            "Data_Validade": "Data de Validade",
+            "Quantidade_Vendida": "Vendas", # Novo nome
+            "Data_Venda": "Data da Venda"   # Novo nome
+        }
+        df = df.rename(columns=rename_map)
+        
+        return df
 
     def _rebuild_tables(self):
         df_completo_fmt = self._format_df_for_display(self.df_estoque)
         set_table_with_conditional_formatting(self.table_inventario, df_completo_fmt)
+
+        # --- NOVA LÓGICA DE REDIMENSIONAMENTO INTELIGENTE ---
+        if df_completo_fmt is None or df_completo_fmt.empty:
+            return
+
+        header = self.table_inventario.horizontalHeader()
+        
+        # Define quais colunas devem se esticar para preencher o espaço
+        stretch_columns = ["Produto", "Categoria"]
+        
+        # Itera sobre todas as colunas no DataFrame que está sendo exibido
+        for i, column_name in enumerate(df_completo_fmt.columns):
+            if column_name in stretch_columns:
+                # Estas colunas (Produto, Categoria) dividem o espaço restante
+                header.setSectionResizeMode(i, QHeaderView.ResizeMode.Stretch)
+            else:
+                # Todas as outras colunas (numéricas, datas) se ajustam ao seu conteúdo
+                header.setSectionResizeMode(i, QHeaderView.ResizeMode.ResizeToContents)
 
     def _rebuild_charts(self):
         if self.canvas_top_vendidos: self.layout_top_vendidos.removeWidget(self.canvas_top_vendidos); self.canvas_top_vendidos.deleteLater(); self.canvas_top_vendidos = None
