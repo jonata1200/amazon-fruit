@@ -2,8 +2,6 @@
 
 import pandas as pd
 
-# A importação do DataRepository e a instância 'repo' foram REMOVIDAS.
-
 def dist_por_canal(df: pd.DataFrame, ano:int|None=None, mes:int|None=None):
     # A função agora recebe o DataFrame em vez de carregá-lo.
     if df is None or df.empty:

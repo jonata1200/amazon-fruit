@@ -3,10 +3,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from matplotlib.figure import Figure
+import numpy as np
 
-# Importa as funções de ANÁLISE para obter os dados já processados
-# Isso garante que a lógica de negócio também é centralizada
+from matplotlib.figure import Figure
 from ..analysis.financial_analysis import get_top_selling_items, get_least_selling_items, get_expense_distribution, get_revenue_distribution
 from ..analysis.inventory_analysis import get_low_stock_items
 from ..analysis.suppliers_analysis import get_top_bottom_suppliers, get_suppliers_by_state, create_supplier_product_matrix
@@ -19,29 +18,59 @@ from ..analysis.hr_analysis import get_headcount_by_department, get_cost_by_depa
 # ======================================================================
 
 def create_general_evolution_chart(df_fin: pd.DataFrame) -> Figure:
-    """Cria o gráfico de Evolução Mensal: Faturamento vs. Lucro."""
-    fig, ax1 = plt.subplots(figsize=(10, 6), tight_layout=True)
-    fig.patch.set_facecolor('#FFFFFF'); ax1.set_facecolor('#FFFFFF')
+    """
+    Cria o gráfico de Evolução Mensal com Faturamento e Lucro como
+    barras agrupadas, com as barras de lucro negativo coloridas em vermelho.
+    """
+    fig, ax = plt.subplots(figsize=(10, 6), tight_layout=True)
+    fig.patch.set_facecolor('#FFFFFF')
+    ax.set_facecolor('#FFFFFF')
 
     if not df_fin.empty and 'Data' in df_fin.columns:
+        # 1. Preparação dos dados mensais (sem alterações)
         df_fin['MesAno'] = pd.to_datetime(df_fin['Data'], errors='coerce').dt.to_period('M').astype(str)
         monthly = df_fin.groupby(['MesAno', 'Tipo'])['Valor'].sum().unstack(fill_value=0)
-        monthly['Lucro'] = monthly.get('Receita', 0) - monthly.get('Despesa', 0)
         
-        cor_faturamento = '#6A0DAD'; cor_lucro = '#E67E22'
-        
-        ax1.bar(monthly.index, monthly['Receita'], color=cor_faturamento, label='Faturamento (Receita)', width=0.8)
-        ax1.set_ylabel("Faturamento (R$)", color=cor_faturamento); ax1.tick_params(axis='y', labelcolor=cor_faturamento)
-        ax1.tick_params(axis='x', rotation=45, labelsize=10)
-        
-        ax2 = ax1.twinx()
-        ax2.plot(monthly.index, monthly['Lucro'], color=cor_lucro, marker='o', linestyle='-', label='Lucro Líquido')
-        ax2.set_ylabel("Lucro (R$)", color=cor_lucro); ax2.tick_params(axis='y', labelcolor=cor_lucro)
+        if 'Receita' not in monthly.columns: monthly['Receita'] = 0
+        if 'Despesa' not in monthly.columns: monthly['Despesa'] = 0
+            
+        monthly['Lucro'] = monthly['Receita'] - monthly['Despesa']
 
-        fig.suptitle("Evolução Mensal: Faturamento vs. Lucro", fontsize=16)
-        lines, labels = ax1.get_legend_handles_labels(); lines2, labels2 = ax2.get_legend_handles_labels()
-        ax2.legend(lines + lines2, labels + labels2, loc='upper right')
-    
+        # --- NOVA LÓGICA DE PLOTAGEM COM CORES DINÂMICAS ---
+
+        # 2. Cria a lista de cores para as barras de lucro
+        #    Vermelho para prejuízo, Verde Escuro para lucro.
+        profit_colors = ['#C21807' if valor < 0 else '#006400' for valor in monthly['Lucro']]
+
+        # 3. Configurações para as barras agrupadas
+        n_months = len(monthly.index)
+        ind = np.arange(n_months)  # posições dos grupos no eixo x
+        width = 0.4  # largura das barras
+
+        # 4. Plota as barras de Faturamento (sempre roxas)
+        #    Elas são desenhadas um pouco para a esquerda do centro do mês
+        rects1 = ax.bar(ind - width/2, monthly['Receita'], width, label='Faturamento (Receita)', color='#6A0DAD')
+
+        # 5. Plota as barras de Lucro usando a lista de cores dinâmica
+        #    Elas são desenhadas um pouco para a direita do centro do mês
+        rects2 = ax.bar(ind + width/2, monthly['Lucro'], width, label='Lucro Líquido', color=profit_colors)
+        
+        # --- FIM DA NOVA LÓGICA ---
+
+        # 6. Configuração dos eixos e legendas
+        ax.set_title("Evolução Mensal: Faturamento vs. Lucro", fontsize=16)
+        ax.set_ylabel("Valor (R$)")
+        ax.set_xticks(ind)
+        ax.set_xticklabels(monthly.index, rotation=45, ha="right", rotation_mode="anchor")
+        
+        ax.get_yaxis().set_major_formatter(
+            plt.FuncFormatter(lambda x, p: format(int(x), ','))
+        )
+        ax.legend()
+        
+        # Adiciona uma linha de referência no zero para clareza visual
+        ax.axhline(0, color='grey', linewidth=0.8)
+
     return fig
 
 # ======================================================================

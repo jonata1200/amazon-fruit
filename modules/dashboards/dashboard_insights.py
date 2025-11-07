@@ -1,8 +1,7 @@
 # modules/dashboards/dashboard_insights.py
 
 from PyQt6.QtWidgets import QWidget, QVBoxLayout,QHBoxLayout, QGridLayout, QLabel, QFrame, QTextEdit
-from PyQt6.QtGui import QFont
-from PyQt6.QtCore import Qt
+
 import pandas as pd
 
 # Importa TODAS as funções de análise necessárias de outros módulos
