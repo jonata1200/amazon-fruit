@@ -4,23 +4,20 @@ import sqlite3
 import pandas as pd
 from pathlib import Path
 
-# A classe DataRepository não é mais necessária para a aplicação principal,
-# apenas para o script de migração.
-
 class DataHandler:
     def __init__(self, base_dir: Path | str | None = None):
-        # O DataHandler agora aponta diretamente para o arquivo do banco de dados.
-        if base_dir and Path(base_dir).name.endswith(".db"):
-             self.db_path = Path(base_dir)
-        else:
-             # Padrão: procura por 'amazon_fruit.db' na pasta 'data' do projeto.
-             self.db_path = Path(__file__).resolve().parents[2] / "data" / "amazon_fruit.db"
+     # Se um diretório base não for fornecido, calcula a partir do local deste arquivo.
+     if base_dir is None:
+         base_dir = Path(__file__).resolve().parents[2]
+     
+     # Constrói o caminho para o banco de dados de forma consistente.
+     self.db_path = Path(base_dir) / "data" / "amazon_fruit.db"
 
-        self.start_date: pd.Timestamp | None = None
-        self.end_date: pd.Timestamp | None = None
-        
-        if not self.db_path.exists():
-            raise FileNotFoundError(f"Arquivo de banco de dados não encontrado: {self.db_path}\nExecute o script de migração primeiro.")
+     self.start_date: pd.Timestamp | None = None
+     self.end_date: pd.Timestamp | None = None
+     
+     if not self.db_path.exists():
+         raise FileNotFoundError(f"Arquivo de banco de dados não encontrado: {self.db_path}\nExecute o script de migração primeiro.")
 
     def _get_db_connection(self):
         """Cria e retorna uma conexão com o banco de dados SQLite."""

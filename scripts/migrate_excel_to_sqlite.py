@@ -8,8 +8,7 @@ from functools import lru_cache
 from calendar import monthrange
 
 # ==============================================================================
-# --- MUDANÇA: A classe DataRepository foi movida para DENTRO deste script ---
-# Agora este script é autossuficiente e não depende mais do 'data_handler.py'
+# --- CLASSE DataRepository AUTOSSUFICIENTE ---
 # ==============================================================================
 project_root = Path(__file__).resolve().parents[1]
 BASE_DIR = project_root / "data"
@@ -63,7 +62,18 @@ class DataRepository:
         frames = [];
         for ano, fp in self._iter_year_files("estoque", "estoque.xlsx"):
             xls = pd.ExcelFile(fp, engine="openpyxl")
-            for sheet in xls.sheet_names: mes, _ = _sheet_to_period(sheet); df = pd.read_excel(xls, sheet_name=sheet); df["Ano"] = ano; df["Mes"] = mes; df["Data_Validade"] = pd.to_datetime(df.get("Data_Validade"), errors="coerce"); df["Data_Snapshot"] = pd.to_datetime(_last_day(ano, mes)); frames.append(df)
+            for sheet in xls.sheet_names:
+                mes, _ = _sheet_to_period(sheet)
+                df = pd.read_excel(xls, sheet_name=sheet)
+                
+                # --- MUDANÇA PRINCIPAL AQUI ---
+                # Lógica para garantir que a coluna de nome do produto seja padronizada.
+                # Se uma coluna 'Nome' existir, ela será renomeada para 'Nome_Produto'.
+                if 'Nome' in df.columns and 'Nome_Produto' not in df.columns:
+                    df.rename(columns={'Nome': 'Nome_Produto'}, inplace=True)
+                # --- FIM DA MUDANÇA ---
+
+                df["Ano"] = ano; df["Mes"] = mes; df["Data_Validade"] = pd.to_datetime(df.get("Data_Validade"), errors="coerce"); df["Data_Snapshot"] = pd.to_datetime(_last_day(ano, mes)); frames.append(df)
         if not frames: return pd.DataFrame()
         df = pd.concat(frames, ignore_index=True); df["ID_Produto"] = pd.to_numeric(df.get("ID_Produto"), errors="coerce").astype("Int64");
         for c in ["Quantidade_Estoque", "Preco_Custo", "Preco_Venda", "Nivel_Minimo_Estoque"]:
@@ -80,11 +90,10 @@ class DataRepository:
         if "ID_Cliente" in df.columns: df["ID_Cliente"] = pd.to_numeric(df["ID_Cliente"], errors="coerce").astype("Int64")
         if "Idade" in df.columns: df["Idade"] = pd.to_numeric(df["Idade"], errors="coerce")
         return df
-# ==============================================================================
-# --- FIM DO CÓDIGO MOVIDO ---
-# ==============================================================================
 
-# --- CONFIGURAÇÃO ---
+# ==============================================================================
+# --- LÓGICA DE MIGRAÇÃO ---
+# ==============================================================================
 DB_PATH = project_root / 'data' / 'amazon_fruit.db'
 DB_PATH.parent.mkdir(exist_ok=True)
 
@@ -99,10 +108,9 @@ def migrate():
     conn = sqlite3.connect(DB_PATH)
     print(f"Banco de dados conectado em: {DB_PATH}")
     
-    # Usa a classe DataRepository que agora está DENTRO deste arquivo
     repo = DataRepository()
 
-    print("Carregando dados dos arquivos Excel (já corrigidos)...")
+    print("Carregando e padronizando dados dos arquivos Excel...")
     datasets = {
         "Fornecedores": repo.load_fornecedores(), "Recursos_Humanos": repo.load_rh(),
         "Financas": repo.load_financas(), "Estoque": repo.load_estoque_snapshot(),

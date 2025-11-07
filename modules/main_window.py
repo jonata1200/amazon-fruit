@@ -30,8 +30,8 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 1280, 720)
         self.app.setStyleSheet(get_stylesheet())
 
-        data_dir = Path(__file__).resolve().parents[1] / "data"
-        self.data_handler = DataHandler(base_dir=data_dir)
+        project_dir = Path(__file__).resolve().parents[1]
+        self.data_handler = DataHandler(base_dir=project_dir)
 
         main_layout = QHBoxLayout(); main_layout.setSpacing(0); main_layout.setContentsMargins(0, 0, 0, 0)
         

@@ -33,61 +33,54 @@ def get_revenue_distribution(df: pd.DataFrame, top_n: int = 5) -> pd.Series:
     return revenue_df.groupby('Categoria')['Valor'].sum().sort_values(ascending=False).head(top_n)
 
 def get_top_selling_items(df_financas: pd.DataFrame, df_estoque: pd.DataFrame, top_n: int = 10) -> pd.Series:
-    if df_financas is None or df_estoque is None or df_financas.empty or df_estoque.empty:
-        return pd.Series(dtype='float64')
-
-    sales_df = df_financas[
-        (df_financas['Tipo'].astype(str).str.lower() == 'receita') &
-        (df_financas['ID_Produto'].notna())
-    ].copy()
-
-    if sales_df.empty:
-        return pd.Series(dtype='float64')
-        
-    # --- MUDANÇA AQUI (Início) ---
-    # Força que a coluna de junção (ID_Produto) seja do mesmo tipo numérico em ambos os DataFrames.
-    # Isso evita erros de junção onde '1234' (inteiro) não corresponde a '1234.0' (float).
-    sales_df['ID_Produto'] = pd.to_numeric(sales_df['ID_Produto'], errors='coerce')
-    df_estoque['ID_Produto'] = pd.to_numeric(df_estoque['ID_Produto'], errors='coerce')
-
-    # Remove quaisquer linhas onde a conversão falhou (resultou em NaT/NaN)
-    sales_df.dropna(subset=['ID_Produto'], inplace=True)
-    df_estoque.dropna(subset=['ID_Produto'], inplace=True)
-    # --- MUDANÇA AQUI (Fim) ---
-
-    sales_summary = sales_df.groupby('ID_Produto')['Valor'].sum().reset_index()
-    product_name_map = df_estoque[['ID_Produto', 'Nome_Produto']].drop_duplicates()
-
-    if product_name_map.empty:
-        return pd.Series(dtype='float64')
-
-    merged_df = pd.merge(sales_summary, product_name_map, on='ID_Produto', how='left')
-    
-    merged_df['Nome_Produto'] = merged_df['Nome_Produto'].fillna('Produto Desconhecido')
-    
-    top_selling = merged_df.sort_values('Valor', ascending=False).head(top_n)
-
-    if top_selling.empty:
-        return pd.Series(dtype='float64')
-
-    return top_selling.set_index('Nome_Produto')['Valor']
-
-def get_least_selling_items(df_financas: pd.DataFrame, df_estoque: pd.DataFrame, top_n: int = 10) -> pd.Series:
+    """
+    Identifica os produtos mais vendidos a partir dos DADOS DE ESTOQUE.
+    """
     if df_estoque is None or df_estoque.empty:
         return pd.Series(dtype='float64')
 
-    # Garante a consistência dos tipos de ID, assim como na função de top selling
-    df_estoque['ID_Produto'] = pd.to_numeric(df_estoque['ID_Produto'], errors='coerce')
-    all_products = df_estoque[['ID_Produto', 'Nome_Produto']].drop_duplicates().set_index('ID_Produto')
+    # --- MUDANÇA PRINCIPAL AQUI ---
+    # O nome da coluna foi corrigido de 'Nome_Produto' para 'Produto'.
+    required_cols = {'Produto', 'Quantidade_Vendida', 'Preco_Venda'}
+    if not required_cols.issubset(df_estoque.columns):
+        # Adiciona um print para ajudar a depurar caso o erro ocorra novamente
+        print(f"Erro em 'get_top_selling_items': Colunas necessárias não encontradas. Colunas disponíveis: {list(df_estoque.columns)}")
+        return pd.Series(dtype='float64')
 
-    sales_summary = pd.Series(dtype='float64')
-    if df_financas is not None and not df_financas.empty:
-        sales_df = df_financas[(df_financas['Tipo'].astype(str).str.lower() == 'receita') & (df_financas['ID_Produto'].notna())].copy()
-        if not sales_df.empty:
-            sales_df['ID_Produto'] = pd.to_numeric(sales_df['ID_Produto'], errors='coerce')
-            sales_summary = sales_df.groupby('ID_Produto')['Valor'].sum()
+    sales_df = df_estoque.copy()
+    sales_df['Quantidade_Vendida'] = pd.to_numeric(sales_df['Quantidade_Vendida'], errors='coerce').fillna(0)
+    sales_df['Preco_Venda'] = pd.to_numeric(sales_df['Preco_Venda'], errors='coerce').fillna(0)
+    sales_df['Faturamento'] = sales_df['Quantidade_Vendida'] * sales_df['Preco_Venda']
+
+    # --- MUDANÇA AQUI TAMBÉM ---
+    top_selling = sales_df.groupby('Produto')['Faturamento'].sum()
+    
+    return top_selling.sort_values(ascending=False).head(top_n)
+
+def get_least_selling_items(df_financas: pd.DataFrame, df_estoque: pd.DataFrame, top_n: int = 10) -> pd.Series:
+    """
+    Identifica os produtos menos vendidos, incluindo aqueles que nunca foram vendidos.
+    """
+    if df_estoque is None or df_estoque.empty:
+        return pd.Series(dtype='float64')
+
+    # --- MUDANÇA PRINCIPAL AQUI ---
+    # O nome da coluna foi corrigido de 'Nome_Produto' para 'Produto'.
+    if 'Produto' not in df_estoque.columns:
+        print(f"Erro em 'get_least_selling_items': Coluna 'Produto' não encontrada. Colunas disponíveis: {list(df_estoque.columns)}")
+        return pd.Series(dtype='float64')
+
+    all_products = df_estoque[['Produto']].drop_duplicates().set_index('Produto')
+
+    sales_df = df_estoque.copy()
+    sales_df['Quantidade_Vendida'] = pd.to_numeric(sales_df['Quantidade_Vendida'], errors='coerce').fillna(0)
+    sales_df['Preco_Venda'] = pd.to_numeric(sales_df['Preco_Venda'], errors='coerce').fillna(0)
+    sales_df['Faturamento'] = sales_df['Quantidade_Vendida'] * sales_df['Preco_Venda']
+
+    # --- MUDANÇA AQUI TAMBÉM ---
+    sales_summary = sales_df.groupby('Produto')['Faturamento'].sum()
 
     combined = all_products.join(sales_summary)
-    least_selling = combined.fillna(0).sort_values('Valor', ascending=True).head(top_n)
+    least_selling = combined.fillna(0).sort_values('Faturamento', ascending=True).head(top_n)
 
-    return least_selling.set_index('Nome_Produto')['Valor']
+    return least_selling['Faturamento']
