@@ -2,14 +2,53 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
 
-# Ignora ambiente virtual (se houver)
+# Ignora ambiente virtual
 .venv/
+venv/
+env/
+ENV/
 .env/
-.env*/ 
+.env.local
+.env.*.local
 
 # Ignora arquivos temporários e logs
 *.log
 *.tmp
 *.bak
 .DS_Store
+*.swp
+*.swo
+*~
+
+# Ignora IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignora arquivos de sistema
+Thumbs.db
+desktop.ini
+
+# Ignora arquivos de build e distribuição
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Ignora arquivos de teste
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Ignora arquivos do banco de dados (se necessário)
+# Descomente se não quiser versionar o banco
+# *.db
+# *.sqlite
+# *.sqlite3
