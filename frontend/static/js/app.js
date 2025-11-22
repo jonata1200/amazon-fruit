@@ -83,10 +83,20 @@ async function loadDateRange() {
         const response = await fetch('/api/data/date-range');
         const data = await response.json();
         
-        if (data.status === 'success') {
-            // Definir datas padrão (último ano)
-            const endDate = data.max_date || new Date().toISOString().split('T')[0];
-            const startDate = data.min_date || new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0];
+        if (data.status === 'success' && data.min_date && data.max_date) {
+            // Usar o range completo de datas disponível no banco
+            const startDate = data.min_date;
+            const endDate = data.max_date;
+            
+            document.getElementById('start-date').value = startDate;
+            document.getElementById('end-date').value = endDate;
+            
+            AppState.startDate = startDate;
+            AppState.endDate = endDate;
+        } else {
+            // Fallback: usar último ano se não houver dados
+            const endDate = new Date().toISOString().split('T')[0];
+            const startDate = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0];
             
             document.getElementById('start-date').value = startDate;
             document.getElementById('end-date').value = endDate;
@@ -200,9 +210,21 @@ async function loadDashboardScript(dashboardName, startDate, endDate) {
     script.id = 'dashboard-script';
     script.src = `/static/js/dashboards/${dashboardName}.js`;
     script.onload = () => {
-        // Chamar função de inicialização do dashboard se existir
-        if (window[`init${dashboardName.charAt(0).toUpperCase() + dashboardName.slice(1)}Dashboard`]) {
-            window[`init${dashboardName.charAt(0).toUpperCase() + dashboardName.slice(1)}Dashboard`](startDate, endDate);
+        // Mapear nomes de dashboard para nomes de função
+        const functionMap = {
+            'geral': 'initGeralDashboard',
+            'financas': 'initFinancasDashboard',
+            'estoque': 'initEstoqueDashboard',
+            'publico_alvo': 'initPublicoAlvoDashboard',
+            'fornecedores': 'initFornecedoresDashboard',
+            'recursos_humanos': 'initRecursosHumanosDashboard'
+        };
+        
+        const functionName = functionMap[dashboardName];
+        if (functionName && window[functionName]) {
+            window[functionName](startDate, endDate);
+        } else {
+            console.warn(`Função de inicialização não encontrada para: ${dashboardName}`);
         }
     };
     document.body.appendChild(script);

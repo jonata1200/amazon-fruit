@@ -178,8 +178,8 @@ async def get_dashboard_estoque(
 
 @router.get("/publico_alvo")
 async def get_dashboard_publico_alvo(
-    start_date: str = Query(..., description="Data inicial (YYYY-MM-DD)"),
-    end_date: str = Query(..., description="Data final (YYYY-MM-DD)")
+    start_date: Optional[str] = Query(None, description="Data inicial (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="Data final (YYYY-MM-DD)")
 ):
     """
     Retorna dados do dashboard de público-alvo.
@@ -188,12 +188,13 @@ async def get_dashboard_publico_alvo(
     - Clientes por localização
     - Distribuição por gênero
     - Distribuição por canal
+    
+    Nota: A tabela de clientes não tem coluna de data direta, então todos os dados são retornados.
     """
     try:
         handler = get_data_handler()
-        handler.set_period(start_date, end_date)
-        
-        df_publico = handler.load_table("Publico_Alvo")
+        # A tabela de clientes não tem coluna de data, então carregamos todos os dados
+        df_publico = handler.load_full_unfiltered_table("Publico_Alvo")
         
         by_location = public_analysis.get_clients_by_location(df_publico, top_n=10)
         by_gender = public_analysis.get_clients_by_gender(df_publico)
@@ -201,10 +202,10 @@ async def get_dashboard_publico_alvo(
         
         return {
             "status": "success",
-            "period": {"start": start_date, "end": end_date},
-            "by_location": by_location.to_dict(),
-            "by_gender": by_gender.to_dict(),
-            "by_channel": by_channel.to_dict()
+            "period": {"start": start_date, "end": end_date} if start_date and end_date else None,
+            "by_location": by_location.to_dict() if not by_location.empty else {},
+            "by_gender": by_gender.to_dict() if not by_gender.empty else {},
+            "by_channel": by_channel.to_dict() if not by_channel.empty else {}
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao carregar dashboard de público-alvo: {str(e)}")

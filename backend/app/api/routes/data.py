@@ -42,12 +42,19 @@ async def get_table_data(
     try:
         handler = get_data_handler()
         
-        # Se datas foram fornecidas, configura o período
-        if start_date and end_date:
-            handler.set_period(start_date, end_date)
+        # Tabelas que não têm coluna de data devem usar load_full_unfiltered_table
+        tables_without_date = ['publico_alvo', 'fornecedores']
+        table_key = table_name.lower().replace('_', '')
         
-        # Carrega os dados
-        df = handler.load_table(table_name)
+        if table_key in ['publicoalvo', 'fornecedores']:
+            # Carrega todos os dados (sem filtro de data)
+            df = handler.load_full_unfiltered_table(table_name)
+        else:
+            # Se datas foram fornecidas, configura o período
+            if start_date and end_date:
+                handler.set_period(start_date, end_date)
+            # Carrega os dados com filtro de data
+            df = handler.load_table(table_name)
         
         # Converte DataFrame para JSON
         # Usa orient='records' para retornar lista de objetos
