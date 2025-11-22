@@ -7,35 +7,49 @@
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Plotly.js -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <!-- CSS Principal -->
     <link rel="stylesheet" href="/static/css/main.css">
 </head>
 <body>
+    <!-- Skip to content (Acessibilidade) -->
+    <a href="#dashboard-content" class="skip-to-content">Pular para conteúdo principal</a>
+    
+    <!-- Menu Toggle (Mobile) -->
+    <button class="menu-toggle" id="menu-toggle" onclick="toggleSidebar()" aria-label="Abrir/Fechar menu de navegação" aria-expanded="false">
+        <i class="fas fa-bars"></i>
+        <span class="sr-only">Menu de navegação</span>
+    </button>
+
     <!-- Sidebar -->
-    <nav id="sidebar" class="sidebar">
+    <nav id="sidebar" class="sidebar" role="navigation" aria-label="Navegação principal">
         <div class="sidebar-header">
-            <h3>🍎 Amazon Fruit</h3>
+            <div class="logo-container">
+                <i class="fas fa-apple-alt logo-icon"></i>
+                <h3 class="logo-text">Amazon Fruit</h3>
+            </div>
         </div>
         <ul class="sidebar-menu">
             <li><a href="#" data-dashboard="geral" class="menu-item active">
-                <span>📊</span> Visão Geral
+                <i class="fas fa-chart-line"></i> <span>Visão Geral</span>
             </a></li>
             <li><a href="#" data-dashboard="financas" class="menu-item">
-                <span>💰</span> Finanças
+                <i class="fas fa-dollar-sign"></i> <span>Finanças</span>
             </a></li>
             <li><a href="#" data-dashboard="estoque" class="menu-item">
-                <span>📦</span> Estoque
+                <i class="fas fa-box"></i> <span>Estoque</span>
             </a></li>
             <li><a href="#" data-dashboard="publico_alvo" class="menu-item">
-                <span>👥</span> Público-Alvo
+                <i class="fas fa-users"></i> <span>Público-Alvo</span>
             </a></li>
             <li><a href="#" data-dashboard="fornecedores" class="menu-item">
-                <span>🚚</span> Fornecedores
+                <i class="fas fa-truck"></i> <span>Fornecedores</span>
             </a></li>
             <li><a href="#" data-dashboard="recursos_humanos" class="menu-item">
-                <span>👔</span> Recursos Humanos
+                <i class="fas fa-user-tie"></i> <span>Recursos Humanos</span>
             </a></li>
         </ul>
     </nav>
@@ -50,24 +64,24 @@
                     <!-- Busca Global -->
                     <div class="search-container me-2">
                         <input type="text" id="global-search-input" class="form-control form-control-sm" placeholder="Buscar..." style="width: 200px; display: none;">
-                        <button id="btn-search-toggle" class="btn btn-outline-secondary" title="Busca global (Ctrl+F)" onclick="toggleSearch()">
-                            🔍
-                        </button>
+                    <button id="btn-search-toggle" class="btn btn-outline-secondary" title="Busca global (Ctrl+F)" onclick="toggleSearch()">
+                        <i class="fas fa-search"></i>
+                    </button>
                     </div>
                     <button id="btn-alerts" class="btn btn-outline-warning me-2 position-relative" title="Alertas do sistema" onclick="toggleAlertsPanel()">
-                        🔔
+                        <i class="fas fa-bell"></i>
                         <span id="alerts-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
                             0
                         </span>
                     </button>
                     <button id="btn-toggle-theme" class="btn btn-outline-secondary me-2" title="Alternar modo escuro/claro (Ctrl+T)">
-                        🌙
+                        <i class="fas fa-moon"></i>
                     </button>
                     <button id="btn-keyboard-help" class="btn btn-outline-info me-2" title="Atalhos de teclado (Ctrl+?)" onclick="showKeyboardShortcutsHelp()">
-                        ⌨️
+                        <i class="fas fa-keyboard"></i>
                     </button>
                     <button id="btn-report" class="btn btn-primary" style="display: none;" title="Gerar relatório (Ctrl+R)">
-                        📄 Gerar Relatório
+                        <i class="fas fa-file-pdf"></i> Gerar Relatório
                     </button>
                 </div>
             </div>
@@ -76,8 +90,10 @@
         <!-- Alerts Panel -->
         <div id="alerts-panel" class="alerts-panel" style="display: none;">
             <div class="alerts-panel-header">
-                <h5>🔔 Alertas do Sistema</h5>
-                <button class="btn btn-sm btn-outline-secondary" onclick="toggleAlertsPanel()">✕</button>
+                <h5><i class="fas fa-bell"></i> Alertas do Sistema</h5>
+                <button class="btn btn-sm btn-outline-secondary" onclick="toggleAlertsPanel()" aria-label="Fechar alertas">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div id="alerts-list" class="alerts-list">
                 <div class="text-center text-muted p-3">
@@ -108,9 +124,9 @@
                     Resetar
                 </button>
                 
-                <button id="btn-compare-mode" class="btn btn-outline-info" onclick="toggleCompareMode()" title="Comparar dois períodos">
-                    🔄 Comparar
-                </button>
+                    <button id="btn-compare-mode" class="btn btn-outline-info" onclick="toggleCompareMode()" title="Comparar dois períodos">
+                        <i class="fas fa-exchange-alt"></i> Comparar
+                    </button>
             </div>
             
             <!-- Comparação de Períodos -->
@@ -143,7 +159,7 @@
         </div>
 
         <!-- Dashboard Content -->
-        <main id="dashboard-content" class="dashboard-content">
+        <main id="dashboard-content" class="dashboard-content" role="main" aria-label="Conteúdo principal do dashboard">
             <!-- Conteúdo será carregado dinamicamente aqui -->
             <div class="loading-screen" id="loading-screen">
                 <div class="spinner-border text-primary" role="status">

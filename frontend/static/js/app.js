@@ -147,6 +147,9 @@ async function initializeApp() {
     // Limpar cache antigo ao iniciar
     CacheManager.clearOld();
     
+    // Configurar sidebar para mobile
+    setupMobileSidebar();
+    
     // Garantir que os elementos existem antes de tentar definir valores
     let attempts = 0;
     while (attempts < 10) {
@@ -542,6 +545,9 @@ async function loadDashboard(dashboardName, startDate = null, endDate = null) {
 async function loadDashboardContent(dashboardName, startDate, endDate) {
     const content = document.getElementById('dashboard-content');
     
+    // Mostrar skeleton loading
+    showSkeletonLoading(content);
+    
     // Carregar HTML do dashboard (se existir)
     try {
         const response = await fetch(`/templates/dashboards/${dashboardName}.html`);
@@ -559,6 +565,39 @@ async function loadDashboardContent(dashboardName, startDate, endDate) {
     
     // Carregar JavaScript específico do dashboard
     await loadDashboardScript(dashboardName, startDate, endDate);
+}
+
+/**
+ * Mostra skeleton loading no conteúdo
+ */
+function showSkeletonLoading(container) {
+    container.innerHTML = `
+        <div class="dashboard-card skeleton-card">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text" style="width: 80%;"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="dashboard-card skeleton-card">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-chart"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="dashboard-card skeleton-card">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-chart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="dashboard-card skeleton-card">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text" style="width: 60%;"></div>
+        </div>
+    `;
 }
 
 // Carregar script do dashboard
@@ -854,7 +893,12 @@ function toggleDarkMode() {
 function updateThemeIcon(isDark) {
     const toggleButton = document.getElementById('btn-toggle-theme');
     if (toggleButton) {
-        toggleButton.textContent = isDark ? '☀️' : '🌙';
+        const icon = toggleButton.querySelector('i');
+        if (icon) {
+            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        } else {
+            toggleButton.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        }
         toggleButton.title = isDark ? 'Alternar para modo claro' : 'Alternar para modo escuro';
     }
 }
@@ -1237,6 +1281,42 @@ window.toggleCompareMode = toggleCompareMode;
 window.applyComparison = applyComparison;
 window.exitComparison = exitComparison;
 window.formatCurrency = formatCurrency;
+
+/**
+ * Configura sidebar para mobile
+ */
+function setupMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menu-toggle');
+    
+    if (!sidebar || !menuToggle) return;
+    
+    // Fechar sidebar ao clicar fora (mobile)
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768) {
+            if (sidebar.classList.contains('open')) {
+                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Alterna sidebar (mobile)
+ */
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menu-toggle');
+    if (sidebar && menuToggle) {
+        const isOpen = sidebar.classList.toggle('open');
+        menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        menuToggle.setAttribute('aria-label', isOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação');
+    }
+}
+
+window.toggleSidebar = toggleSidebar;
 
 // ============================================================================
 // ATALHOS DE TECLADO
