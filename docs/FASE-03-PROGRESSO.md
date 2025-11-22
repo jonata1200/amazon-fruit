@@ -234,4 +234,3 @@ frontend/
 - Separação de concerns (HTML/CSS/JS)
 - API-first approach
 - Error handling robusto
-

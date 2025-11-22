@@ -15,17 +15,67 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Inicializar aplicação
 async function initializeApp() {
+    console.log('Inicializando aplicação...');
+    
     // Configurar menu de navegação
     setupNavigation();
     
     // Configurar barra de período
     setupPeriodBar();
     
-    // Carregar range de datas disponível
+    // Garantir que os elementos existem antes de tentar definir valores
+    let attempts = 0;
+    while (attempts < 10) {
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        
+        if (startDateInput && endDateInput) {
+            console.log('Elementos encontrados, carregando range de datas...');
+            break;
+        }
+        
+        console.log(`Tentativa ${attempts + 1}: elementos ainda não encontrados, aguardando...`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
+    // Carregar range de datas disponível ANTES de carregar o dashboard
     await loadDateRange();
     
-    // Carregar dashboard inicial
-    await loadDashboard('geral');
+    // Aguardar um pouco para garantir que os campos de data foram atualizados
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Forçar atualização dos valores novamente após um delay
+    const startDateInput = document.getElementById('start-date');
+    const endDateInput = document.getElementById('end-date');
+    
+    if (AppState.startDate && AppState.endDate) {
+        if (startDateInput) {
+            startDateInput.value = AppState.startDate;
+            startDateInput.setAttribute('value', AppState.startDate);
+            // Disparar evento para garantir que o navegador atualize
+            startDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+            startDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        
+        if (endDateInput) {
+            endDateInput.value = AppState.endDate;
+            endDateInput.setAttribute('value', AppState.endDate);
+            // Disparar evento para garantir que o navegador atualize
+            endDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+            endDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+    
+    // Verificar valores finais
+    console.log('Valores finais nos campos:', {
+        startDate: startDateInput ? startDateInput.value : 'não encontrado',
+        endDate: endDateInput ? endDateInput.value : 'não encontrado',
+        appState: { startDate: AppState.startDate, endDate: AppState.endDate }
+    });
+    
+    // Carregar dashboard inicial com as datas corretas
+    await loadDashboard('geral', AppState.startDate, AppState.endDate);
 }
 
 // Configurar navegação do menu
@@ -79,33 +129,111 @@ function setupPeriodBar() {
 
 // Carregar range de datas disponível
 async function loadDateRange() {
+    console.log('Iniciando carregamento do range de datas...');
+    
     try {
         const response = await fetch('/api/data/date-range');
+        console.log('Resposta da API recebida:', response.status);
+        
         const data = await response.json();
+        console.log('Dados da API:', data);
         
         if (data.status === 'success' && data.min_date && data.max_date) {
             // Usar o range completo de datas disponível no banco
             const startDate = data.min_date;
             const endDate = data.max_date;
             
-            document.getElementById('start-date').value = startDate;
-            document.getElementById('end-date').value = endDate;
+            console.log('Datas extraídas da API:', { startDate, endDate });
             
+            // Aguardar um pouco para garantir que o DOM está pronto
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            // Atualizar campos de data no DOM
+            const startDateInput = document.getElementById('start-date');
+            const endDateInput = document.getElementById('end-date');
+            
+            console.log('Elementos encontrados:', {
+                startDateInput: !!startDateInput,
+                endDateInput: !!endDateInput
+            });
+            
+            if (startDateInput) {
+                // Definir valor múltiplas vezes para garantir
+                startDateInput.setAttribute('value', startDate);
+                startDateInput.value = startDate;
+                startDateInput.setAttribute('value', startDate);
+                
+                // Disparar eventos para garantir atualização
+                startDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+                startDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                console.log('Data inicial definida:', startDateInput.value);
+                console.log('Atributo value:', startDateInput.getAttribute('value'));
+            } else {
+                console.error('Elemento start-date não encontrado!');
+            }
+            
+            if (endDateInput) {
+                // Definir valor múltiplas vezes para garantir
+                endDateInput.setAttribute('value', endDate);
+                endDateInput.value = endDate;
+                endDateInput.setAttribute('value', endDate);
+                
+                // Disparar eventos para garantir atualização
+                endDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+                endDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                console.log('Data final definida:', endDateInput.value);
+                console.log('Atributo value:', endDateInput.getAttribute('value'));
+            } else {
+                console.error('Elemento end-date não encontrado!');
+            }
+            
+            // Atualizar estado da aplicação
             AppState.startDate = startDate;
             AppState.endDate = endDate;
+            
+            console.log('Range de datas carregado com sucesso:', { startDate, endDate });
+            console.log('AppState atualizado:', AppState);
         } else {
+            console.warn('API não retornou dados válidos:', data);
             // Fallback: usar último ano se não houver dados
             const endDate = new Date().toISOString().split('T')[0];
             const startDate = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0];
             
-            document.getElementById('start-date').value = startDate;
-            document.getElementById('end-date').value = endDate;
+            const startDateInput = document.getElementById('start-date');
+            const endDateInput = document.getElementById('end-date');
+            
+            if (startDateInput) {
+                startDateInput.value = startDate;
+            }
+            if (endDateInput) {
+                endDateInput.value = endDate;
+            }
             
             AppState.startDate = startDate;
             AppState.endDate = endDate;
+            
+            console.warn('Range de datas não encontrado, usando fallback:', { startDate, endDate });
         }
     } catch (error) {
         console.error('Erro ao carregar range de datas:', error);
+        // Em caso de erro, usar fallback
+        const endDate = new Date().toISOString().split('T')[0];
+        const startDate = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0];
+        
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        
+        if (startDateInput) {
+            startDateInput.value = startDate;
+        }
+        if (endDateInput) {
+            endDateInput.value = endDate;
+        }
+        
+        AppState.startDate = startDate;
+        AppState.endDate = endDate;
     }
 }
 
