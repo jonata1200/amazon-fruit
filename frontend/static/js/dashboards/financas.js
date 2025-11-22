@@ -151,6 +151,9 @@ async function renderEvolutionChart(evolutionData) {
     };
     
     Plotly.newPlot('chart-evolucao-financeira', [trace1, trace2, trace3], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-evolucao-financeira', 'Evolucao_Financeira_Mensal');
 }
 
 // Renderizar gráfico de top despesas
@@ -184,6 +187,9 @@ async function renderTopExpensesChart(expensesData) {
     };
     
     Plotly.newPlot('chart-top-despesas', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-top-despesas', 'Top_5_Despesas');
 }
 
 // Renderizar gráfico de top receitas
@@ -217,6 +223,9 @@ async function renderTopRevenuesChart(revenuesData) {
     };
     
     Plotly.newPlot('chart-top-receitas', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-top-receitas', 'Top_5_Receitas');
 }
 
 // Carregar tabela de dados financeiros
@@ -244,19 +253,85 @@ async function loadFinancialTable(startDate, endDate) {
             
             tableBody.innerHTML = data.data.map(item => `
                 <tr>
-                    <td>${formatDate(item.Data)}</td>
-                    <td><span class="badge ${item.Tipo === 'Receita' ? 'bg-success' : 'bg-danger'}">${item.Tipo || '-'}</span></td>
-                    <td>${item.Categoria || '-'}</td>
-                    <td>${formatCurrency(item.Valor)}</td>
-                    <td>${item.Descricao || '-'}</td>
+                    <td data-filter="data">${formatDate(item.Data)}</td>
+                    <td data-filter="tipo"><span class="badge ${item.Tipo === 'Receita' ? 'bg-success' : 'bg-danger'}">${item.Tipo || '-'}</span></td>
+                    <td data-filter="categoria">${item.Categoria || '-'}</td>
+                    <td data-filter="valor">${formatCurrency(item.Valor)}</td>
+                    <td data-filter="descricao">${item.Descricao || '-'}</td>
                 </tr>
             `).join('');
+            
+            // Adicionar filtros se ainda não existirem
+            addFinancialFilters();
         } else {
             tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum dado disponível para o período selecionado.</td></tr>';
         }
     } catch (error) {
         console.error('Erro ao carregar tabela financeira:', error);
         tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Erro ao carregar dados.</td></tr>';
+    }
+}
+
+// Adicionar filtros ao dashboard de finanças
+function addFinancialFilters() {
+    const tableCard = document.querySelector('#financial-table-body')?.closest('.dashboard-card');
+    if (!tableCard) return;
+    
+    // Verificar se já existe painel de filtros
+    if (document.getElementById('filters-financas')) return;
+    
+    // Obter categorias e tipos únicos para os selects
+    const table = document.querySelector('#financial-table-body')?.closest('table');
+    if (!table) return;
+    
+    const categorias = new Set();
+    const tipos = new Set();
+    
+    table.querySelectorAll('tbody tr').forEach(row => {
+        const categoria = row.querySelector('[data-filter="categoria"]')?.textContent.trim();
+        const tipo = row.querySelector('[data-filter="tipo"]')?.textContent.trim();
+        if (categoria) categorias.add(categoria);
+        if (tipo) tipos.add(tipo);
+    });
+    
+    const filtersHTML = `
+        <div class="filters-panel mb-3" id="filters-financas" data-table-id="table-financas">
+            <div class="filters-header d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">🔍 Filtros</h6>
+                <button class="btn btn-sm btn-outline-secondary" onclick="FilterManager.clearFilters('filters-financas')">
+                    Limpar
+                </button>
+            </div>
+            <div class="filters-content d-flex gap-2 flex-wrap">
+                <div class="filter-item">
+                    <select class="form-control form-control-sm" data-filter="tipo" onchange="applyFilter('financas')" style="width: 150px;">
+                        <option value="">Todos os Tipos</option>
+                        ${Array.from(tipos).map(t => `<option value="${t}">${t}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <select class="form-control form-control-sm" data-filter="categoria" onchange="applyFilter('financas')" style="width: 200px;">
+                        <option value="">Todas as Categorias</option>
+                        ${Array.from(categorias).sort().map(c => `<option value="${c}">${c}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <input type="text" class="form-control form-control-sm" data-filter="descricao" 
+                           placeholder="Buscar na descrição..." 
+                           oninput="applyFilter('financas')" style="width: 250px;">
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const tableContainer = tableCard.querySelector('.data-table');
+    if (tableContainer) {
+        tableContainer.insertAdjacentHTML('beforebegin', filtersHTML);
+    }
+    
+    // Adicionar ID à tabela
+    if (table && !table.id) {
+        table.id = 'table-financas';
     }
 }
 

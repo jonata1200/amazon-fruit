@@ -31,7 +31,17 @@
 
 <!-- Tabela de Dados de RH -->
 <div class="dashboard-card fade-in">
-    <h2>Dados de Recursos Humanos</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Dados de Recursos Humanos</h2>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="exportTable('recursos_humanos', 'xlsx')" title="Exportar para Excel">
+                📊 Excel
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportTable('recursos_humanos', 'csv')" title="Exportar para CSV">
+                📄 CSV
+            </button>
+        </div>
+    </div>
     <div class="data-table">
         <table class="table table-striped table-hover">
             <thead>

@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
@@ -10,6 +11,9 @@ from .api.routes.data import router as data_router
 from .api.routes.analysis import router as analysis_router
 from .api.routes.dashboard import router as dashboard_router
 from .api.routes.charts import router as charts_router
+from .api.routes.export import router as export_router
+from .api.routes.alerts import router as alerts_router
+from .api.routes.search import router as search_router
 
 app = FastAPI(
     title=settings.api_title,
@@ -26,6 +30,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Configurar compressão GZip
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # Caminho para o frontend (relativo ao diretório raiz do projeto)
 project_root = Path(__file__).resolve().parents[2]
 frontend_path = project_root / "frontend"
@@ -41,6 +48,9 @@ app.include_router(data_router)
 app.include_router(analysis_router)
 app.include_router(dashboard_router)
 app.include_router(charts_router)
+app.include_router(export_router)
+app.include_router(alerts_router)
+app.include_router(search_router)
 
 @app.get("/")
 async def read_root():

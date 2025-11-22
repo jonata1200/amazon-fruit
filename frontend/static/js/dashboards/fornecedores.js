@@ -61,6 +61,9 @@ async function renderTopSuppliersChart(topSuppliersData) {
     };
     
     Plotly.newPlot('chart-top-suppliers', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-top-suppliers', 'Top_5_Melhores_Fornecedores');
 }
 
 // Renderizar gráfico de bottom fornecedores
@@ -100,6 +103,9 @@ async function renderBottomSuppliersChart(bottomSuppliersData) {
     };
     
     Plotly.newPlot('chart-bottom-suppliers', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-bottom-suppliers', 'Top_5_Piores_Fornecedores');
 }
 
 // Renderizar gráfico de distribuição por estado
@@ -133,6 +139,9 @@ async function renderSuppliersStateChart(stateData) {
     };
     
     Plotly.newPlot('chart-suppliers-state', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-suppliers-state', 'Fornecedores_Por_Estado');
 }
 
 // Carregar tabela de dados de fornecedores

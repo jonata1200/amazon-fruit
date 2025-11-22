@@ -56,6 +56,9 @@ async function renderHeadcountChart(headcountData) {
     };
     
     Plotly.newPlot('chart-headcount', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-headcount', 'Headcount_Por_Departamento');
 }
 
 // Renderizar gráfico de custo por departamento
@@ -89,6 +92,9 @@ async function renderCostChart(costData) {
     };
     
     Plotly.newPlot('chart-cost', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-cost', 'Custo_Por_Departamento');
 }
 
 // Renderizar gráfico de distribuição por cargo
@@ -122,6 +128,9 @@ async function renderRoleChart(roleData) {
     };
     
     Plotly.newPlot('chart-role', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-role', 'Top_10_Cargos');
 }
 
 // Renderizar gráfico de histórico de contratações
@@ -155,6 +164,9 @@ async function renderHiringChart(hiringData) {
     };
     
     Plotly.newPlot('chart-hiring', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-hiring', 'Historico_Contratacoes');
 }
 
 // Carregar tabela de dados de RH

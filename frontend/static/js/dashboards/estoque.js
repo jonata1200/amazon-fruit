@@ -114,6 +114,9 @@ async function renderTopSellingChart(topSellingData) {
     };
     
     Plotly.newPlot('chart-top-vendidos', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-top-vendidos', 'Top_10_Produtos_Vendidos');
 }
 
 // Renderizar gráfico de produtos menos vendidos
@@ -147,6 +150,9 @@ async function renderLeastSellingChart(leastSellingData) {
     };
     
     Plotly.newPlot('chart-menos-vendidos', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-menos-vendidos', 'Produtos_Menos_Vendidos');
 }
 
 // Renderizar gráfico de rupturas de estoque
@@ -183,6 +189,9 @@ async function renderStockRuptureChart(lowStockData) {
     };
     
     Plotly.newPlot('chart-ruptura', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-ruptura', 'Rupturas_Estoque');
 }
 
 // Carregar tabela de dados de estoque
@@ -215,20 +224,72 @@ async function loadInventoryTable(startDate, endDate) {
             
             tableBody.innerHTML = records.map(item => `
                 <tr>
-                    <td>${item.Produto || '-'}</td>
-                    <td>${item.Quantidade_Estoque || 0}</td>
-                    <td>${item.Nivel_Minimo_Estoque || 0}</td>
-                    <td>${formatCurrency(item.Preco_Custo)}</td>
-                    <td>${formatCurrency(item.Preco_Venda)}</td>
-                    <td>${item.Quantidade_Vendida || 0}</td>
+                    <td data-filter="produto">${item.Produto || '-'}</td>
+                    <td data-filter="estoque">${item.Quantidade_Estoque || 0}</td>
+                    <td data-filter="minimo">${item.Nivel_Minimo_Estoque || 0}</td>
+                    <td data-filter="custo">${formatCurrency(item.Preco_Custo)}</td>
+                    <td data-filter="venda">${formatCurrency(item.Preco_Venda)}</td>
+                    <td data-filter="vendido">${item.Quantidade_Vendida || 0}</td>
                 </tr>
             `).join('');
+            
+            // Adicionar filtros
+            addEstoqueFilters();
         } else {
             tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhum dado disponível para o período selecionado.</td></tr>';
         }
     } catch (error) {
         console.error('Erro ao carregar tabela de estoque:', error);
         tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Erro ao carregar dados.</td></tr>';
+    }
+}
+
+// Adicionar filtros ao dashboard de estoque
+function addEstoqueFilters() {
+    const tableCard = document.querySelector('#inventory-table-body')?.closest('.dashboard-card');
+    if (!tableCard) return;
+    
+    if (document.getElementById('filters-estoque')) return;
+    
+    const table = document.querySelector('#inventory-table-body')?.closest('table');
+    if (!table) return;
+    
+    const produtos = new Set();
+    table.querySelectorAll('tbody tr').forEach(row => {
+        const produto = row.querySelector('[data-filter="produto"]')?.textContent.trim();
+        if (produto) produtos.add(produto);
+    });
+    
+    const filtersHTML = `
+        <div class="filters-panel mb-3" id="filters-estoque" data-table-id="table-estoque">
+            <div class="filters-header d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">🔍 Filtros</h6>
+                <button class="btn btn-sm btn-outline-secondary" onclick="FilterManager.clearFilters('filters-estoque')">
+                    Limpar
+                </button>
+            </div>
+            <div class="filters-content d-flex gap-2 flex-wrap">
+                <div class="filter-item">
+                    <input type="text" class="form-control form-control-sm" data-filter="produto" 
+                           placeholder="Buscar produto..." 
+                           oninput="applyFilter('estoque')" style="width: 250px;">
+                </div>
+                <div class="filter-item">
+                    <input type="number" class="form-control form-control-sm" data-filter="estoque" 
+                           placeholder="Estoque mínimo..." 
+                           oninput="applyFilter('estoque')" style="width: 150px;">
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const tableContainer = tableCard.querySelector('.data-table');
+    if (tableContainer) {
+        tableContainer.insertAdjacentHTML('beforebegin', filtersHTML);
+    }
+    
+    if (table && !table.id) {
+        table.id = 'table-estoque';
     }
 }
 

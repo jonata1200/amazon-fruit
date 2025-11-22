@@ -9,6 +9,7 @@ aiosqlite==0.19.0  # Para async SQLite
 # Análise de Dados (manter)
 pandas==2.3.3
 numpy==2.3.4
+openpyxl==3.1.2  # Para exportação Excel
 
 # Gráficos Web
 plotly==5.18.0

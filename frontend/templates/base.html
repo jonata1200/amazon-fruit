@@ -47,21 +47,58 @@
             <div class="header-content">
                 <h1 id="page-title">Visão Geral do Negócio</h1>
                 <div class="header-actions">
-                    <button id="btn-report" class="btn btn-primary" style="display: none;">
+                    <!-- Busca Global -->
+                    <div class="search-container me-2">
+                        <input type="text" id="global-search-input" class="form-control form-control-sm" placeholder="Buscar..." style="width: 200px; display: none;">
+                        <button id="btn-search-toggle" class="btn btn-outline-secondary" title="Busca global (Ctrl+F)" onclick="toggleSearch()">
+                            🔍
+                        </button>
+                    </div>
+                    <button id="btn-alerts" class="btn btn-outline-warning me-2 position-relative" title="Alertas do sistema" onclick="toggleAlertsPanel()">
+                        🔔
+                        <span id="alerts-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                            0
+                        </span>
+                    </button>
+                    <button id="btn-toggle-theme" class="btn btn-outline-secondary me-2" title="Alternar modo escuro/claro (Ctrl+T)">
+                        🌙
+                    </button>
+                    <button id="btn-keyboard-help" class="btn btn-outline-info me-2" title="Atalhos de teclado (Ctrl+?)" onclick="showKeyboardShortcutsHelp()">
+                        ⌨️
+                    </button>
+                    <button id="btn-report" class="btn btn-primary" style="display: none;" title="Gerar relatório (Ctrl+R)">
                         📄 Gerar Relatório
                     </button>
                 </div>
             </div>
         </header>
 
+        <!-- Alerts Panel -->
+        <div id="alerts-panel" class="alerts-panel" style="display: none;">
+            <div class="alerts-panel-header">
+                <h5>🔔 Alertas do Sistema</h5>
+                <button class="btn btn-sm btn-outline-secondary" onclick="toggleAlertsPanel()">✕</button>
+            </div>
+            <div id="alerts-list" class="alerts-list">
+                <div class="text-center text-muted p-3">
+                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                    <p class="mt-2 mb-0">Carregando alertas...</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Period Bar -->
         <div id="period-bar" class="period-bar">
             <div class="period-bar-content">
-                <label for="start-date">Data Inicial:</label>
-                <input type="date" id="start-date" class="form-control" value="">
+                <div class="period-group">
+                    <label for="start-date">Data Inicial:</label>
+                    <input type="date" id="start-date" class="form-control" value="">
+                </div>
                 
-                <label for="end-date">Data Final:</label>
-                <input type="date" id="end-date" class="form-control" value="">
+                <div class="period-group">
+                    <label for="end-date">Data Final:</label>
+                    <input type="date" id="end-date" class="form-control" value="">
+                </div>
                 
                 <button id="btn-apply-period" class="btn btn-primary">
                     Aplicar Período
@@ -70,7 +107,36 @@
                 <button id="btn-reset-period" class="btn btn-secondary">
                     Resetar
                 </button>
+                
+                <button id="btn-compare-mode" class="btn btn-outline-info" onclick="toggleCompareMode()" title="Comparar dois períodos">
+                    🔄 Comparar
+                </button>
             </div>
+            
+            <!-- Comparação de Períodos -->
+            <div id="compare-periods" class="compare-periods" style="display: none;">
+                <div class="compare-periods-content">
+                    <div class="compare-group">
+                        <label>Período 1:</label>
+                        <input type="date" id="compare-start-1" class="form-control form-control-sm">
+                        <span>até</span>
+                        <input type="date" id="compare-end-1" class="form-control form-control-sm">
+                    </div>
+                    <div class="compare-group">
+                        <label>Período 2:</label>
+                        <input type="date" id="compare-start-2" class="form-control form-control-sm">
+                        <span>até</span>
+                        <input type="date" id="compare-end-2" class="form-control form-control-sm">
+                    </div>
+                    <button id="btn-apply-compare" class="btn btn-sm btn-primary" onclick="applyComparison()">
+                        Comparar
+                    </button>
+                    <button class="btn btn-sm btn-secondary" onclick="toggleCompareMode()">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+            
             <div id="period-loading" class="loading-indicator" style="display: none;">
                 <span class="spinner-border spinner-border-sm"></span> Carregando...
             </div>
@@ -95,6 +161,8 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Sistema de Filtros -->
+    <script src="/static/js/filters.js"></script>
     <!-- JavaScript Principal -->
     <script src="/static/js/app.js"></script>
 </body>

@@ -65,6 +65,9 @@ async function renderEvolutionChart(evolutionData) {
     };
     
     Plotly.newPlot('chart-evolucao', [trace1, trace2], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-evolucao', 'Evolucao_Mensal_Faturamento_Lucro');
 }
 
 // Renderizar KPIs financeiros

@@ -30,17 +30,27 @@
 
 <!-- Tabela de Dados de Estoque -->
 <div class="dashboard-card fade-in">
-    <h2>Dados de Estoque</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Dados de Estoque</h2>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="exportTable('estoque', 'xlsx', AppState.startDate, AppState.endDate)" title="Exportar para Excel">
+                📊 Excel
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportTable('estoque', 'csv', AppState.startDate, AppState.endDate)" title="Exportar para CSV">
+                📄 CSV
+            </button>
+        </div>
+    </div>
     <div class="data-table">
-        <table class="table table-striped table-hover">
+        <table id="table-estoque" class="table table-striped table-hover">
             <thead>
                 <tr>
-                    <th>Produto</th>
-                    <th>Quantidade em Estoque</th>
-                    <th>Nível Mínimo</th>
-                    <th>Preço de Custo</th>
-                    <th>Preço de Venda</th>
-                    <th>Quantidade Vendida</th>
+                    <th data-filter="produto">Produto</th>
+                    <th data-filter="estoque">Quantidade em Estoque</th>
+                    <th data-filter="minimo">Nível Mínimo</th>
+                    <th data-filter="custo">Preço de Custo</th>
+                    <th data-filter="venda">Preço de Venda</th>
+                    <th data-filter="vendido">Quantidade Vendida</th>
                 </tr>
             </thead>
             <tbody id="inventory-table-body">

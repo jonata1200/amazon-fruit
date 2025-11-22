@@ -55,6 +55,9 @@ async function renderLocationChart(locationData) {
     };
     
     Plotly.newPlot('chart-location', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-location', 'Clientes_Por_Localizacao');
 }
 
 // Renderizar gráfico de gênero (pizza)
@@ -97,6 +100,9 @@ async function renderGenderChart(genderData) {
     };
     
     Plotly.newPlot('chart-gender', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-gender', 'Distribuicao_Por_Genero');
 }
 
 // Renderizar gráfico de canal
@@ -130,6 +136,9 @@ async function renderChannelChart(channelData) {
     };
     
     Plotly.newPlot('chart-channel', [trace], layout, {responsive: true});
+    
+    // Adicionar botões de exportação
+    addChartExportButtons('chart-channel', 'Clientes_Por_Canal');
 }
 
 // Carregar tabela de dados de público-alvo
