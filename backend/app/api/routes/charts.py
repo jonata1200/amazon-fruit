@@ -6,6 +6,7 @@ from typing import Optional
 
 # Importar DataHandler e funções de gráficos
 from ...services.data_handler import DataHandler
+from ...utils.validators import validate_date_range
 from ...services.charts.chart_generator import (
     create_general_evolution_chart_data,
     create_finance_evolution_chart_data,
@@ -47,6 +48,8 @@ async def get_financial_evolution_chart(
     start_date: str = Query(..., description="Data inicial (YYYY-MM-DD)"),
     end_date: str = Query(..., description="Data final (YYYY-MM-DD)")
 ):
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     """
     Retorna dados formatados para gráfico de evolução financeira (Plotly).
     
@@ -74,6 +77,8 @@ async def get_top_expenses_chart(
     top_n: int = Query(5, ge=1, le=20)
 ):
     """Retorna gráfico de top despesas (Plotly)"""
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     try:
         handler = get_data_handler()
         handler.set_period(start_date, end_date)
@@ -95,6 +100,8 @@ async def get_top_revenues_chart(
     end_date: str = Query(..., description="Data final (YYYY-MM-DD)"),
     top_n: int = Query(5, ge=1, le=20)
 ):
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     """Retorna gráfico de top receitas (Plotly)"""
     try:
         handler = get_data_handler()
@@ -122,6 +129,8 @@ async def get_top_selling_chart(
     top_n: int = Query(10, ge=1, le=50)
 ):
     """Retorna gráfico de top produtos vendidos (Plotly)"""
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     try:
         handler = get_data_handler()
         handler.set_period(start_date, end_date)
@@ -146,6 +155,8 @@ async def get_stock_rupture_chart(
     top_n: int = Query(10, ge=1, le=50)
 ):
     """Retorna gráfico de rupturas de estoque (Plotly)"""
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     try:
         handler = get_data_handler()
         handler.set_period(start_date, end_date)
@@ -210,6 +221,8 @@ async def get_public_location_chart(
     top_n: int = Query(10, ge=1, le=50)
 ):
     """Retorna gráfico de clientes por localização (Plotly)"""
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     try:
         handler = get_data_handler()
         handler.set_period(start_date, end_date)
@@ -230,6 +243,8 @@ async def get_public_gender_chart(
     start_date: str = Query(..., description="Data inicial (YYYY-MM-DD)"),
     end_date: str = Query(..., description="Data final (YYYY-MM-DD)")
 ):
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     """Retorna gráfico de distribuição por gênero (Plotly)"""
     try:
         handler = get_data_handler()
@@ -252,6 +267,8 @@ async def get_public_channel_chart(
     end_date: str = Query(..., description="Data final (YYYY-MM-DD)")
 ):
     """Retorna gráfico de distribuição por canal (Plotly)"""
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     try:
         handler = get_data_handler()
         handler.set_period(start_date, end_date)

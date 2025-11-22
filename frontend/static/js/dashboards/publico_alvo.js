@@ -48,10 +48,9 @@ async function renderLocationChart(locationData) {
         title: 'Top 10 Clientes por Localização',
         xaxis: { title: 'Número de Clientes' },
         yaxis: { title: 'Cidade' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 400,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-location', [trace], layout, {responsive: true});
@@ -72,13 +71,7 @@ async function renderGenderChart(genderData) {
     const labels = Object.keys(genderData);
     const values = Object.values(genderData);
     
-    const colorMap = {
-        'Feminino': '#FF69B4',
-        'Masculino': '#1E90FF',
-        'Outro': '#CCCCCC'
-    };
-    
-    const colors = labels.map(label => colorMap[label] || '#CCCCCC');
+    const colors = labels.map(label => getGenderColor(label));
     
     const trace = {
         labels: labels,
@@ -93,10 +86,9 @@ async function renderGenderChart(genderData) {
     
     const layout = {
         title: 'Distribuição por Gênero',
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 400,
-        showlegend: true
+        showlegend: true,
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-gender', [trace], layout, {responsive: true});
@@ -129,10 +121,9 @@ async function renderChannelChart(channelData) {
         title: 'Contagem de Clientes por Canal de Venda',
         xaxis: { title: 'Número de Clientes' },
         yaxis: { title: 'Canal' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 350,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-channel', [trace], layout, {responsive: true});

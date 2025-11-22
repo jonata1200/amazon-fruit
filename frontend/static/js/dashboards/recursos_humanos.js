@@ -42,17 +42,16 @@ async function renderHeadcountChart(headcountData) {
         y: departments,
         type: 'bar',
         orientation: 'h',
-        marker: { color: '#6A0DAD' }
+        marker: { color: ChartColors.primary }
     };
     
     const layout = {
         title: 'Nº de Funcionários por Departamento',
         xaxis: { title: 'Número de Funcionários' },
         yaxis: { title: 'Departamento' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 350,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-headcount', [trace], layout, {responsive: true});
@@ -78,17 +77,16 @@ async function renderCostChart(costData) {
         y: departments,
         type: 'bar',
         orientation: 'h',
-        marker: { color: '#3498DB' }
+        marker: { color: ChartColors.info }
     };
     
     const layout = {
         title: 'Custo Mensal por Departamento',
         xaxis: { title: 'Custo Mensal (R$)' },
         yaxis: { title: 'Departamento' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 350,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-cost', [trace], layout, {responsive: true});
@@ -114,17 +112,16 @@ async function renderRoleChart(roleData) {
         y: roles,
         type: 'bar',
         orientation: 'h',
-        marker: { color: '#2ECC71' }
+        marker: { color: ChartColors.success }
     };
     
     const layout = {
         title: 'Top 10 Cargos na Empresa',
         xaxis: { title: 'Número de Funcionários' },
         yaxis: { title: 'Cargo' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 350,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-role', [trace], layout, {responsive: true});
@@ -158,9 +155,8 @@ async function renderHiringChart(hiringData) {
         title: 'Contratações ao Longo do Tempo',
         xaxis: { title: 'Período' },
         yaxis: { title: 'Número de Contratações' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
-        height: 350
+        height: 350,
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-hiring', [trace], layout, {responsive: true});

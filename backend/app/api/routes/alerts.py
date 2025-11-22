@@ -27,6 +27,9 @@ async def get_all_alerts(
     start_date: Optional[str] = Query(None, description="Data inicial (YYYY-MM-DD)"),
     end_date: Optional[str] = Query(None, description="Data final (YYYY-MM-DD)")
 ):
+    # Validar datas se fornecidas
+    if start_date and end_date:
+        start_date, end_date = validate_date_range(start_date, end_date)
     """
     Retorna todos os alertas ativos do sistema.
     

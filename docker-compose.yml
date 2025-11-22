@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Aplicação FastAPI
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: amazon-fruit-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data:ro
+      - ./logs:/app/logs
+      - ./.env.production:/app/.env:ro
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=False
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - amazon-fruit-network
+
+  # Nginx como reverse proxy (opcional)
+  nginx:
+    image: nginx:alpine
+    container_name: amazon-fruit-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./frontend/static:/usr/share/nginx/html/static:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    networks:
+      - amazon-fruit-network
+
+networks:
+  amazon-fruit-network:
+    driver: bridge
+
+volumes:
+  app-data:
+  app-logs:
+

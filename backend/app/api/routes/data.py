@@ -6,6 +6,7 @@ from pathlib import Path
 
 # Importação relativa do DataHandler
 from ...services.data_handler import DataHandler
+from ...utils.validators import validate_date
 
 router = APIRouter(prefix="/api/data", tags=["data"])
 
@@ -22,6 +23,36 @@ def get_data_handler() -> DataHandler:
         project_root = Path(__file__).resolve().parents[4]
         _data_handler = DataHandler(base_dir=project_root)
     return _data_handler
+
+# IMPORTANTE: Rotas específicas devem vir ANTES de rotas com parâmetros dinâmicos
+@router.get("/date-range")
+async def get_date_range():
+    """
+    Retorna o range de datas disponível no banco de dados.
+    
+    Retorna: JSON com min_date e max_date
+    """
+    try:
+        handler = get_data_handler()
+        min_date, max_date = handler.get_date_range()
+        
+        if min_date is None or max_date is None:
+            return {
+                "status": "warning",
+                "message": "Nenhuma data encontrada no banco de dados",
+                "min_date": None,
+                "max_date": None
+            }
+        
+        return {
+            "status": "success",
+            "min_date": min_date.strftime('%Y-%m-%d'),
+            "max_date": max_date.strftime('%Y-%m-%d')
+        }
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=f"Banco de dados não encontrado: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao obter range de datas: {str(e)}")
 
 @router.get("/{table_name}")
 async def get_table_data(
@@ -40,6 +71,17 @@ async def get_table_data(
     Retorna: JSON com os dados da tabela
     """
     try:
+        # Validar datas se fornecidas
+        if start_date:
+            start_date = validate_date(start_date, "start_date")
+        if end_date:
+            end_date = validate_date(end_date, "end_date")
+        
+        # Validar intervalo se ambas as datas foram fornecidas
+        if start_date and end_date:
+            from ...utils.validators import validate_date_range
+            start_date, end_date = validate_date_range(start_date, end_date)
+        
         handler = get_data_handler()
         
         # Tabelas que não têm coluna de data devem usar load_full_unfiltered_table
@@ -111,32 +153,3 @@ async def get_comparative_data(
         raise HTTPException(status_code=404, detail=f"Banco de dados não encontrado: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao carregar dados comparativos: {str(e)}")
-
-@router.get("/date-range")
-async def get_date_range():
-    """
-    Retorna o range de datas disponível no banco de dados.
-    
-    Retorna: JSON com min_date e max_date
-    """
-    try:
-        handler = get_data_handler()
-        min_date, max_date = handler.get_date_range()
-        
-        if min_date is None or max_date is None:
-            return {
-                "status": "warning",
-                "message": "Nenhuma data encontrada no banco de dados",
-                "min_date": None,
-                "max_date": None
-            }
-        
-        return {
-            "status": "success",
-            "min_date": min_date.strftime('%Y-%m-%d'),
-            "max_date": max_date.strftime('%Y-%m-%d')
-        }
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=f"Banco de dados não encontrado: {str(e)}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao obter range de datas: {str(e)}")

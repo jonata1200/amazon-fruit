@@ -8,6 +8,7 @@ import pandas as pd
 # Importar DataHandler e módulos de análise
 from ...services.data_handler import DataHandler
 from ...services.analysis import financial_analysis, inventory_analysis, suppliers_analysis, public_analysis, hr_analysis
+from ...utils.validators import validate_date_range
 
 router = APIRouter(prefix="/api/analysis", tags=["analysis"])
 
@@ -31,6 +32,8 @@ async def get_financial_summary(
     start_date: str = Query(..., description="Data inicial (YYYY-MM-DD)"),
     end_date: str = Query(..., description="Data final (YYYY-MM-DD)")
 ):
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     """
     Retorna resumo financeiro (receita, despesa, lucro) e variações percentuais.
     
@@ -94,6 +97,8 @@ async def get_top_revenues(
     end_date: str = Query(..., description="Data final (YYYY-MM-DD)"),
     top_n: int = Query(5, ge=1, le=20, description="Número de categorias a retornar")
 ):
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     """
     Retorna top N receitas por categoria.
     
@@ -130,6 +135,8 @@ async def get_top_selling_items(
     
     Retorna: JSON com produtos e faturamento total
     """
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     try:
         handler = get_data_handler()
         handler.set_period(start_date, end_date)
@@ -159,6 +166,8 @@ async def get_low_stock_items(
     
     Retorna: JSON com produtos e gap de estoque
     """
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     try:
         handler = get_data_handler()
         handler.set_period(start_date, end_date)
@@ -270,6 +279,8 @@ async def get_clients_by_location(
     
     Retorna: JSON com contagem de clientes por cidade
     """
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     try:
         handler = get_data_handler()
         handler.set_period(start_date, end_date)
@@ -296,6 +307,8 @@ async def get_clients_by_gender(
     
     Retorna: JSON com contagem por gênero
     """
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     try:
         handler = get_data_handler()
         handler.set_period(start_date, end_date)
@@ -321,6 +334,8 @@ async def get_clients_by_channel(
     
     Retorna: JSON com contagem por canal
     """
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     try:
         handler = get_data_handler()
         handler.set_period(start_date, end_date)

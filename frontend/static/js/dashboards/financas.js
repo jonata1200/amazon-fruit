@@ -95,13 +95,13 @@ async function renderEvolutionChart(evolutionData) {
         return;
     }
     
-    // Criar gráfico com subplot (barras + linha)
+    // Criar gráfico com subplot (barras + linha) usando cores consistentes
     const trace1 = {
         x: evolutionData.months,
         y: evolutionData.receita,
         name: 'Receita',
         type: 'bar',
-        marker: { color: '#2E8B57' },
+        marker: { color: ChartColors.receita },
         yaxis: 'y'
     };
     
@@ -110,7 +110,7 @@ async function renderEvolutionChart(evolutionData) {
         y: evolutionData.despesa,
         name: 'Despesa',
         type: 'bar',
-        marker: { color: '#C21807' },
+        marker: { color: ChartColors.despesa },
         yaxis: 'y'
     };
     
@@ -120,7 +120,7 @@ async function renderEvolutionChart(evolutionData) {
         name: 'Lucro',
         type: 'scatter',
         mode: 'lines+markers',
-        marker: { color: '#FF8C00', size: 8 },
+        marker: { color: ChartColors.lucro, size: 8 },
         line: { width: 3 },
         yaxis: 'y2'
     };
@@ -138,8 +138,6 @@ async function renderEvolutionChart(evolutionData) {
             side: 'right'
         },
         barmode: 'group',
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         hovermode: 'x unified',
         height: 400,
         legend: {
@@ -147,7 +145,8 @@ async function renderEvolutionChart(evolutionData) {
             y: -0.2,
             xanchor: 'center',
             orientation: 'h'
-        }
+        },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-evolucao-financeira', [trace1, trace2, trace3], layout, {responsive: true});
@@ -173,17 +172,16 @@ async function renderTopExpensesChart(expensesData) {
         y: categories,
         type: 'bar',
         orientation: 'h',
-        marker: { color: '#C21807' }
+        marker: { color: ChartColors.despesa }
     };
     
     const layout = {
         title: 'Top 5 Despesas por Categoria',
         xaxis: { title: 'Valor (R$)' },
         yaxis: { title: 'Categoria' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 350,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-top-despesas', [trace], layout, {responsive: true});
@@ -209,17 +207,16 @@ async function renderTopRevenuesChart(revenuesData) {
         y: categories,
         type: 'bar',
         orientation: 'h',
-        marker: { color: '#2E8B57' }
+        marker: { color: ChartColors.receita }
     };
     
     const layout = {
         title: 'Top 5 Receitas por Categoria',
         xaxis: { title: 'Valor (R$)' },
         yaxis: { title: 'Categoria' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 350,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-top-receitas', [trace], layout, {responsive: true});

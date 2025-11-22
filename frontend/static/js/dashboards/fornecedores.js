@@ -44,7 +44,7 @@ async function renderTopSuppliersChart(topSuppliersData) {
         y: names,
         type: 'bar',
         orientation: 'h',
-        marker: { color: '#2ECC71' }
+        marker: { color: ChartColors.success }
     };
     
     const layout = {
@@ -54,10 +54,9 @@ async function renderTopSuppliersChart(topSuppliersData) {
             range: [0, 5]
         },
         yaxis: { title: 'Fornecedor' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 300,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-top-suppliers', [trace], layout, {responsive: true});
@@ -86,7 +85,7 @@ async function renderBottomSuppliersChart(bottomSuppliersData) {
         y: names,
         type: 'bar',
         orientation: 'h',
-        marker: { color: '#E74C3C' }
+        marker: { color: ChartColors.danger }
     };
     
     const layout = {
@@ -96,10 +95,9 @@ async function renderBottomSuppliersChart(bottomSuppliersData) {
             range: [0, 5]
         },
         yaxis: { title: 'Fornecedor' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 300,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-bottom-suppliers', [trace], layout, {responsive: true});
@@ -132,10 +130,9 @@ async function renderSuppliersStateChart(stateData) {
         title: 'Distribuição de Fornecedores por Estado',
         xaxis: { title: 'Número de Fornecedores' },
         yaxis: { title: 'Estado' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 400,
-        margin: { l: 100, r: 20, t: 50, b: 50 }
+        margin: { l: 100, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-suppliers-state', [trace], layout, {responsive: true});

@@ -7,6 +7,7 @@ import pandas as pd
 
 # Importar DataHandler
 from ...services.data_handler import DataHandler
+from ...utils.validators import validate_query_string
 
 router = APIRouter(prefix="/api/search", tags=["search"])
 
@@ -26,6 +27,8 @@ async def global_search(
     q: str = Query(..., description="Termo de busca", min_length=2),
     limit: int = Query(10, description="Número máximo de resultados por categoria", ge=1, le=50)
 ):
+    # Validar query de busca
+    q = validate_query_string(q, min_length=2, max_length=100)
     """
     Busca global em todas as tabelas do sistema.
     

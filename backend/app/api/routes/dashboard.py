@@ -8,6 +8,7 @@ import pandas as pd
 # Importar DataHandler e módulos de análise
 from ...services.data_handler import DataHandler
 from ...services.analysis import financial_analysis, inventory_analysis, suppliers_analysis, public_analysis, hr_analysis
+from ...utils.validators import validate_date_range
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -27,6 +28,8 @@ async def get_dashboard_geral(
     start_date: str = Query(..., description="Data inicial (YYYY-MM-DD)"),
     end_date: str = Query(..., description="Data final (YYYY-MM-DD)")
 ):
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     """
     Retorna todos os dados necessários para o dashboard geral.
     
@@ -79,6 +82,8 @@ async def get_dashboard_financas(
     start_date: str = Query(..., description="Data inicial (YYYY-MM-DD)"),
     end_date: str = Query(..., description="Data final (YYYY-MM-DD)")
 ):
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     """
     Retorna dados do dashboard de finanças.
     

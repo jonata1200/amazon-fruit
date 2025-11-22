@@ -31,18 +31,20 @@ async function renderEvolutionChart(evolutionData) {
         return;
     }
     
-    // Preparar dados para Plotly
+    // Preparar dados para Plotly com cores consistentes
     const trace1 = {
         x: evolutionData.months,
         y: evolutionData.receita,
         name: 'Faturamento (Receita)',
         type: 'bar',
-        marker: { color: '#6A0DAD' },
+        marker: { color: ChartColors.receita },
         offsetgroup: 1
     };
     
-    // Criar cores dinâmicas para lucro (vermelho se negativo, verde se positivo)
-    const profitColors = evolutionData.lucro.map(val => val < 0 ? '#C21807' : '#006400');
+    // Criar cores dinâmicas para lucro (vermelho se negativo, azul se positivo)
+    const profitColors = evolutionData.lucro.map(val => 
+        val < 0 ? ChartColors.lucroNegativo : ChartColors.lucro
+    );
     
     const trace2 = {
         x: evolutionData.months,
@@ -58,10 +60,9 @@ async function renderEvolutionChart(evolutionData) {
         xaxis: { title: 'Mês' },
         yaxis: { title: 'Valor (R$)' },
         barmode: 'group',
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         hovermode: 'x unified',
-        height: 400
+        height: 400,
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-evolucao', [trace1, trace2], layout, {responsive: true});

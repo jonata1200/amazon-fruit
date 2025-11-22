@@ -100,17 +100,16 @@ async function renderTopSellingChart(topSellingData) {
         y: products,
         type: 'bar',
         orientation: 'h',
-        marker: { color: '#2ECC71' }
+        marker: { color: ChartColors.success }
     };
     
     const layout = {
         title: 'Top 10 Produtos por Faturamento',
         xaxis: { title: 'Faturamento Total (R$)' },
         yaxis: { title: 'Produto' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 400,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-top-vendidos', [trace], layout, {responsive: true});
@@ -136,17 +135,16 @@ async function renderLeastSellingChart(leastSellingData) {
         y: products,
         type: 'bar',
         orientation: 'h',
-        marker: { color: '#F39C12' }
+        marker: { color: ChartColors.warning }
     };
     
     const layout = {
         title: '10 Produtos com Menor Faturamento',
         xaxis: { title: 'Faturamento Total (R$)' },
         yaxis: { title: 'Produto' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 400,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-menos-vendidos', [trace], layout, {responsive: true});
@@ -175,17 +173,16 @@ async function renderStockRuptureChart(lowStockData) {
         y: products,
         type: 'bar',
         orientation: 'h',
-        marker: { color: '#E74C3C' }
+        marker: { color: ChartColors.danger }
     };
     
     const layout = {
         title: 'Maiores Rupturas de Estoque (Gap)',
         xaxis: { title: 'Gap (Quantidade)' },
         yaxis: { title: 'Produto' },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
         height: 400,
-        margin: { l: 150, r: 20, t: 50, b: 50 }
+        margin: { l: 150, r: 20, t: 50, b: 50 },
+        ...getPlotlyTheme()
     };
     
     Plotly.newPlot('chart-ruptura', [trace], layout, {responsive: true});
