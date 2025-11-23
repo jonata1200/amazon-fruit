@@ -92,6 +92,16 @@ async function initializeApp() {
     // Aguardar um pouco para garantir que os campos de data foram atualizados
     await new Promise(resolve => setTimeout(resolve, 300));
     
+    // Verificar se as datas foram carregadas corretamente
+    if (!AppState.startDate || !AppState.endDate) {
+        console.warn('Datas não foram carregadas, usando fallback');
+        // Fallback: usar último ano
+        const endDate = new Date().toISOString().split('T')[0];
+        const startDate = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0];
+        AppState.startDate = startDate;
+        AppState.endDate = endDate;
+    }
+    
     // Forçar atualização dos valores novamente após um delay
     const startDateInput = document.getElementById('start-date');
     const endDateInput = document.getElementById('end-date');
@@ -120,7 +130,12 @@ async function initializeApp() {
     });
     
     // Carregar dashboard inicial com as datas corretas
-    if (typeof loadDashboard === 'function' && AppState) {
+    // IMPORTANTE: Aguardar um pouco mais para garantir que tudo está pronto
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    if (typeof loadDashboard === 'function' && AppState && AppState.startDate && AppState.endDate) {
         await loadDashboard('geral', AppState.startDate, AppState.endDate);
+    } else {
+        console.error('Não foi possível carregar o dashboard: dados de data não disponíveis');
     }
 }

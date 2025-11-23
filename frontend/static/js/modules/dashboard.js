@@ -123,7 +123,24 @@ async function loadDashboardScript(dashboardName, startDate, endDate) {
         
         const functionName = functionMap[dashboardName];
         if (functionName && window[functionName]) {
-            window[functionName](startDate, endDate);
+            // Garantir que as datas sejam válidas
+            const finalStartDate = startDate || AppState?.startDate;
+            const finalEndDate = endDate || AppState?.endDate;
+            
+            if (!finalStartDate || !finalEndDate) {
+                console.warn(`Datas não disponíveis para ${dashboardName}, aguardando...`);
+                setTimeout(() => {
+                    const retryStartDate = AppState?.startDate;
+                    const retryEndDate = AppState?.endDate;
+                    if (retryStartDate && retryEndDate && window[functionName]) {
+                        window[functionName](retryStartDate, retryEndDate);
+                    } else {
+                        console.error(`Não foi possível carregar ${dashboardName}: datas não disponíveis`);
+                    }
+                }, 500);
+            } else {
+                window[functionName](finalStartDate, finalEndDate);
+            }
         } else {
             console.warn(`Função de inicialização não encontrada para: ${dashboardName}`);
         }

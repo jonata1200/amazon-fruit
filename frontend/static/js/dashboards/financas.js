@@ -125,7 +125,7 @@ async function renderEvolutionChart(evolutionData) {
         yaxis: 'y2'
     };
     
-    const layout = {
+    const baseLayout = {
         title: 'Evolução Financeira Mensal',
         xaxis: { title: 'Mês' },
         yaxis: {
@@ -145,11 +145,24 @@ async function renderEvolutionChart(evolutionData) {
             y: -0.2,
             xanchor: 'center',
             orientation: 'h'
-        },
-        ...getPlotlyTheme()
+        }
     };
     
-    Plotly.newPlot('chart-evolucao-financeira', [trace1, trace2, trace3], layout, {responsive: true});
+    const layout = getPlotlyTheme(baseLayout);
+    
+    const chartElement = document.getElementById('chart-evolucao-financeira');
+    if (!chartElement) {
+        console.error('Elemento chart-evolucao-financeira não encontrado');
+        return;
+    }
+    
+    try {
+        Plotly.newPlot('chart-evolucao-financeira', [trace1, trace2, trace3], layout, {responsive: true});
+    } catch (error) {
+        console.error('Erro ao renderizar gráfico:', error);
+        chartElement.innerHTML = '<p class="text-danger">Erro ao renderizar gráfico.</p>';
+        return;
+    }
     
     // Adicionar botões de exportação
     addChartExportButtons('chart-evolucao-financeira', 'Evolucao_Financeira_Mensal');
@@ -175,16 +188,29 @@ async function renderTopExpensesChart(expensesData) {
         marker: { color: ChartColors.despesa }
     };
     
-    const layout = {
+    const baseLayout = {
         title: 'Top 5 Despesas por Categoria',
         xaxis: { title: 'Valor (R$)' },
         yaxis: { title: 'Categoria' },
         height: 350,
-        margin: { l: 150, r: 20, t: 50, b: 50 },
-        ...getPlotlyTheme()
+        margin: { l: 150, r: 20, t: 50, b: 50 }
     };
     
-    Plotly.newPlot('chart-top-despesas', [trace], layout, {responsive: true});
+    const layout = getPlotlyTheme(baseLayout);
+    
+    const chartElement = document.getElementById('chart-top-despesas');
+    if (!chartElement) {
+        console.error('Elemento chart-top-despesas não encontrado');
+        return;
+    }
+    
+    try {
+        Plotly.newPlot('chart-top-despesas', [trace], layout, {responsive: true});
+    } catch (error) {
+        console.error('Erro ao renderizar gráfico:', error);
+        chartElement.innerHTML = '<p class="text-danger">Erro ao renderizar gráfico.</p>';
+        return;
+    }
     
     // Adicionar botões de exportação
     addChartExportButtons('chart-top-despesas', 'Top_5_Despesas');
@@ -210,16 +236,29 @@ async function renderTopRevenuesChart(revenuesData) {
         marker: { color: ChartColors.receita }
     };
     
-    const layout = {
+    const baseLayout = {
         title: 'Top 5 Receitas por Categoria',
         xaxis: { title: 'Valor (R$)' },
         yaxis: { title: 'Categoria' },
         height: 350,
-        margin: { l: 150, r: 20, t: 50, b: 50 },
-        ...getPlotlyTheme()
+        margin: { l: 150, r: 20, t: 50, b: 50 }
     };
     
-    Plotly.newPlot('chart-top-receitas', [trace], layout, {responsive: true});
+    const layout = getPlotlyTheme(baseLayout);
+    
+    const chartElement = document.getElementById('chart-top-receitas');
+    if (!chartElement) {
+        console.error('Elemento chart-top-receitas não encontrado');
+        return;
+    }
+    
+    try {
+        Plotly.newPlot('chart-top-receitas', [trace], layout, {responsive: true});
+    } catch (error) {
+        console.error('Erro ao renderizar gráfico:', error);
+        chartElement.innerHTML = '<p class="text-danger">Erro ao renderizar gráfico.</p>';
+        return;
+    }
     
     // Adicionar botões de exportação
     addChartExportButtons('chart-top-receitas', 'Top_5_Receitas');

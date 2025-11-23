@@ -57,35 +57,91 @@ function updateThemeIcon(isDark) {
 }
 
 /**
+ * Cria um gráfico Plotly com tratamento de erros
+ */
+function createPlotlyChart(elementId, data, baseLayout, config = {}) {
+    const chartElement = document.getElementById(elementId);
+    if (!chartElement) {
+        console.error(`Elemento ${elementId} não encontrado`);
+        return;
+    }
+    
+    try {
+        const layout = getPlotlyTheme(baseLayout);
+        Plotly.newPlot(elementId, data, layout, {responsive: true, ...config});
+    } catch (error) {
+        console.error(`Erro ao renderizar gráfico ${elementId}:`, error);
+        chartElement.innerHTML = '<p class="text-danger">Erro ao renderizar gráfico.</p>';
+    }
+}
+
+/**
  * Obtém o tema Plotly baseado no modo atual
  */
 function getPlotlyTheme(baseLayout = {}) {
     const isDark = document.body.classList.contains('dark-mode');
     
-    return {
+    // Criar layout com tema aplicado
+    const themedLayout = {
         ...baseLayout,
         plot_bgcolor: isDark ? '#252525' : (baseLayout.plot_bgcolor || 'white'),
         paper_bgcolor: isDark ? '#252525' : (baseLayout.paper_bgcolor || 'white'),
         font: {
             color: isDark ? '#e0e0e0' : '#333333',
-            ...baseLayout.font
-        },
-        xaxis: {
+            size: baseLayout.font?.size || 12,
+            family: baseLayout.font?.family || 'Arial, sans-serif'
+        }
+    };
+    
+    // Aplicar tema aos eixos se existirem
+    if (baseLayout.xaxis) {
+        themedLayout.xaxis = {
             ...baseLayout.xaxis,
             gridcolor: isDark ? '#404040' : '#e0e0e0',
-            linecolor: isDark ? '#606060' : '#333333'
-        },
-        yaxis: {
-            ...baseLayout.yaxis,
+            linecolor: isDark ? '#606060' : '#333333',
+            title: {
+                ...baseLayout.xaxis.title,
+                font: {
+                    color: isDark ? '#e0e0e0' : '#333333'
+                }
+            }
+        };
+    } else {
+        themedLayout.xaxis = {
             gridcolor: isDark ? '#404040' : '#e0e0e0',
             linecolor: isDark ? '#606060' : '#333333'
-        },
-        yaxis2: baseLayout.yaxis2 ? {
+        };
+    }
+    
+    if (baseLayout.yaxis) {
+        themedLayout.yaxis = {
+            ...baseLayout.yaxis,
+            gridcolor: isDark ? '#404040' : '#e0e0e0',
+            linecolor: isDark ? '#606060' : '#333333',
+            title: {
+                ...baseLayout.yaxis.title,
+                font: {
+                    color: isDark ? '#e0e0e0' : '#333333'
+                }
+            }
+        };
+    } else {
+        themedLayout.yaxis = {
+            gridcolor: isDark ? '#404040' : '#e0e0e0',
+            linecolor: isDark ? '#606060' : '#333333'
+        };
+    }
+    
+    // Aplicar tema ao yaxis2 se existir
+    if (baseLayout.yaxis2) {
+        themedLayout.yaxis2 = {
             ...baseLayout.yaxis2,
             gridcolor: isDark ? '#404040' : '#e0e0e0',
             linecolor: isDark ? '#606060' : '#333333'
-        } : undefined
-    };
+        };
+    }
+    
+    return themedLayout;
 }
 
 /**
@@ -123,4 +179,5 @@ window.toggleDarkMode = toggleDarkMode;
 window.updateThemeIcon = updateThemeIcon;
 window.getPlotlyTheme = getPlotlyTheme;
 window.updatePlotlyTheme = updatePlotlyTheme;
+window.createPlotlyChart = createPlotlyChart;
 

@@ -52,11 +52,11 @@ class DataHandler:
         """
         key = str(name).strip().lower().replace("_", "")
         mapping = {
-            'financas': 'lancamentos_financeiros',
-            'estoque': 'estoque_historico',
-            'publicoalvo': 'clientes',
-            'recursoshumanos': 'funcionarios',
-            'fornecedores': 'fornecedores'
+            'financas': 'Financas',
+            'estoque': 'Estoque',
+            'publicoalvo': 'Publico_Alvo',
+            'recursoshumanos': 'Recursos_Humanos',
+            'fornecedores': 'Fornecedores'
         }
         return mapping.get(key, '')
 
@@ -71,9 +71,11 @@ class DataHandler:
             Nome da coluna de data ou None
         """
         date_col_map = {
-            'lancamentos_financeiros': 'Data',
-            'estoque_historico': 'Data_Snapshot',
-            'funcionarios': 'Data_Contratacao'
+            'Financas': 'Data',
+            'Estoque': 'Data_Snapshot',
+            'Publico_Alvo': 'Data',
+            'Recursos_Humanos': 'Data_Admissao',
+            'Fornecedores': None  # Não tem coluna de data
         }
         return date_col_map.get(table_name)
 

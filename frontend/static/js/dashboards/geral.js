@@ -55,17 +55,32 @@ async function renderEvolutionChart(evolutionData) {
         offsetgroup: 2
     };
     
-    const layout = {
+    // Criar layout base primeiro
+    const baseLayout = {
         title: 'Evolução Mensal: Faturamento vs. Lucro',
         xaxis: { title: 'Mês' },
         yaxis: { title: 'Valor (R$)' },
         barmode: 'group',
         hovermode: 'x unified',
-        height: 400,
-        ...getPlotlyTheme()
+        height: 400
     };
     
-    Plotly.newPlot('chart-evolucao', [trace1, trace2], layout, {responsive: true});
+    // Aplicar tema Plotly
+    const layout = getPlotlyTheme(baseLayout);
+    
+    // Garantir que o elemento existe antes de plotar
+    const chartElement = document.getElementById('chart-evolucao');
+    if (!chartElement) {
+        console.error('Elemento chart-evolucao não encontrado');
+        return;
+    }
+    
+    try {
+        Plotly.newPlot('chart-evolucao', [trace1, trace2], layout, {responsive: true});
+    } catch (error) {
+        console.error('Erro ao renderizar gráfico:', error);
+        chartElement.innerHTML = '<p class="text-danger">Erro ao renderizar gráfico. Por favor, recarregue a página.</p>';
+    }
     
     // Adicionar botões de exportação
     addChartExportButtons('chart-evolucao', 'Evolucao_Mensal_Faturamento_Lucro');
