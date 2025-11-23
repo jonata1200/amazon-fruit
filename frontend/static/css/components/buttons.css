@@ -1,0 +1,50 @@
+/* ============================================================================
+   BUTTONS - Botões e Ações
+   ============================================================================ */
+
+.btn {
+    transition: all var(--transition-fast) var(--ease-in-out);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem 1rem;
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    box-shadow: 0 4px 12px rgba(106, 13, 173, 0.3);
+}
+
+.btn-outline-primary,
+.btn-outline-secondary {
+    border: 1px solid var(--border);
+    background: transparent;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--primary-color);
+}
+

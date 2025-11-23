@@ -1,0 +1,150 @@
+/* ============================================================================
+   RESPONSIVE - Media Queries e Responsividade
+   ============================================================================ */
+
+/* Mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 1000;
+        height: 100vh;
+        transition: transform var(--transition-base) var(--ease-in-out);
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: var(--shadow-xl);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .header {
+        padding: 0 10px;
+    }
+    
+    .header-content {
+        padding: 0 10px;
+        flex-wrap: wrap;
+    }
+    
+    .header-content h1 {
+        font-size: 1.3rem;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    
+    .header-actions {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .header-actions .btn {
+        min-width: 44px;
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .header-actions .btn span {
+        display: none;
+    }
+    
+    .dashboard-card {
+        margin-bottom: 1rem;
+        padding: 1rem;
+    }
+    
+    .dashboard-card h2 {
+        font-size: 1.25rem;
+    }
+    
+    .kpi-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .data-table {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        display: block;
+        width: 100%;
+    }
+    
+    .data-table table {
+        min-width: 600px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 8px 10px;
+        font-size: 0.875rem;
+    }
+    
+    .search-results {
+        width: calc(100vw - 40px);
+        max-width: 400px;
+        right: 10px;
+    }
+    
+    .alerts-panel {
+        width: calc(100vw - 40px);
+        max-width: 400px;
+        right: 10px;
+    }
+    
+    .period-bar {
+        padding: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .period-bar-content {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .period-group {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+    
+    .chart-container {
+        height: 300px !important;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+    
+    .dashboard-content {
+        padding: 15px;
+    }
+    
+    .period-bar-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .period-bar-content .form-control {
+        width: 100%;
+    }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .data-table {
+        overflow-x: auto;
+    }
+    
+    .chart-container {
+        height: 350px !important;
+    }
+}
+

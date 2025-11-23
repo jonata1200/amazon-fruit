@@ -1,0 +1,79 @@
+/* ============================================================================
+   HEADER - Cabeçalho da Aplicação
+   ============================================================================ */
+
+.header {
+    background: white;
+    height: var(--header-height);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-base) var(--ease-in-out);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    height: 100%;
+}
+
+.header-content h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    padding-left: 16px;
+}
+
+.header-content h1::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 4px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(106, 13, 173, 0.3);
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.header-actions .btn {
+    transition: all var(--transition-fast) var(--ease-in-out);
+    position: relative;
+    overflow: hidden;
+}
+
+.header-actions .btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+.header-actions .btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.header-actions .btn:active {
+    transform: scale(0.95);
+}
+

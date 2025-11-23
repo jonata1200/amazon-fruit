@@ -1,0 +1,118 @@
+/* ============================================================================
+   VARIÁVEIS CSS - Design System Amazon Fruit
+   ============================================================================ */
+
+:root {
+    /* Cores Principais */
+    --primary: #6A0DAD;
+    --primary-dark: #4A0A7A;
+    --primary-light: #8B1FD4;
+    --primary-gradient-start: #6A0DAD;
+    --primary-gradient-end: #8B2FD9;
+    
+    /* Cores de Status */
+    --success: #2E8B57;
+    --success-light: #4CAF50;
+    --danger: #C21807;
+    --danger-light: #E53935;
+    --warning: #F39C12;
+    --warning-light: #FF9800;
+    --info: #3498DB;
+    --info-light: #42A5F5;
+    
+    /* Cores Neutras (Modo Claro) */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F7F7F9;
+    --bg-tertiary: #F0F0F0;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-tertiary: #999999;
+    --border: #E0E0E0;
+    --border-light: #F0F0F0;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --shadow-hover: rgba(0, 0, 0, 0.15);
+    
+    /* Cores Neutras (Modo Escuro) */
+    --bg-dark: #1a1a2e;
+    --bg-dark-secondary: #16213e;
+    --bg-dark-card: #0f3460;
+    --text-dark: #e0e0e0;
+    --text-dark-secondary: #b0b0b0;
+    --border-dark: #0f3460;
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+    
+    /* Compatibilidade com código existente */
+    --primary-color: var(--primary);
+    --success-color: var(--success);
+    --danger-color: var(--danger);
+    --warning-color: var(--warning);
+    --info-color: var(--info);
+    --bg-color: var(--bg-secondary);
+    --text-color: var(--text-primary);
+    
+    /* Layout */
+    --sidebar-width: 250px;
+    --header-height: 70px;
+    --period-bar-height: 80px;
+    
+    /* Tipografia */
+    --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-family-mono: 'Courier New', Courier, monospace;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    /* Espaçamentos (8px base) */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    --spacing-3xl: 4rem;
+    
+    /* Grid */
+    --grid-columns: 12;
+    --grid-gap: 1.5rem;
+    --container-max-width: 1400px;
+    
+    /* Breakpoints */
+    --breakpoint-xs: 0px;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --breakpoint-xxl: 1400px;
+    
+    /* Animações */
+    --transition-fast: 150ms;
+    --transition-base: 250ms;
+    --transition-slow: 350ms;
+    --transition-slower: 500ms;
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    
+    /* Bordas */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 16px;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+

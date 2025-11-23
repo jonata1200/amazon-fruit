@@ -1,0 +1,50 @@
+/* ============================================================================
+   BASE - Reset e Estilos Base
+   ============================================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+    overflow-x: hidden;
+    transition: background-color var(--transition-base) var(--ease-in-out),
+                color var(--transition-base) var(--ease-in-out);
+}
+
+/* Melhorar legibilidade */
+body {
+    font-size: 16px; /* Tamanho mínimo recomendado */
+    line-height: 1.6;
+}
+
+/* Texto alternativo visual para imagens */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Contraste adequado para texto */
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+/* Performance Visual - Otimizações */
+.dashboard-card,
+.kpi-widget,
+.data-table {
+    will-change: transform;
+}
+

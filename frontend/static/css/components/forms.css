@@ -1,0 +1,33 @@
+/* ============================================================================
+   FORMS - Formulários e Inputs
+   ============================================================================ */
+
+.form-control {
+    transition: all var(--transition-base) var(--ease-in-out);
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border);
+    padding: 0.625rem 1rem;
+    font-size: var(--font-size-base);
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(106, 13, 173, 0.1);
+    outline: none;
+}
+
+.form-control:hover:not(:focus) {
+    border-color: var(--border-dark);
+}
+
+/* Focus states melhorados para elementos interativos */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+    z-index: 1;
+}
+

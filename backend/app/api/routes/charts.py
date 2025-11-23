@@ -7,7 +7,7 @@ from typing import Optional
 # Importar DataHandler e funções de gráficos
 from ...services.data_handler import DataHandler
 from ...utils.validators import validate_date_range
-from ...services.charts.chart_generator import (
+from ...services.charts import (
     create_general_evolution_chart_data,
     create_finance_evolution_chart_data,
     create_top_expenses_chart_data,

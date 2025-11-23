@@ -1,0 +1,94 @@
+/* ============================================================================
+   KPI - Widgets de Indicadores
+   ============================================================================ */
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.kpi-widget {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--primary-color);
+    transition: all var(--transition-base) var(--ease-in-out);
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-widget::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--transition-base) var(--ease-out);
+}
+
+.kpi-widget:hover::before {
+    transform: scaleX(1);
+}
+
+.kpi-widget:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.kpi-widget.success {
+    border-left-color: var(--success-color);
+}
+
+.kpi-widget.danger {
+    border-left-color: var(--danger-color);
+}
+
+.kpi-widget.warning {
+    border-left-color: var(--warning-color);
+}
+
+.kpi-widget.info {
+    border-left-color: var(--info-color);
+}
+
+.kpi-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.kpi-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 5px;
+}
+
+.kpi-change {
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.kpi-change.positive {
+    color: var(--success-color);
+}
+
+.kpi-change.negative {
+    color: var(--danger-color);
+}
+
+.kpi-change.neutral {
+    color: #666;
+}
+

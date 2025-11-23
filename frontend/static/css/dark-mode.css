@@ -1,0 +1,108 @@
+/* ============================================================================
+   DARK MODE - Estilos do Modo Escuro
+   ============================================================================ */
+
+body.dark-mode {
+    --bg-color: var(--bg-dark);
+    --text-color: var(--text-dark);
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+    color-scheme: dark;
+}
+
+body.dark-mode .header {
+    background-color: var(--bg-dark-secondary);
+    border-bottom: 1px solid var(--border-dark);
+    color: var(--text-dark);
+}
+
+body.dark-mode .dashboard-card {
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--border-dark);
+    color: var(--text-dark);
+}
+
+body.dark-mode .dashboard-card h2 {
+    color: var(--text-dark);
+}
+
+body.dark-mode .period-bar {
+    background-color: var(--bg-dark-secondary);
+    border-bottom: 1px solid var(--border-dark);
+}
+
+body.dark-mode .period-bar input,
+body.dark-mode .period-bar select {
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--border-dark);
+    color: var(--text-dark);
+}
+
+body.dark-mode .period-bar input:focus,
+body.dark-mode .period-bar select:focus {
+    border-color: var(--primary-color);
+    background-color: var(--bg-dark-card);
+    color: var(--text-dark);
+}
+
+body.dark-mode .table {
+    color: var(--text-dark);
+}
+
+body.dark-mode .table thead {
+    background-color: var(--bg-dark-secondary);
+    color: var(--text-dark);
+}
+
+body.dark-mode .table tbody tr {
+    border-bottom: 1px solid var(--border-dark);
+}
+
+body.dark-mode .table tbody tr:hover {
+    background-color: var(--bg-dark-secondary);
+}
+
+body.dark-mode .btn-outline-primary,
+body.dark-mode .btn-outline-secondary {
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+}
+
+body.dark-mode .btn-outline-primary:hover,
+body.dark-mode .btn-outline-secondary:hover {
+    background-color: var(--bg-dark-secondary);
+    border-color: var(--primary-color);
+    color: var(--text-dark);
+}
+
+body.dark-mode .kpi-widget {
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--border-dark);
+}
+
+body.dark-mode .kpi-label {
+    color: var(--text-dark-secondary);
+}
+
+body.dark-mode .kpi-value {
+    color: var(--text-dark);
+}
+
+body.dark-mode .alert {
+    background-color: var(--bg-dark-card);
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+}
+
+body.dark-mode .text-muted {
+    color: var(--text-dark-secondary) !important;
+}
+
+body.dark-mode a {
+    color: #7c9eff;
+}
+
+body.dark-mode a:hover {
+    color: #9bb5ff;
+}
+
