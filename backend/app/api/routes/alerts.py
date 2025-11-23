@@ -8,6 +8,7 @@ import pandas as pd
 # Importar DataHandler e módulos de análise
 from ...services.data_handler import DataHandler
 from ...services.analysis import inventory_analysis, financial_analysis
+from ...utils.validators import validate_date_range
 
 router = APIRouter(prefix="/api/alerts", tags=["alerts"])
 
@@ -72,7 +73,7 @@ async def get_all_alerts(
         raise HTTPException(status_code=500, detail=f"Erro ao obter alertas: {str(e)}")
 
 @router.get("/inventory")
-async def get_inventory_alerts(
+async def get_inventory_alerts_endpoint(
     start_date: Optional[str] = Query(None, description="Data inicial (YYYY-MM-DD)"),
     end_date: Optional[str] = Query(None, description="Data final (YYYY-MM-DD)")
 ):
@@ -83,15 +84,22 @@ async def get_inventory_alerts(
         handler = get_data_handler()
         
         if start_date and end_date:
+            start_date, end_date = validate_date_range(start_date, end_date)
             handler.set_period(start_date, end_date)
         
-        return get_inventory_alerts(handler, start_date, end_date)
+        alerts_list = get_inventory_alerts(handler, start_date, end_date)
+        
+        return {
+            "status": "success",
+            "count": len(alerts_list),
+            "alerts": alerts_list
+        }
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao obter alertas de estoque: {str(e)}")
 
 @router.get("/financial")
-async def get_financial_alerts(
+async def get_financial_alerts_endpoint(
     start_date: Optional[str] = Query(None, description="Data inicial (YYYY-MM-DD)"),
     end_date: Optional[str] = Query(None, description="Data final (YYYY-MM-DD)")
 ):
@@ -102,9 +110,16 @@ async def get_financial_alerts(
         handler = get_data_handler()
         
         if start_date and end_date:
+            start_date, end_date = validate_date_range(start_date, end_date)
             handler.set_period(start_date, end_date)
         
-        return get_financial_alerts(handler, start_date, end_date)
+        alerts_list = get_financial_alerts(handler, start_date, end_date)
+        
+        return {
+            "status": "success",
+            "count": len(alerts_list),
+            "alerts": alerts_list
+        }
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao obter alertas financeiros: {str(e)}")
@@ -116,27 +131,32 @@ def get_inventory_alerts(handler: DataHandler, start_date: Optional[str], end_da
     alerts = []
     
     try:
-        # Obter produtos com estoque baixo
-        low_stock_data = inventory_analysis.get_low_stock_items(handler)
+        # Carregar dados de estoque
+        df_estoque = handler.load_table("Estoque")
         
-        if low_stock_data and len(low_stock_data) > 0:
-            # Considerar estoque baixo se quantidade < nível mínimo
-            for item in low_stock_data[:10]:  # Top 10
-                produto = item.get('Produto', 'N/A')
-                quantidade = item.get('Quantidade_Estoque', 0)
-                nivel_minimo = item.get('Nivel_Minimo_Estoque', 0)
+        if df_estoque is None or df_estoque.empty:
+            return alerts
+        
+        # Obter produtos com estoque baixo
+        low_stock_df = inventory_analysis.get_low_stock_items(df_estoque, top_n=10)
+        
+        if not low_stock_df.empty:
+            # Converter DataFrame para lista de dicionários
+            for _, row in low_stock_df.iterrows():
+                produto = row.get('Produto', 'N/A')
+                quantidade = row.get('Quantidade_Estoque', 0)
+                nivel_minimo = row.get('Nivel_Minimo_Estoque', 0)
                 
-                if quantidade < nivel_minimo:
-                    alerts.append({
-                        "type": "inventory_low",
-                        "severity": "warning",
-                        "title": "Estoque Baixo",
-                        "message": f"Produto '{produto}' está com estoque baixo ({quantidade} unidades, mínimo: {nivel_minimo})",
-                        "product": produto,
-                        "current_stock": quantidade,
-                        "min_stock": nivel_minimo,
-                        "dashboard": "estoque"
-                    })
+                alerts.append({
+                    "type": "inventory_low",
+                    "severity": "warning",
+                    "title": "Estoque Baixo",
+                    "message": f"Produto '{produto}' está com estoque baixo ({quantidade} unidades, mínimo: {nivel_minimo})",
+                    "product": produto,
+                    "current_stock": int(quantidade) if pd.notna(quantidade) else 0,
+                    "min_stock": int(nivel_minimo) if pd.notna(nivel_minimo) else 0,
+                    "dashboard": "estoque"
+                })
     except Exception as e:
         print(f"Erro ao processar alertas de estoque: {e}")
     
@@ -150,8 +170,14 @@ def get_financial_alerts(handler: DataHandler, start_date: Optional[str], end_da
         if not start_date or not end_date:
             return alerts
         
-        # Obter resumo financeiro
-        summary = financial_analysis.get_financial_summary(handler)
+        # Carregar dados financeiros
+        df_financas = handler.load_table("Financas")
+        
+        if df_financas is None or df_financas.empty:
+            return alerts
+        
+        # Obter resumo financeiro (sem período anterior para alertas)
+        summary = financial_analysis.calculate_financial_summary(df_financas, None)
         
         if summary:
             receita = summary.get('receita', 0)
@@ -165,7 +191,7 @@ def get_financial_alerts(handler: DataHandler, start_date: Optional[str], end_da
                     "severity": "danger",
                     "title": "Lucro Negativo",
                     "message": f"O lucro está negativo no período: R$ {lucro:,.2f}",
-                    "value": lucro,
+                    "value": float(lucro),
                     "dashboard": "financas"
                 })
             
@@ -177,20 +203,20 @@ def get_financial_alerts(handler: DataHandler, start_date: Optional[str], end_da
                         "type": "high_expenses",
                         "severity": "warning",
                         "title": "Despesas Elevadas",
-                        "message": f"Despesas representam {expense_ratio*100:.1f}% da receita ({despesa/receita*100:.1f}%)",
-                        "ratio": expense_ratio,
+                        "message": f"Despesas representam {expense_ratio*100:.1f}% da receita",
+                        "ratio": float(expense_ratio),
                         "dashboard": "financas"
                     })
             
             # Alertar se receita muito baixa (menor que despesa * 1.1)
-            if receita < despesa * 1.1:
+            if receita > 0 and despesa > 0 and receita < despesa * 1.1:
                 alerts.append({
                     "type": "low_revenue",
                     "severity": "warning",
                     "title": "Receita Baixa",
-                    "message": f"Receita está apenas {receita/despesa*100:.1f}% acima das despesas",
-                    "revenue": receita,
-                    "expenses": despesa,
+                    "message": f"Receita está apenas {(receita/despesa*100):.1f}% acima das despesas",
+                    "revenue": float(receita),
+                    "expenses": float(despesa),
                     "dashboard": "financas"
                 })
                 

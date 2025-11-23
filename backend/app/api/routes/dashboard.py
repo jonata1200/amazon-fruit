@@ -152,6 +152,8 @@ async def get_dashboard_estoque(
     - Produtos menos vendidos
     - Produtos com estoque baixo
     """
+    # Validar datas
+    start_date, end_date = validate_date_range(start_date, end_date)
     try:
         handler = get_data_handler()
         handler.set_period(start_date, end_date)
