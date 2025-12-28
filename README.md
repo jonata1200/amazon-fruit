@@ -49,9 +49,6 @@ Em um ambiente empresarial, a tomada de decisões baseada em dados é essencial,
 ### Dashboard de Recursos Humanos
 ![Dashboard RH](docs/screenshots/dashboard-rh.png) <!-- Insira aqui um print da tela do dashboard de recursos humanos com métricas de headcount e custos -->
 
-### Painel de Alertas
-![Painel de Alertas](docs/screenshots/alerts-panel.png) <!-- Insira aqui um print do painel de alertas do sistema -->
-
 ---
 
 ## ✨ Funcionalidades Principais
