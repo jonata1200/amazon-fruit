@@ -12,6 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Config files that use require()
+    "jest.config.js",
+    "jest.setup.js",
+    "tailwind.config.ts",
+    "next.config.ts",
+    "postcss.config.mjs",
   ]),
 ]);
 

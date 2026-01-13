@@ -23,8 +23,8 @@
 
 - [x] **1.1** Criar novo diretório para o projeto Next.js
   ```bash
-  mkdir amazon-fruit-nextjs
-  cd amazon-fruit-nextjs
+  mkdir amazon-fruit
+  cd amazon-fruit
   ```
 
 - [x] **1.2** Inicializar projeto Next.js com TypeScript
@@ -141,24 +141,8 @@
 
 ### 4. Configuração do ESLint
 
-- [ ] **4.1** Atualizar `.eslintrc.json` com regras adicionais
-  ```json
-  {
-    "extends": [
-      "next/core-web-vitals",
-      "plugin:@typescript-eslint/recommended"
-    ],
-    "rules": {
-      "@typescript-eslint/no-unused-vars": ["error", { 
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_" 
-      }],
-      "@typescript-eslint/no-explicit-any": "warn",
-      "react/no-unescaped-entities": "off",
-      "react-hooks/exhaustive-deps": "warn"
-    }
-  }
-  ```
+- [x] **4.1** Configurar ESLint
+  > **Nota**: Next.js 16 usa `eslint.config.mjs` ao invés de `.eslintrc.json`. O arquivo já está configurado com as configurações do Next.js.
 
 - [x] **4.2** Instalar plugins adicionais do ESLint
   ```bash
@@ -425,7 +409,7 @@
   NEXT_PUBLIC_ENABLE_NEW_DASHBOARD=false
   ```
 
-- [ ] **9.2** Criar arquivo `.env.example`
+- [x] **9.2** Criar arquivo `.env.example`
   ```env
   # API Configuration
   NEXT_PUBLIC_API_URL=
@@ -551,7 +535,7 @@
   };
   ```
 
-- [ ] **12.2** Criar teste para o componente Button
+- [x] **12.2** Criar teste para o componente Button
   ```typescript
   // src/components/ui/Button.test.tsx
   import { render, screen } from '@testing-library/react';
@@ -574,7 +558,7 @@
 
 ### 13. Documentação Inicial
 
-- [ ] **13.1** Criar README.md básico do projeto Next.js
+- [x] **13.1** Criar README.md básico do projeto Next.js
   ```markdown
   # Amazon Fruit - Next.js
 
@@ -582,10 +566,10 @@
 
   ## Tecnologias
 
-  - Next.js 14
-  - React 18
+  - Next.js 16
+  - React 19
   - TypeScript 5
-  - Tailwind CSS
+  - Tailwind CSS v4
   - Zustand (State Management)
   - TanStack Query (Data Fetching)
   - Recharts (Visualizações)

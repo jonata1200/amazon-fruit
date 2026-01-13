@@ -1,2 +1,4 @@
-// Utility functions will be defined here
-export {};
+// src/lib/utils/index.ts
+export * from './formatters';
+export * from './validators';
+export * from './cn';
