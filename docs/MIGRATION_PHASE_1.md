@@ -21,13 +21,13 @@
 
 ### 1. Setup Inicial do Projeto
 
-- [ ] **1.1** Criar novo diretório para o projeto Next.js
+- [x] **1.1** Criar novo diretório para o projeto Next.js
   ```bash
   mkdir amazon-fruit-nextjs
   cd amazon-fruit-nextjs
   ```
 
-- [ ] **1.2** Inicializar projeto Next.js com TypeScript
+- [x] **1.2** Inicializar projeto Next.js com TypeScript
   ```bash
   npx create-next-app@latest . --typescript --tailwind --app --use-npm
   ```
@@ -39,7 +39,7 @@
     - App Router: **Yes**
     - Import alias: **Yes** (@/*)
 
-- [ ] **1.3** Verificar instalação
+- [x] **1.3** Verificar instalação
   ```bash
   npm run dev
   ```
@@ -50,7 +50,7 @@
 
 ### 2. Estrutura de Pastas
 
-- [ ] **2.1** Criar estrutura de diretórios base
+- [x] **2.1** Criar estrutura de diretórios base
   ```bash
   # No diretório raiz do projeto Next.js
   mkdir -p src/components/{ui,layouts,dashboards,charts,features}
@@ -62,7 +62,7 @@
   mkdir -p public/{images,icons}
   ```
 
-- [ ] **2.2** Criar arquivos base vazios
+- [x] **2.2** Criar arquivos base vazios
   ```bash
   # Types
   touch src/types/api.ts
@@ -81,7 +81,7 @@
   touch src/styles/theme.ts
   ```
 
-- [ ] **2.3** Criar arquivo README.md do projeto Next.js
+- [x] **2.3** Criar arquivo README.md do projeto Next.js
   ```bash
   touch README.md
   ```
@@ -90,7 +90,7 @@
 
 ### 3. Configuração do TypeScript
 
-- [ ] **3.1** Atualizar `tsconfig.json` com configurações otimizadas
+- [x] **3.1** Atualizar `tsconfig.json` com configurações otimizadas
   ```json
   {
     "compilerOptions": {
@@ -131,7 +131,7 @@
   }
   ```
 
-- [ ] **3.2** Criar arquivo `next-env.d.ts` se não existir
+- [x] **3.2** Criar arquivo `next-env.d.ts` se não existir
   ```typescript
   /// <reference types="next" />
   /// <reference types="next/image-types/global" />
@@ -160,7 +160,7 @@
   }
   ```
 
-- [ ] **4.2** Instalar plugins adicionais do ESLint
+- [x] **4.2** Instalar plugins adicionais do ESLint
   ```bash
   npm install -D @typescript-eslint/eslint-plugin @typescript-eslint/parser
   ```
@@ -169,12 +169,12 @@
 
 ### 5. Configuração do Prettier
 
-- [ ] **5.1** Instalar Prettier e plugins
+- [x] **5.1** Instalar Prettier e plugins
   ```bash
   npm install -D prettier eslint-config-prettier eslint-plugin-prettier
   ```
 
-- [ ] **5.2** Criar `.prettierrc`
+- [x] **5.2** Criar `.prettierrc`
   ```json
   {
     "semi": true,
@@ -188,7 +188,7 @@
   }
   ```
 
-- [ ] **5.3** Criar `.prettierignore`
+- [x] **5.3** Criar `.prettierignore`
   ```
   node_modules
   .next
@@ -202,7 +202,7 @@
   pnpm-lock.yaml
   ```
 
-- [ ] **5.4** Atualizar `.eslintrc.json` para integrar com Prettier
+- [x] **5.4** Atualizar `.eslintrc.json` para integrar com Prettier
   ```json
   {
     "extends": [
@@ -217,20 +217,20 @@
 
 ### 6. Instalação de Dependências Essenciais
 
-- [ ] **6.1** Instalar bibliotecas de UI e estilização
+- [x] **6.1** Instalar bibliotecas de UI e estilização
   ```bash
   npm install class-variance-authority clsx tailwind-merge
   npm install lucide-react
   ```
 
-- [ ] **6.2** Instalar bibliotecas para gerenciamento de dados
+- [x] **6.2** Instalar bibliotecas para gerenciamento de dados
   ```bash
   npm install axios
   npm install @tanstack/react-query
   npm install zustand
   ```
 
-- [ ] **6.3** Instalar bibliotecas de gráficos
+- [x] **6.3** Instalar bibliotecas de gráficos
   ```bash
   npm install recharts
   # OU se preferir Plotly:
@@ -238,14 +238,14 @@
   # npm install -D @types/plotly.js
   ```
 
-- [ ] **6.4** Instalar bibliotecas utilitárias
+- [x] **6.4** Instalar bibliotecas utilitárias
   ```bash
   npm install date-fns
   npm install react-hook-form
   npm install zod
   ```
 
-- [ ] **6.5** Instalar bibliotecas de testes
+- [x] **6.5** Instalar bibliotecas de testes
   ```bash
   npm install -D jest @testing-library/react @testing-library/jest-dom
   npm install -D @testing-library/user-event
@@ -256,7 +256,7 @@
 
 ### 7. Configuração de Scripts no package.json
 
-- [ ] **7.1** Adicionar scripts úteis ao `package.json`
+- [x] **7.1** Adicionar scripts úteis ao `package.json`
   ```json
   {
     "scripts": {
@@ -279,7 +279,7 @@
 
 ### 8. Configuração do Tailwind CSS
 
-- [ ] **8.1** Atualizar `tailwind.config.ts` com tema customizado
+- [x] **8.1** Atualizar `tailwind.config.ts` com tema customizado
   ```typescript
   import type { Config } from 'tailwindcss'
 
@@ -339,12 +339,12 @@
   export default config
   ```
 
-- [ ] **8.2** Instalar plugin de animações do Tailwind
+- [x] **8.2** Instalar plugin de animações do Tailwind
   ```bash
   npm install tailwindcss-animate
   ```
 
-- [ ] **8.3** Atualizar `src/app/globals.css` com variáveis CSS
+- [x] **8.3** Atualizar `src/app/globals.css` com variáveis CSS
   ```css
   @tailwind base;
   @tailwind components;
@@ -411,7 +411,7 @@
 
 ### 9. Configuração de Variáveis de Ambiente
 
-- [ ] **9.1** Criar arquivo `.env.local`
+- [x] **9.1** Criar arquivo `.env.local`
   ```env
   # API Configuration
   NEXT_PUBLIC_API_URL=http://localhost:8000
@@ -436,7 +436,7 @@
   NEXT_PUBLIC_APP_VERSION=
   ```
 
-- [ ] **9.3** Adicionar `.env.local` ao `.gitignore`
+- [x] **9.3** Adicionar `.env.local` ao `.gitignore`
   ```
   # Verificar se já existe no .gitignore
   # Se não, adicionar:
@@ -447,12 +447,12 @@
 
 ### 10. Configuração do Git e Controle de Versão
 
-- [ ] **10.1** Inicializar Git no projeto Next.js (se ainda não foi feito)
+- [x] **10.1** Inicializar Git no projeto Next.js (se ainda não foi feito)
   ```bash
   git init
   ```
 
-- [ ] **10.2** Criar `.gitignore` completo (já vem com Next.js, mas verificar)
+- [x] **10.2** Criar `.gitignore` completo (já vem com Next.js, mas verificar)
   ```
   # dependencies
   /node_modules
@@ -489,7 +489,7 @@
   next-env.d.ts
   ```
 
-- [ ] **10.3** Criar branch para desenvolvimento
+- [x] **10.3** Criar branch para desenvolvimento
   ```bash
   git checkout -b feature/migration-nextjs
   ```
@@ -498,7 +498,7 @@
 
 ### 11. Configuração do Jest para Testes
 
-- [ ] **11.1** Criar arquivo `jest.config.js`
+- [x] **11.1** Criar arquivo `jest.config.js`
   ```javascript
   const nextJest = require('next/jest')
 
@@ -526,7 +526,7 @@
   module.exports = createJestConfig(customJestConfig)
   ```
 
-- [ ] **11.2** Criar arquivo `jest.setup.js`
+- [x] **11.2** Criar arquivo `jest.setup.js`
   ```javascript
   import '@testing-library/jest-dom'
   ```
@@ -535,7 +535,7 @@
 
 ### 12. Criação de Componentes Base de Teste
 
-- [ ] **12.1** Criar componente de teste em `src/components/ui/Button.tsx`
+- [x] **12.1** Criar componente de teste em `src/components/ui/Button.tsx`
   ```typescript
   import React from 'react';
 
@@ -575,7 +575,7 @@
   });
   ```
 
-- [ ] **12.3** Executar teste para verificar configuração
+- [x] **12.3** Executar teste para verificar configuração
   ```bash
   npm test
   ```
@@ -621,7 +621,7 @@
   \`\`\`
   ```
 
-- [ ] **13.2** Criar arquivo CHANGELOG.md
+- [x] **13.2** Criar arquivo CHANGELOG.md
   ```markdown
   # Changelog
 
@@ -637,32 +637,32 @@
 
 ### 14. Verificação Final
 
-- [ ] **14.1** Executar linting
+- [x] **14.1** Executar linting
   ```bash
   npm run lint
   ```
 
-- [ ] **14.2** Executar verificação de tipos
+- [x] **14.2** Executar verificação de tipos
   ```bash
   npm run type-check
   ```
 
-- [ ] **14.3** Executar formatação
+- [x] **14.3** Executar formatação
   ```bash
   npm run format
   ```
 
-- [ ] **14.4** Executar testes
+- [x] **14.4** Executar testes
   ```bash
   npm test
   ```
 
-- [ ] **14.5** Executar build de produção
+- [x] **14.5** Executar build de produção
   ```bash
   npm run build
   ```
 
-- [ ] **14.6** Verificar se servidor de desenvolvimento funciona
+- [x] **14.6** Verificar se servidor de desenvolvimento funciona
   ```bash
   npm run dev
   # Acessar http://localhost:3000
@@ -672,17 +672,17 @@
 
 ### 15. Commit e Documentação
 
-- [ ] **15.1** Adicionar todos os arquivos ao Git
+- [x] **15.1** Adicionar todos os arquivos ao Git
   ```bash
   git add .
   ```
 
-- [ ] **15.2** Fazer commit inicial
+- [x] **15.2** Fazer commit inicial
   ```bash
   git commit -m "feat: setup inicial do projeto Next.js com TypeScript"
   ```
 
-- [ ] **15.3** Atualizar documentação da migração
+- [x] **15.3** Atualizar documentação da migração
   - Marcar Fase 1 como concluída no `MIGRATION_PLAN_OVERVIEW.md`
   - Documentar quaisquer decisões técnicas importantes tomadas
 
@@ -709,14 +709,37 @@ A Fase 1 está completa quando:
 
 ### Decisões Técnicas
 
-1. **Escolha do Tailwind CSS**: Optamos por Tailwind devido à sua flexibilidade e performance
+1. **Escolha do Tailwind CSS**: Optamos por Tailwind CSS v4 devido à sua flexibilidade, performance e sistema moderno de temas
 2. **Zustand vs Context API**: Zustand oferece melhor performance e Developer Experience
-3. **Recharts vs Plotly**: [DECISÃO A SER TOMADA] - Avaliar performance e necessidades
+3. **Recharts vs Plotly**: Optamos por Recharts para melhor integração com React e performance
+4. **Next.js 16 com Turbopack**: Utilizamos a versão mais recente com Turbopack para builds mais rápidos
+5. **TypeScript Strict Mode**: Configurado com todas as opções de segurança ativadas para melhor type safety
 
-### Problemas Encontrados
+### Problemas Encontrados e Soluções
 
-- Documentar aqui qualquer problema encontrado durante o setup
-- Incluir soluções aplicadas
+1. **Tailwind CSS v4 Sintaxe**:
+   - **Problema**: A sintaxe do Tailwind v4 é diferente da v3, causando erros no build com `@layer base`
+   - **Solução**: Adaptamos o globals.css para usar `@theme inline` e definições de cores diretas
+
+2. **Jest Types**:
+   - **Problema**: Erros de TypeScript com tipos do Jest não reconhecidos
+   - **Solução**: Instalamos `@types/jest` e adicionamos import do `@testing-library/jest-dom` nos testes
+
+3. **Tailwind darkMode**:
+   - **Problema**: Configuração do darkMode como array causava erro de tipo
+   - **Solução**: Mudamos de `['class']` para `'class'`
+
+### Configurações Implementadas
+
+- ✅ Next.js 16.1.1 com App Router e Turbopack
+- ✅ TypeScript 5 com strict mode completo
+- ✅ ESLint + Prettier configurados
+- ✅ Tailwind CSS v4 com tema customizado
+- ✅ Jest + React Testing Library
+- ✅ Zustand, TanStack Query, Axios instalados
+- ✅ Recharts para visualizações
+- ✅ Estrutura de pastas completa
+- ✅ Variáveis de ambiente configuradas
 
 ### Próximos Passos
 
@@ -724,7 +747,7 @@ A Fase 1 está completa quando:
 
 ---
 
-**Status**: ⏳ Pendente  
-**Responsável**: [Nome]  
-**Data de Início**: [Data]  
-**Data de Conclusão**: [Data]
+**Status**: ✅ Concluída  
+**Responsável**: Equipe de Desenvolvimento  
+**Data de Início**: 13/01/2026  
+**Data de Conclusão**: 13/01/2026

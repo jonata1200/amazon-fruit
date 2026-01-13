@@ -1,54 +1,41 @@
-# Ignora cache do Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.pyc
-*.pyo
-*.pyd
-.Python
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Ignora ambiente virtual
-.venv/
-venv/
-env/
-ENV/
-.env/
-.env.local
-.env.*.local
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# Ignora arquivos temporários e logs
-*.log
-*.tmp
-*.bak
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
 .DS_Store
-*.swp
-*.swo
-*~
+*.pem
 
-# Ignora IDEs
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# Ignora arquivos de sistema
-Thumbs.db
-desktop.ini
+# env files (can opt-in for committing if needed)
+.env*
 
-# Ignora arquivos de build e distribuição
-build/
-dist/
-*.egg-info/
-.eggs/
+# vercel
+.vercel
 
-# Ignora arquivos de teste
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-
-# Ignora arquivos do banco de dados (se necessário)
-# Descomente se não quiser versionar o banco
-# *.db
-# *.sqlite
-# *.sqlite3
+# typescript
+*.tsbuildinfo
+next-env.d.ts
