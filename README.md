@@ -444,6 +444,24 @@ Este projeto está sob a licença **MIT**. Veja o arquivo `LICENSE` para mais de
 - 🔧 [Solução de Problemas](docs/TROUBLESHOOTING.md) - Troubleshooting comum
 - 🎨 [Design System](docs/DESIGN_SYSTEM.md) - Padrões de design
 
+### 🔄 Plano de Migração para React + Next.js + TypeScript
+
+Um plano completo e detalhado de migração está disponível, dividido em 8 fases:
+
+- 📋 **[Visão Geral do Plano de Migração](docs/MIGRATION_PLAN_OVERVIEW.md)** - Introdução e estratégia geral
+- **[Fase 1: Preparação e Setup Inicial](docs/MIGRATION_PHASE_1.md)** - Setup do projeto Next.js (2-3 dias)
+- **[Fase 2: Infraestrutura e Configurações](docs/MIGRATION_PHASE_2.md)** - API, Estado e Config (3-5 dias)
+- **[Fase 3: Componentes Base e Design System](docs/MIGRATION_PHASE_3.md)** - UI Components (5-7 dias)
+- **[Fase 4: Dashboards - Parte 1](docs/MIGRATION_PHASE_4.md)** - Geral e Finanças (7-10 dias)
+- **[Fase 5: Dashboards - Parte 2](docs/MIGRATION_PHASE_5.md)** - Demais Dashboards (7-10 dias)
+- **[Fase 6: Funcionalidades Avançadas](docs/MIGRATION_PHASE_6.md)** - Alertas, Busca, Export (5-7 dias)
+- **[Fase 7: Integração e Testes](docs/MIGRATION_PHASE_7.md)** - Testes Completos (5-7 dias)
+- **[Fase 8: Deploy e Otimização](docs/MIGRATION_PHASE_8.md)** - Produção Final (3-5 dias)
+
+**Tempo Total Estimado**: 37-54 dias (6-8 semanas)
+
+Cada fase contém checklists detalhados, exemplos de código, decisões técnicas e critérios de conclusão.
+
 ### Recursos Úteis
 
 - **API Documentation**: http://localhost:8000/docs (quando a aplicação estiver rodando)
