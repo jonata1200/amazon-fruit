@@ -22,7 +22,7 @@
 
 ### 1. Componentes de UI Base - Botões
 
-- [ ] **1.1** Criar componente Button em `src/components/ui/button.tsx`
+- [x] **1.1** Criar componente Button em `src/components/ui/button.tsx`
   ```typescript
   // src/components/ui/button.tsx
   import * as React from 'react';
@@ -77,7 +77,7 @@
   export { Button, buttonVariants };
   ```
 
-- [ ] **1.2** Criar teste para Button
+- [x] **1.2** Criar teste para Button
   ```typescript
   // src/components/ui/__tests__/button.test.tsx
   import { render, screen } from '@testing-library/react';
@@ -101,7 +101,7 @@
 
 ### 2. Componentes de UI Base - Inputs
 
-- [ ] **2.1** Criar componente Input
+- [x] **2.1** Criar componente Input
   ```typescript
   // src/components/ui/input.tsx
   import * as React from 'react';
@@ -130,7 +130,7 @@
   export { Input };
   ```
 
-- [ ] **2.2** Criar componente Label
+- [x] **2.2** Criar componente Label
   ```typescript
   // src/components/ui/label.tsx
   import * as React from 'react';
@@ -162,7 +162,7 @@
 
 ### 3. Componentes de UI Base - Card
 
-- [ ] **3.1** Criar componente Card
+- [x] **3.1** Criar componente Card
   ```typescript
   // src/components/ui/card.tsx
   import * as React from 'react';
@@ -246,7 +246,7 @@
 
 ### 4. Componentes de Feedback - Loading
 
-- [ ] **4.1** Criar componente Spinner
+- [x] **4.1** Criar componente Spinner
   ```typescript
   // src/components/ui/spinner.tsx
   import { cn } from '@/lib/utils';
@@ -298,7 +298,7 @@
   }
   ```
 
-- [ ] **4.3** Criar componente Skeleton
+- [x] **4.3** Criar componente Skeleton
   ```typescript
   // src/components/ui/skeleton.tsx
   import { cn } from '@/lib/utils';
@@ -322,7 +322,7 @@
 
 ### 5. Componentes de Feedback - Empty State
 
-- [ ] **5.1** Criar componente EmptyState
+- [x] **5.1** Criar componente EmptyState
   ```typescript
   // src/components/ui/empty-state.tsx
   import { LucideIcon } from 'lucide-react';
@@ -367,7 +367,7 @@
 
 ### 6. Layout - Sidebar
 
-- [ ] **6.1** Criar componente Sidebar
+- [x] **6.1** Criar componente Sidebar
   ```typescript
   // src/components/layouts/sidebar.tsx
   'use client';
@@ -513,7 +513,7 @@
 
 ### 8. Layout - Footer
 
-- [ ] **8.1** Criar componente Footer
+- [x] **8.1** Criar componente Footer
   ```typescript
   // src/components/layouts/footer.tsx
   export function Footer() {
@@ -577,7 +577,7 @@
 
 ### 10. Componente KPI Card
 
-- [ ] **10.1** Criar componente KPICard
+- [x] **10.1** Criar componente KPICard
   ```typescript
   // src/components/dashboards/kpi-card.tsx
   import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
@@ -649,7 +649,7 @@
 
 ### 11. Componente de Período
 
-- [ ] **11.1** Criar componente PeriodSelector
+- [x] **11.1** Criar componente PeriodSelector
   ```typescript
   // src/components/dashboards/period-selector.tsx
   'use client';
@@ -715,7 +715,7 @@
 
 ### 12. Testes dos Componentes
 
-- [ ] **12.1** Criar testes para Card
+- [x] **12.1** Criar testes para Card
 - [ ] **12.2** Criar testes para KPICard
 - [ ] **12.3** Criar testes para Sidebar
 - [ ] **12.4** Criar testes para Header
@@ -747,17 +747,17 @@
 
 ### 15. Verificação
 
-- [ ] **15.1** Executar testes
+- [x] **15.1** Executar testes
   ```bash
   npm test
   ```
 
-- [ ] **15.2** Verificar linting
+- [x] **15.2** Verificar linting
   ```bash
   npm run lint
   ```
 
-- [ ] **15.3** Verificar build
+- [x] **15.3** Verificar build
   ```bash
   npm run build
   ```

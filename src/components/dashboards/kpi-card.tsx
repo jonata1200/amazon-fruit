@@ -1,0 +1,60 @@
+// src/components/dashboards/kpi-card.tsx
+import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { formatCurrency, formatNumber, formatPercentage } from '@/lib/utils';
+
+interface KPICardProps {
+  title: string;
+  value: number;
+  change?: number;
+  changeType?: 'increase' | 'decrease' | 'neutral';
+  format?: 'currency' | 'number' | 'percentage';
+  icon?: LucideIcon;
+  className?: string;
+}
+
+export function KPICard({
+  title,
+  value,
+  change,
+  changeType = 'neutral',
+  format = 'number',
+  icon: Icon,
+  className,
+}: KPICardProps) {
+  const formattedValue =
+    format === 'currency'
+      ? formatCurrency(value)
+      : format === 'percentage'
+        ? formatPercentage(value)
+        : formatNumber(value);
+
+  const TrendIcon =
+    changeType === 'increase' ? TrendingUp : changeType === 'decrease' ? TrendingDown : Minus;
+
+  const trendColor =
+    changeType === 'increase'
+      ? 'text-green-600'
+      : changeType === 'decrease'
+        ? 'text-red-600'
+        : 'text-muted-foreground';
+
+  return (
+    <Card className={className}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{formattedValue}</div>
+        {change !== undefined && (
+          <div className={cn('flex items-center text-xs', trendColor)}>
+            <TrendIcon className="mr-1 h-4 w-4" />
+            <span>{formatPercentage(Math.abs(change))} vs período anterior</span>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
