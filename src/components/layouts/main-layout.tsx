@@ -6,6 +6,9 @@ import { Header } from './header';
 import { Footer } from './footer';
 import { useAppStore } from '@/store';
 import { cn } from '@/lib/utils';
+import { AlertsPanel } from '@/components/features/alerts/alerts-panel';
+import { GlobalSearch } from '@/components/features/search/global-search';
+import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,6 +17,9 @@ interface MainLayoutProps {
 
 export function MainLayout({ children, title }: MainLayoutProps) {
   const sidebarOpen = useAppStore((state) => state.sidebarOpen);
+
+  // Atalhos de teclado globais
+  useKeyboardShortcuts();
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -26,6 +32,10 @@ export function MainLayout({ children, title }: MainLayoutProps) {
 
         <Footer />
       </div>
+
+      {/* Painéis Globais */}
+      <AlertsPanel />
+      <GlobalSearch />
     </div>
   );
 }
