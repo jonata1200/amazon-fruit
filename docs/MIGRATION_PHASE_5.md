@@ -739,12 +739,6 @@
   npm test
   ```
 
-- [ ] **11.6** Commit das mudanças
-  ```bash
-  git add .
-  git commit -m "feat: implementar dashboards de estoque, público-alvo, fornecedores e RH"
-  ```
-
 ---
 
 ## ✅ Critérios de Conclusão da Fase 5

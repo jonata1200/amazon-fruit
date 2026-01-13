@@ -824,7 +824,7 @@
 
 ---
 
-### 10. Verificação e Commit
+### 10. Verificação
 
 - [ ] **10.1** Executar testes
   ```bash
@@ -833,11 +833,6 @@
 
 - [ ] **10.2** Verificar performance
 - [ ] **10.3** Testar em diferentes navegadores
-- [ ] **10.4** Commit das mudanças
-  ```bash
-  git add .
-  git commit -m "feat: implementar dashboards geral e finanças"
-  ```
 
 ---
 

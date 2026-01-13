@@ -445,14 +445,9 @@
 
 ---
 
-### 10. Configuração do Git e Controle de Versão
+### 10. Configuração de Controle de Versão
 
-- [x] **10.1** Inicializar Git no projeto Next.js (se ainda não foi feito)
-  ```bash
-  git init
-  ```
-
-- [x] **10.2** Criar `.gitignore` completo (já vem com Next.js, mas verificar)
+- [x] **10.1** Verificar arquivo `.gitignore` (já vem com Next.js, mas verificar)
   ```
   # dependencies
   /node_modules
@@ -487,11 +482,6 @@
   # typescript
   *.tsbuildinfo
   next-env.d.ts
-  ```
-
-- [x] **10.3** Criar branch para desenvolvimento
-  ```bash
-  git checkout -b feature/migration-nextjs
   ```
 
 ---
@@ -670,19 +660,9 @@
 
 ---
 
-### 15. Commit e Documentação
+### 15. Documentação
 
-- [x] **15.1** Adicionar todos os arquivos ao Git
-  ```bash
-  git add .
-  ```
-
-- [x] **15.2** Fazer commit inicial
-  ```bash
-  git commit -m "feat: setup inicial do projeto Next.js com TypeScript"
-  ```
-
-- [x] **15.3** Atualizar documentação da migração
+- [x] **15.1** Atualizar documentação da migração
   - Marcar Fase 1 como concluída no `MIGRATION_PLAN_OVERVIEW.md`
   - Documentar quaisquer decisões técnicas importantes tomadas
 
@@ -701,7 +681,6 @@ A Fase 1 está completa quando:
 - [x] Build de produção executando sem erros
 - [x] Variáveis de ambiente configuradas
 - [x] Documentação inicial criada
-- [x] Código commitado no Git
 
 ---
 

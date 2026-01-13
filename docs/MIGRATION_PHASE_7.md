@@ -650,50 +650,13 @@
 
 ---
 
-### 11. CI/CD Pipeline
+### 11. CI/CD Pipeline (Opcional)
 
-- [ ] **11.1** Criar workflow do GitHub Actions
-  ```yaml
-  # .github/workflows/ci.yml
-  name: CI
-
-  on:
-    push:
-      branches: [main, develop]
-    pull_request:
-      branches: [main, develop]
-
-  jobs:
-    test:
-      runs-on: ubuntu-latest
-
-      steps:
-        - uses: actions/checkout@v3
-        
-        - name: Setup Node.js
-          uses: actions/setup-node@v3
-          with:
-            node-version: '18'
-            cache: 'npm'
-        
-        - name: Install dependencies
-          run: npm ci
-        
-        - name: Run linting
-          run: npm run lint
-        
-        - name: Run type check
-          run: npm run type-check
-        
-        - name: Run tests
-          run: npm run test:coverage
-        
-        - name: Build
-          run: npm run build
-        
-        - name: Run E2E tests
-          run: npx playwright test
-  ```
+- [ ] **11.1** Configurar pipeline CI/CD conforme ferramenta escolhida
+  - Jenkins
+  - GitLab CI
+  - Azure DevOps
+  - Ou outra ferramenta de sua preferência
 
 ---
 
@@ -719,11 +682,6 @@
 - [ ] **13.2** Verificar cobertura de testes > 80%
 - [ ] **13.3** Validar performance scores > 90
 - [ ] **13.4** Validar acessibilidade scores > 90
-- [ ] **13.5** Commit das mudanças
-  ```bash
-  git add .
-  git commit -m "test: implementar testes completos"
-  ```
 
 ---
 

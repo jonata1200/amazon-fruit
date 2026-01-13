@@ -624,19 +624,13 @@
 
 ---
 
-### 10. Verificação e Commit
+### 10. Verificação
 
 - [ ] **10.1** Testar todas as funcionalidades avançadas
 - [ ] **10.2** Verificar integração entre funcionalidades
 - [ ] **10.3** Executar testes
   ```bash
   npm test
-  ```
-
-- [ ] **10.4** Commit das mudanças
-  ```bash
-  git add .
-  git commit -m "feat: implementar funcionalidades avançadas"
   ```
 
 ---

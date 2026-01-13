@@ -925,19 +925,9 @@
 
 ---
 
-### 14. Commit e Atualização
+### 14. Documentação
 
-- [ ] **14.1** Adicionar arquivos ao Git
-  ```bash
-  git add .
-  ```
-
-- [ ] **14.2** Fazer commit
-  ```bash
-  git commit -m "feat: implementar infraestrutura e configurações base"
-  ```
-
-- [ ] **14.3** Atualizar documentação de migração
+- [ ] **14.1** Atualizar documentação de migração
 
 ---
 

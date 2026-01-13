@@ -678,6 +678,8 @@
 - [ ] **10.6** Desativar modo de manutenção
 - [ ] **10.7** Comunicar conclusão da migração
 
+**Nota**: Os commits e pushes para o GitHub devem ser realizados manualmente conforme sua preferência
+
 ---
 
 ### 11. Monitoramento Pós-Deploy

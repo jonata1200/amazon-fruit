@@ -745,7 +745,7 @@
 
 ---
 
-### 15. Verificação e Commit
+### 15. Verificação
 
 - [ ] **15.1** Executar testes
   ```bash
@@ -760,12 +760,6 @@
 - [ ] **15.3** Verificar build
   ```bash
   npm run build
-  ```
-
-- [ ] **15.4** Commit das mudanças
-  ```bash
-  git add .
-  git commit -m "feat: implementar componentes base e design system"
   ```
 
 ---
