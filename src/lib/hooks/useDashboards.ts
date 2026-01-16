@@ -66,5 +66,9 @@ export function useDateRange() {
     queryKey: ['dateRange'],
     queryFn: () => dashboardService.getDateRange(),
     staleTime: Infinity, // Data range não muda frequentemente
+    retry: 1, // Tentar apenas 1 vez em caso de erro (evita muitas tentativas)
+    retryDelay: 1000, // Esperar 1 segundo antes de retentar
+    // Não bloquear renderização em caso de erro de rede
+    throwOnError: false,
   });
 }

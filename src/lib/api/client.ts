@@ -38,8 +38,11 @@ class ApiClient {
           // Request feito e servidor respondeu com status fora do range 2xx
           console.error('API Error:', error.response.data);
         } else if (error.request) {
-          // Request feito mas sem resposta
-          console.error('Network Error:', error.request);
+          // Request feito mas sem resposta (API não disponível)
+          // Apenas log em desenvolvimento para não poluir o console
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('API não disponível. Usando valores padrão.');
+          }
         } else {
           // Erro ao configurar o request
           console.error('Error:', error.message);
