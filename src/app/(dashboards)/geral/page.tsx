@@ -8,6 +8,7 @@ import { DashboardSkeleton } from '@/components/dashboards/dashboard-skeleton';
 import { useAppInitialization } from '@/lib/hooks/useAppInitialization';
 import { LoadingScreen } from '@/components/ui/loading-screen';
 import { ErrorBoundary } from '@/components/error-boundary';
+import { usePageView } from '@/lib/hooks/useAnalytics';
 
 const DashboardGeralContent = lazy(() =>
   import('@/components/dashboards/geral/dashboard-geral-content').then((module) => ({
@@ -17,6 +18,7 @@ const DashboardGeralContent = lazy(() =>
 
 export default function DashboardGeralPage() {
   const { isReady } = useAppInitialization();
+  usePageView('geral');
 
   if (!isReady) {
     return <LoadingScreen message="Inicializando aplicação..." />;

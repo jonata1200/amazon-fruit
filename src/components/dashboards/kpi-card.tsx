@@ -1,6 +1,9 @@
 // src/components/dashboards/kpi-card.tsx
+'use client';
+
 import { memo } from 'react';
 import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { formatCurrency, formatNumber, formatPercentage } from '@/lib/utils';
@@ -42,7 +45,13 @@ export const KPICard = memo(function KPICard({
         : 'text-muted-foreground';
 
   return (
-    <Card className={className}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={className}
+    >
+      <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
@@ -57,5 +66,6 @@ export const KPICard = memo(function KPICard({
         )}
       </CardContent>
     </Card>
+    </motion.div>
   );
 });

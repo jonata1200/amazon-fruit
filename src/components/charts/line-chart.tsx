@@ -2,6 +2,7 @@
 'use client';
 
 import { memo } from 'react';
+import { motion } from 'framer-motion';
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -32,7 +33,12 @@ interface LineChartProps {
 
 export const LineChart = memo(function LineChart({ title, data, lines, xAxisKey, height = 300 }: LineChartProps) {
   return (
-    <Card>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Card>
       {title && (
         <CardHeader>
           <CardTitle>{title}</CardTitle>
@@ -60,5 +66,6 @@ export const LineChart = memo(function LineChart({ title, data, lines, xAxisKey,
         </ResponsiveContainer>
       </CardContent>
     </Card>
+    </motion.div>
   );
 });

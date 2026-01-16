@@ -99,9 +99,14 @@ export function ErrorBoundary({
     }
 
     // Em produção, integrar com serviço de monitoramento (Sentry, etc.)
-    // if (process.env.NODE_ENV === 'production') {
-    //   Sentry.captureException(error, { contexts: { react: info } });
-    // }
+    if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined') {
+      // Importação dinâmica para evitar erros em desenvolvimento
+      import('@sentry/nextjs').then((Sentry) => {
+        Sentry.captureException(error, { contexts: { react: info } });
+      }).catch(() => {
+        // Falha silenciosamente se Sentry não estiver configurado
+      });
+    }
   };
 
   const FallbackComponent = fallback || ((props: FallbackProps) => (

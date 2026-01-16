@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FileDown, Loader2 } from 'lucide-react';
 import { useNotifications } from '@/lib/hooks/useNotifications';
+import { analytics } from '@/lib/analytics/events';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +36,7 @@ export function ExportButton({ dashboard }: ExportButtonProps) {
       // a.click();
 
       showSuccess(`Relatório de ${dashboard} exportado em ${format.toUpperCase()} com sucesso!`);
+      analytics.dataExported(dashboard, format);
     } catch (error) {
       console.error('Export error:', error);
       showError('Erro ao exportar relatório');

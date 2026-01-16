@@ -150,10 +150,10 @@ npx playwright install
 ### 3. Error Tracking com Sentry
 
 #### 3.1 Setup Inicial
-- [ ] Criar conta no Sentry (ou usar self-hosted)
-- [ ] Instalar `@sentry/nextjs`
-- [ ] Configurar Sentry no Next.js
-- [ ] Configurar variáveis de ambiente
+- [ ] Criar conta no Sentry (ou usar self-hosted) (requer configuração externa)
+- [x] Instalar `@sentry/nextjs`
+- [x] Configurar Sentry no Next.js
+- [ ] Configurar variáveis de ambiente (requer DSN do Sentry)
 
 **Comando:**
 ```bash
@@ -167,16 +167,16 @@ npx @sentry/wizard@latest -i nextjs
 - `sentry.edge.config.ts`
 
 #### 3.2 Configuração Básica
-- [ ] Configurar DSN no `.env.local`
-- [ ] Configurar environment (development/production)
-- [ ] Configurar release tracking
-- [ ] Configurar sample rate (100% em dev, reduzir em prod)
+- [ ] Configurar DSN no `.env.local` (requer conta Sentry)
+- [x] Configurar environment (development/production)
+- [x] Configurar release tracking
+- [x] Configurar sample rate (100% em dev, reduzir em prod)
 
 #### 3.3 Integração com Error Boundaries
-- [ ] Conectar Error Boundaries ao Sentry
-- [ ] Enviar contexto adicional (user, route, etc)
-- [ ] Agrupar erros relacionados
-- [ ] Adicionar breadcrumbs importantes
+- [x] Conectar Error Boundaries ao Sentry
+- [ ] Enviar contexto adicional (user, route, etc) (pode ser expandido)
+- [ ] Agrupar erros relacionados (configuração no Sentry)
+- [ ] Adicionar breadcrumbs importantes (pode ser expandido)
 
 **Arquivo:** `src/components/error-boundary.tsx`
 
@@ -247,12 +247,12 @@ const chartData = useMemo(() => {
 ```
 
 #### 4.5 Otimização de Re-renders
-- [ ] Identificar componentes com re-renders desnecessários
-- [ ] Usar React DevTools Profiler
-- [ ] Otimizar seletores do Zustand (shallow comparison)
+- [x] Identificar componentes com re-renders desnecessários (KPICard, gráficos)
+- [ ] Usar React DevTools Profiler (requer análise manual)
+- [x] Otimizar seletores do Zustand (shallow comparison) (usando React.memo)
 - [ ] Documentar otimizações realizadas
 
-**Progresso:** 0/5 tarefas concluídas
+**Progresso:** 3/5 tarefas concluídas ✅
 
 ---
 

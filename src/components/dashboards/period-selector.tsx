@@ -7,16 +7,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAppStore } from '@/store';
+import { analytics } from '@/lib/analytics/events';
+import { usePathname } from 'next/navigation';
 
 export function PeriodSelector() {
   const dateRange = useAppStore((state) => state.dateRange);
   const setDateRange = useAppStore((state) => state.setDateRange);
+  const pathname = usePathname();
 
   const [startDate, setStartDate] = useState(dateRange.start);
   const [endDate, setEndDate] = useState(dateRange.end);
 
   const handleApply = () => {
     setDateRange(startDate, endDate);
+    
+    // Rastrear mudança de período
+    const dashboard = pathname?.split('/').filter(Boolean)[0] || 'unknown';
+    analytics.dashboardPeriodChanged(dashboard, 'custom', startDate, endDate);
   };
 
   const handleReset = () => {

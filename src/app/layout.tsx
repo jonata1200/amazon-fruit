@@ -5,6 +5,8 @@ import { QueryProvider } from '@/lib/providers/query-provider';
 import { ThemeProvider } from '@/lib/providers/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { ErrorBoundary } from '@/components/error-boundary';
+import { OfflineIndicator } from '@/components/offline-indicator';
+import { WelcomeTour } from '@/components/onboarding/welcome-tour';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -19,6 +21,20 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Amazon Fruit - Sistema de Análise',
   description: 'Sistema de análise de dados empresariais',
+  manifest: '/manifest.json',
+  themeColor: '#9333ea',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Amazon Fruit',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover',
+  },
 };
 
 export default function RootLayout({
@@ -40,6 +56,8 @@ export default function RootLayout({
             <ThemeProvider>
               {children}
               <Toaster />
+              <OfflineIndicator />
+              <WelcomeTour />
             </ThemeProvider>
           </QueryProvider>
         </ErrorBoundary>

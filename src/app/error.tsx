@@ -18,9 +18,13 @@ export default function Error({
     console.error('Página de erro capturou:', error);
 
     // Em produção, integrar com serviço de monitoramento
-    // if (process.env.NODE_ENV === 'production') {
-    //   Sentry.captureException(error);
-    // }
+    if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined') {
+      import('@sentry/nextjs').then((Sentry) => {
+        Sentry.captureException(error);
+      }).catch(() => {
+        // Falha silenciosamente se Sentry não estiver configurado
+      });
+    }
   }, [error]);
 
   const handleReload = () => {
