@@ -1,6 +1,7 @@
 // src/components/charts/line-chart.tsx
 'use client';
 
+import { memo } from 'react';
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -29,7 +30,7 @@ interface LineChartProps {
   height?: number;
 }
 
-export function LineChart({ title, data, lines, xAxisKey, height = 300 }: LineChartProps) {
+export const LineChart = memo(function LineChart({ title, data, lines, xAxisKey, height = 300 }: LineChartProps) {
   return (
     <Card>
       {title && (
@@ -60,4 +61,4 @@ export function LineChart({ title, data, lines, xAxisKey, height = 300 }: LineCh
       </CardContent>
     </Card>
   );
-}
+});

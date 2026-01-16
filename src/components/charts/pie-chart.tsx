@@ -1,6 +1,7 @@
 // src/components/charts/pie-chart.tsx
 'use client';
 
+import { memo } from 'react';
 import {
   PieChart as RechartsPieChart,
   Pie,
@@ -24,7 +25,7 @@ interface PieChartProps {
   height?: number;
 }
 
-export function PieChart({ title, data, dataKey, nameKey, colors, height = 300 }: PieChartProps) {
+export const PieChart = memo(function PieChart({ title, data, dataKey, nameKey, colors, height = 300 }: PieChartProps) {
   return (
     <Card>
       {title && (
@@ -56,4 +57,4 @@ export function PieChart({ title, data, dataKey, nameKey, colors, height = 300 }
       </CardContent>
     </Card>
   );
-}
+});

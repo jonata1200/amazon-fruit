@@ -1,6 +1,7 @@
 // src/components/dashboards/geral/dashboard-geral-content.tsx
 'use client';
 
+import { useMemo } from 'react';
 import { useDashboardGeral } from '@/lib/hooks/useDashboards';
 import { KPICard } from '@/components/dashboards/kpi-card';
 import { LineChart } from '@/components/charts/line-chart';
@@ -48,13 +49,17 @@ export function DashboardGeralContent() {
 
   const { financial_summary, evolution_chart } = data;
 
-  // Preparar dados do gráfico de evolução
-  const chartData = evolution_chart.months.map((month, index) => ({
-    mes: month,
-    receita: evolution_chart.receita[index],
-    despesa: evolution_chart.despesa[index],
-    lucro: evolution_chart.lucro[index],
-  }));
+  // Preparar dados do gráfico de evolução (memoizado)
+  const chartData = useMemo(
+    () =>
+      evolution_chart.months.map((month, index) => ({
+        mes: month,
+        receita: evolution_chart.receita[index],
+        despesa: evolution_chart.despesa[index],
+        lucro: evolution_chart.lucro[index],
+      })),
+    [evolution_chart]
+  );
 
   return (
     <div className="space-y-6">

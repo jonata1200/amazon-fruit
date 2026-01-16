@@ -1,4 +1,5 @@
 // src/components/dashboards/kpi-card.tsx
+import { memo } from 'react';
 import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -14,7 +15,7 @@ interface KPICardProps {
   className?: string;
 }
 
-export function KPICard({
+export const KPICard = memo(function KPICard({
   title,
   value,
   change,
@@ -57,4 +58,4 @@ export function KPICard({
       </CardContent>
     </Card>
   );
-}
+});

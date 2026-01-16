@@ -1,6 +1,7 @@
 // src/components/charts/bar-chart.tsx
 'use client';
 
+import { memo } from 'react';
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -30,7 +31,7 @@ interface BarChartProps {
   layout?: 'horizontal' | 'vertical';
 }
 
-export function BarChart({
+export const BarChart = memo(function BarChart({
   title,
   data,
   bars,
@@ -70,4 +71,4 @@ export function BarChart({
       </CardContent>
     </Card>
   );
-}
+});
