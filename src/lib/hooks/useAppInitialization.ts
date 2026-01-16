@@ -21,30 +21,65 @@ export function useAppInitialization() {
   const { data: dateRangeData, isError } = useDateRange();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasInitializedRef = useRef(false);
+  const lastSetRangeRef = useRef<string>('');
 
   useEffect(() => {
-    // Se conseguir dados da API, usar eles
+    // Obter estado atual do store dentro do effect para evitar dependências
+    const storeRange = useAppStore.getState().dateRange;
+    const hasCurrentRange = !!storeRange.start && !!storeRange.end;
+    const currentRangeKey = `${storeRange.start}-${storeRange.end}`;
+
+    // Se já foi inicializado e os valores já estão corretos, não fazer nada
+    if (hasInitializedRef.current && hasCurrentRange) {
+      return;
+    }
+
+    // Se conseguir dados da API e ainda não foram definidos, usar eles
     if (dateRangeData) {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-      setDateRange(dateRangeData.min_date, dateRangeData.max_date);
-      hasInitializedRef.current = true;
-    } else if (isError && !hasInitializedRef.current) {
-      // Se houver erro na API e não tiver dateRange no store, usar valores padrão
-      if (!currentDateRange.start && !currentDateRange.end) {
-        const defaultRange = getDefaultDateRange();
-        setDateRange(defaultRange.min_date, defaultRange.max_date);
+      const apiRangeKey = `${dateRangeData.min_date}-${dateRangeData.max_date}`;
+      if (lastSetRangeRef.current !== apiRangeKey) {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+        // Só atualizar se o valor for diferente
+        if (storeRange.start !== dateRangeData.min_date || storeRange.end !== dateRangeData.max_date) {
+          setDateRange(dateRangeData.min_date, dateRangeData.max_date);
+        }
+        lastSetRangeRef.current = apiRangeKey;
         hasInitializedRef.current = true;
       }
-    } else if (!hasInitializedRef.current && !timeoutRef.current) {
-      // Timeout de 3 segundos: se a API não responder, usar valores padrão
+      return;
+    }
+
+    // Se houver erro na API e não tiver dateRange no store, usar valores padrão
+    if (isError && !hasCurrentRange) {
+      const defaultRange = getDefaultDateRange();
+      const defaultRangeKey = `${defaultRange.min_date}-${defaultRange.max_date}`;
+      if (lastSetRangeRef.current !== defaultRangeKey) {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+        setDateRange(defaultRange.min_date, defaultRange.max_date);
+        lastSetRangeRef.current = defaultRangeKey;
+        hasInitializedRef.current = true;
+      }
+      return;
+    }
+
+    // Timeout de 3 segundos: se a API não responder, usar valores padrão
+    if (!hasCurrentRange && !timeoutRef.current && !hasInitializedRef.current) {
       timeoutRef.current = setTimeout(() => {
-        if (!currentDateRange.start && !currentDateRange.end && !dateRangeData) {
+        const storeRangeAfterTimeout = useAppStore.getState().dateRange;
+        if (!storeRangeAfterTimeout.start && !storeRangeAfterTimeout.end) {
           const defaultRange = getDefaultDateRange();
-          setDateRange(defaultRange.min_date, defaultRange.max_date);
-          hasInitializedRef.current = true;
+          const defaultRangeKey = `${defaultRange.min_date}-${defaultRange.max_date}`;
+          if (lastSetRangeRef.current !== defaultRangeKey) {
+            setDateRange(defaultRange.min_date, defaultRange.max_date);
+            lastSetRangeRef.current = defaultRangeKey;
+            hasInitializedRef.current = true;
+          }
         }
         timeoutRef.current = null;
       }, 3000);
@@ -56,10 +91,9 @@ export function useAppInitialization() {
         timeoutRef.current = null;
       }
     };
-  }, [dateRangeData, isError, setDateRange, currentDateRange]);
+  }, [dateRangeData, isError, setDateRange]);
 
-  // Está pronto se tem valores no store (seja da API ou padrão definidos)
-  // O Zustand atualiza o currentDateRange imediatamente após setDateRange
+  // Está pronto se tem valores no store
   const hasDateRange = !!currentDateRange.start && !!currentDateRange.end;
   
   return {
