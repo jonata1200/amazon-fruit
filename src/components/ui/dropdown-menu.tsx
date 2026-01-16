@@ -45,8 +45,37 @@ export function DropdownMenu({ children }: DropdownMenuProps) {
 export function DropdownMenuTrigger({ children, asChild }: DropdownMenuTriggerProps) {
   const { open, setOpen } = React.useContext(DropdownMenuContext);
 
+  const handleClick = () => {
+    setOpen(!open);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setOpen(!open);
+    } else if (e.key === 'Escape') {
+      setOpen(false);
+    }
+  };
+
+  if (asChild) {
+    return (
+      <div onClick={handleClick} onKeyDown={handleKeyDown}>
+        {children}
+      </div>
+    );
+  }
+
   return (
-    <div onClick={() => setOpen(!open)}>{asChild ? children : <button>{children}</button>}</div>
+    <button
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      aria-expanded={open}
+      aria-haspopup="true"
+      aria-label="Abrir menu"
+    >
+      {children}
+    </button>
   );
 }
 
@@ -81,6 +110,8 @@ export function DropdownMenuContent({ children, align = 'start' }: DropdownMenuC
   return (
     <div
       ref={ref}
+      role="menu"
+      aria-orientation="vertical"
       className={cn(
         'absolute z-50 mt-2 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
         alignClass
@@ -101,13 +132,24 @@ export function DropdownMenuItem({ children, onClick, disabled }: DropdownMenuIt
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
     <div
+      role="menuitem"
+      tabIndex={disabled ? -1 : 0}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      aria-disabled={disabled}
       className={cn(
-        'relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
+        'relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         disabled
-          ? 'pointer-events-none opacity-50'
+          ? 'pointer-events-none opacity-50 cursor-not-allowed'
           : 'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground'
       )}
     >

@@ -11,6 +11,8 @@ export function Toaster() {
     <Sonner
       theme={theme}
       position="top-right"
+      richColors
+      aria-live="polite"
       toastOptions={{
         classNames: {
           error: 'bg-destructive text-destructive-foreground',

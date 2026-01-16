@@ -1,4 +1,5 @@
 // src/lib/api/services.ts
+import { validateDashboardGeral, validateAlertsResponse } from '@/lib/validation/schemas';
 import { apiClient } from './client';
 import { mockDataService } from './mockData';
 import type {
@@ -40,17 +41,31 @@ export const dashboardService = {
   // Dashboard Geral
   getDashboardGeral: async (dateRange: DateRange) => {
     if (!isApiAvailable()) {
-      return mockDataService.getDashboardGeral(dateRange);
+      const data = mockDataService.getDashboardGeral(dateRange);
+      // Validar dados mock
+      if (validateDashboardGeral(data)) {
+        return data;
+      }
+      throw new Error('Invalid mock data format');
     }
     try {
-      return await apiClient.get<DashboardGeralResponse>('/api/dashboard/geral', {
+      const data = await apiClient.get<DashboardGeralResponse>('/api/dashboard/geral', {
         params: {
           start_date: dateRange.start,
           end_date: dateRange.end,
         },
       });
+      // Validar resposta da API
+      if (validateDashboardGeral(data)) {
+        return data;
+      }
+      throw new Error('Invalid API response format');
     } catch (error) {
-      return mockDataService.getDashboardGeral(dateRange);
+      const mockData = mockDataService.getDashboardGeral(dateRange);
+      if (validateDashboardGeral(mockData)) {
+        return mockData;
+      }
+      throw error;
     }
   },
 
@@ -128,12 +143,26 @@ export const dashboardService = {
 export const alertService = {
   getAlerts: async () => {
     if (!isApiAvailable()) {
-      return mockDataService.getAlerts();
+      const data = mockDataService.getAlerts();
+      // Validar dados mock
+      if (validateAlertsResponse(data)) {
+        return data;
+      }
+      throw new Error('Invalid mock alerts data format');
     }
     try {
-      return await apiClient.get<AlertsResponse>('/api/alerts');
+      const data = await apiClient.get<AlertsResponse>('/api/alerts');
+      // Validar resposta da API
+      if (validateAlertsResponse(data)) {
+        return data;
+      }
+      throw new Error('Invalid API alerts response format');
     } catch (error) {
-      return mockDataService.getAlerts();
+      const mockData = mockDataService.getAlerts();
+      if (validateAlertsResponse(mockData)) {
+        return mockData;
+      }
+      throw error;
     }
   },
 };

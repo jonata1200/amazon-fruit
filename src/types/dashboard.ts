@@ -22,7 +22,8 @@ export interface TableData {
   rows: (string | number)[][];
 }
 
-export type DashboardId =
+// Mantido para compatibilidade - usar DashboardId de common.ts
+export type DashboardIdEnum =
   | 'geral'
   | 'financas'
   | 'estoque'

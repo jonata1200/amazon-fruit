@@ -28,7 +28,7 @@ export function MainLayout({ children, title }: MainLayoutProps) {
       <div className={cn('flex flex-1 flex-col transition-all', sidebarOpen ? 'lg:ml-64' : 'ml-0')}>
         <Header title={title} />
 
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main id="main-content" className="flex-1 overflow-y-auto p-6">{children}</main>
 
         <Footer />
       </div>

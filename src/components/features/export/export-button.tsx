@@ -46,7 +46,7 @@ export function ExportButton({ dashboard }: ExportButtonProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" disabled={isExporting}>
+        <Button variant="outline" disabled={isExporting} aria-label="Exportar relatório">
           {isExporting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
