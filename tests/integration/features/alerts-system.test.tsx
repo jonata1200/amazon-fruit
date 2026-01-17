@@ -88,10 +88,10 @@ describe('Sistema de Alertas - Integração', () => {
       refetch: jest.fn(),
     });
 
-    renderWithProviders(<AlertsPanel />);
+    const { container } = renderWithProviders(<AlertsPanel />);
     
-    // Verificar se há elementos de skeleton
-    const skeletons = document.querySelectorAll('[class*="Skeleton"]');
+    // Verificar se há elementos de skeleton (Skeleton tem classe animate-pulse)
+    const skeletons = container.querySelectorAll('.animate-pulse');
     expect(skeletons.length).toBeGreaterThan(0);
   });
 

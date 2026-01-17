@@ -64,8 +64,10 @@ describe('Dashboard Geral - Integração', () => {
     renderWithProviders(<KPICard {...kpiData} />);
     
     // Verificar se há texto "vs período anterior" e porcentagem
+    // formatPercentage pode formatar como "20,0%" em pt-BR
     expect(screen.getByText(/vs período anterior/i)).toBeInTheDocument();
-    expect(screen.getByText(/20%/i)).toBeInTheDocument();
+    const percentageText = screen.getByText(/vs período anterior/i).textContent || '';
+    expect(percentageText).toMatch(/20[.,]?\d*%/);
   });
 
   it('exibe variação negativa corretamente', () => {
@@ -80,7 +82,9 @@ describe('Dashboard Geral - Integração', () => {
     renderWithProviders(<KPICard {...kpiData} />);
     
     // Verificar se há texto "vs período anterior" e porcentagem
+    // formatPercentage pode formatar como "10,0%" em pt-BR
     expect(screen.getByText(/vs período anterior/i)).toBeInTheDocument();
-    expect(screen.getByText(/10%/i)).toBeInTheDocument();
+    const percentageText = screen.getByText(/vs período anterior/i).textContent || '';
+    expect(percentageText).toMatch(/10[.,]?\d*%/);
   });
 });

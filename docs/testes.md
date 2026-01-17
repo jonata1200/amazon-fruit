@@ -200,11 +200,65 @@ npm test -- tests/unit
 npm test -- button.test.tsx
 ```
 
+## 🔍 Troubleshooting
+
+### Teste falha com "Unable to find element"
+- Verifique se o componente está renderizando corretamente
+- Use `screen.debug()` para ver o DOM renderizado
+- Verifique se há condições que impedem a renderização
+- Confirme que está usando o seletor correto (role, text, etc.)
+
+### Erro de "act()"
+- Envolva atualizações de estado com `waitFor()`
+- Use `userEvent` em vez de `fireEvent` quando possível
+- Certifique-se de aguardar operações assíncronas
+
+### Mock não funciona
+- Verifique se o mock está antes do import
+- Use `jest.clearAllMocks()` no `beforeEach`
+- Verifique a ordem dos mocks
+- Use `jest.resetModules()` se necessário
+
+### Teste é instável (flaky)
+- Evite dependências de tempo (use `jest.useFakeTimers()`)
+- Isole testes uns dos outros
+- Evite dependências de ordem de execução
+- Use `waitFor` com timeout apropriado
+
+### Cobertura não está sendo coletada
+- Verifique `collectCoverageFrom` no `jest.config.js`
+- Confirme que os arquivos não estão na lista de exclusões
+- Execute `npm test -- --coverage` explicitamente
+
+## 📋 Checklist para Code Review de Testes
+
+Ao revisar testes em PRs, verifique:
+
+- [ ] Testes seguem o padrão AAA (Arrange-Act-Assert)
+- [ ] Nomes de testes são descritivos
+- [ ] Testes são independentes (não dependem de outros)
+- [ ] Mocks são apropriados e não excessivos
+- [ ] Casos de borda são cobertos
+- [ ] Testes de acessibilidade quando aplicável
+- [ ] Não há testes duplicados ou redundantes
+- [ ] Testes são rápidos (< 1s cada)
+- [ ] Cobertura não diminuiu significativamente
+
+## 🎯 Metas de Cobertura
+
+- **Componentes UI:** 80%+
+- **Hooks:** 85%+
+- **Utilitários:** 90%+
+- **Features:** 75%+
+- **Dashboards:** 70%+
+
 ## 📚 Recursos
 
 - [Testing Library Docs](https://testing-library.com/)
 - [Jest Docs](https://jestjs.io/)
 - [Plano de Implementação](./plano-implementacao-teste-overview.md)
+- [Guia de Testes de Integração](./testes-integracao.md)
+- [Templates de Teste](../tests/templates/)
 
 ---
 

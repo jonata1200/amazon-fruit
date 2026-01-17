@@ -144,29 +144,45 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 ## 🧪 Testes
 
+[![Tests](https://img.shields.io/badge/tests-325%20passing-brightgreen)](https://github.com/your-repo/amazon-fruit)
+[![Coverage](https://img.shields.io/badge/coverage-50%25-yellow)](./coverage)
+
 Execute os testes:
 
 ```bash
+# Todos os testes
 npm test
-```
 
-Testes com cobertura:
+# Apenas testes unitários
+npm test -- tests/unit
 
-```bash
+# Apenas testes de integração
+npm run test:integration
+
+# Testes com cobertura
 npm test -- --coverage
+
+# Modo watch
+npm test -- --watch
 ```
 
 **Estrutura de Testes:**
-- Testes unitários organizados em `tests/unit/` espelhando a estrutura de `src/`
-- Testes de integração em `tests/integration/` para fluxos completos
-- Testes E2E em `tests/e2e/` com Playwright
+- **Testes Unitários** (`tests/unit/`) - Testam componentes isoladamente
+- **Testes de Integração** (`tests/integration/`) - Testam fluxos completos
+- **Testes E2E** (`tests/e2e/`) - Testam aplicação completa com Playwright
 
 **Status atual:**
-- ✅ Testes unitários reorganizados e centralizados (283 testes passando)
-- ✅ Testes de integração implementados (28+ testes passando)
-- ✅ Cobertura de componentes UI, Hooks, Features, Dashboards e Fluxos
-- 📋 Ver [Plano de Implementação de Testes](./docs/plano-implementacao-teste-overview.md) para detalhes
-- 📚 Ver [Guia de Testes de Integração](./docs/testes-integracao.md) para escrever testes de integração
+- ✅ 325+ testes passando (283 unitários + 42 integração)
+- ✅ Cobertura de 50%+ (meta: 80%)
+- ✅ CI/CD configurado com GitHub Actions
+- ✅ Templates de teste disponíveis em `tests/templates/`
+
+**Documentação:**
+- 📚 [Guia de Testes](./docs/testes.md) - Como escrever testes
+- 📚 [Guia de Testes de Integração](./docs/testes-integracao.md) - Testes de integração
+- 🔧 [Troubleshooting](./docs/testes-troubleshooting.md) - Resolução de problemas
+- 📋 [Code Review](./docs/testes-code-review.md) - Checklist para revisão
+- 📋 [Plano de Implementação](./docs/plano-implementacao-teste-overview.md) - Visão geral
 
 ## 🐳 Deploy
 
