@@ -9,33 +9,41 @@ describe('Icon', () => {
     const svg = container.querySelector('svg');
     expect(svg).toBeInTheDocument();
     // Verifica se tem as classes de tamanho md (h-5 w-5)
-    const classes = svg?.className || '';
-    expect(classes).toContain('h-5');
-    expect(classes).toContain('w-5');
+    const className = svg?.getAttribute('class') || svg?.className?.toString() || '';
+    expect(className).toContain('h-5');
+    expect(className).toContain('w-5');
   });
 
   it('renders icon with xs size', () => {
     const { container } = render(<Icon icon={Search} size="xs" />);
     const svg = container.querySelector('svg');
-    expect(svg).toHaveClass('h-3', 'w-3');
+    const className = svg?.getAttribute('class') || svg?.className?.toString() || '';
+    expect(className).toContain('h-3');
+    expect(className).toContain('w-3');
   });
 
   it('renders icon with sm size', () => {
     const { container } = render(<Icon icon={Search} size="sm" />);
     const svg = container.querySelector('svg');
-    expect(svg).toHaveClass('h-4', 'w-4');
+    const className = svg?.getAttribute('class') || svg?.className?.toString() || '';
+    expect(className).toContain('h-4');
+    expect(className).toContain('w-4');
   });
 
   it('renders icon with lg size', () => {
     const { container } = render(<Icon icon={Search} size="lg" />);
     const svg = container.querySelector('svg');
-    expect(svg).toHaveClass('h-6', 'w-6');
+    const className = svg?.getAttribute('class') || svg?.className?.toString() || '';
+    expect(className).toContain('h-6');
+    expect(className).toContain('w-6');
   });
 
   it('renders icon with xl size', () => {
     const { container } = render(<Icon icon={Search} size="xl" />);
     const svg = container.querySelector('svg');
-    expect(svg).toHaveClass('h-8', 'w-8');
+    const className = svg?.getAttribute('class') || svg?.className?.toString() || '';
+    expect(className).toContain('h-8');
+    expect(className).toContain('w-8');
   });
 
   it('applies custom className', () => {

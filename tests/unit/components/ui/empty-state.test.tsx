@@ -16,8 +16,8 @@ describe('EmptyState', () => {
   });
 
   it('renders icon when provided', () => {
-    render(<EmptyState title="Title" icon={Search} />);
-    const icon = screen.getByRole('img', { hidden: true }) || document.querySelector('svg');
+    const { container } = render(<EmptyState title="Title" icon={Search} />);
+    const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
   });
 

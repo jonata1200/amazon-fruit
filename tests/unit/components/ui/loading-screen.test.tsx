@@ -5,8 +5,12 @@ import { LoadingScreen } from '@/components/ui/loading-screen';
 describe('LoadingScreen', () => {
   it('renders with default message', () => {
     render(<LoadingScreen />);
-    const message = screen.getByText('Carregando...', { exact: false });
-    expect(message).toBeInTheDocument();
+    // Buscar pelo texto dentro do parágrafo, não no spinner
+    const messages = screen.getAllByText('Carregando...');
+    expect(messages.length).toBeGreaterThan(0);
+    // Verificar que há pelo menos um parágrafo com a mensagem
+    const paragraph = Array.from(messages).find((el) => el.tagName === 'P');
+    expect(paragraph).toBeInTheDocument();
     expect(screen.getByRole('status')).toBeInTheDocument(); // Spinner
   });
 

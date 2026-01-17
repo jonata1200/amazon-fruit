@@ -4,9 +4,16 @@ import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
 import { useAppStore } from '@/store';
 
 // Mock do store
-jest.mock('@/store', () => ({
-  useAppStore: jest.fn(),
-}));
+const mockGetState = jest.fn();
+const mockUseAppStore = jest.fn();
+
+jest.mock('@/store', () => {
+  const mockStore = jest.fn();
+  mockStore.getState = jest.fn();
+  return {
+    useAppStore: mockStore,
+  };
+});
 
 describe('useKeyboardShortcuts', () => {
   const mockToggleTheme = jest.fn();
@@ -16,25 +23,24 @@ describe('useKeyboardShortcuts', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAppStore as unknown as jest.Mock).mockImplementation((selector) => {
+    const mockState = {
+      searchOpen: false,
+      alertsOpen: false,
+      setSearchOpen: mockSetSearchOpen,
+      setAlertsOpen: mockSetAlertsOpen,
+    };
+    
+    mockGetState.mockReturnValue(mockState);
+    (useAppStore as any).getState = mockGetState;
+    
+    (useAppStore as jest.Mock).mockImplementation((selector: unknown) => {
       if (typeof selector === 'function') {
         return selector({
           toggleTheme: mockToggleTheme,
           toggleSearch: mockToggleSearch,
-          searchOpen: false,
-          alertsOpen: false,
-          setSearchOpen: mockSetSearchOpen,
-          setAlertsOpen: mockSetAlertsOpen,
+          ...mockState,
         });
       }
-      return {
-        getState: () => ({
-          searchOpen: false,
-          alertsOpen: false,
-          setSearchOpen: mockSetSearchOpen,
-          setAlertsOpen: mockSetAlertsOpen,
-        }),
-      };
     });
   });
 
@@ -83,25 +89,24 @@ describe('useKeyboardShortcuts', () => {
   });
 
   it('closes search on Escape when search is open', () => {
-    (useAppStore as unknown as jest.Mock).mockImplementation((selector) => {
+    const mockStateOpen = {
+      searchOpen: true,
+      alertsOpen: false,
+      setSearchOpen: mockSetSearchOpen,
+      setAlertsOpen: mockSetAlertsOpen,
+    };
+
+    mockGetState.mockReturnValue(mockStateOpen);
+    (useAppStore as any).getState = mockGetState;
+
+    (useAppStore as jest.Mock).mockImplementation((selector: unknown) => {
       if (typeof selector === 'function') {
         return selector({
           toggleTheme: mockToggleTheme,
           toggleSearch: mockToggleSearch,
-          searchOpen: true,
-          alertsOpen: false,
-          setSearchOpen: mockSetSearchOpen,
-          setAlertsOpen: mockSetAlertsOpen,
+          ...mockStateOpen,
         });
       }
-      return {
-        getState: () => ({
-          searchOpen: true,
-          alertsOpen: false,
-          setSearchOpen: mockSetSearchOpen,
-          setAlertsOpen: mockSetAlertsOpen,
-        }),
-      };
     });
 
     renderHook(() => useKeyboardShortcuts());
