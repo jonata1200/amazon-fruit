@@ -1,11 +1,12 @@
 // src/components/features/export/export-button.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { FileDown, Loader2 } from 'lucide-react';
 import { useNotifications } from '@/lib/hooks/useNotifications';
 import { analytics } from '@/lib/analytics/events';
+import { Progress } from '@/components/ui/progress';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,13 +20,20 @@ interface ExportButtonProps {
 
 export function ExportButton({ dashboard }: ExportButtonProps) {
   const [isExporting, setIsExporting] = useState(false);
+  const [progress, setProgress] = useState(0);
   const { showSuccess, showError } = useNotifications();
 
-  const handleExport = async (format: 'pdf' | 'excel' | 'csv') => {
+  const handleExport = useCallback(async (format: 'pdf' | 'excel' | 'csv') => {
     setIsExporting(true);
+    setProgress(0);
+    
     try {
-      // Simular exportação por enquanto
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Simular exportação com progresso
+      const steps = 10;
+      for (let i = 0; i <= steps; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        setProgress((i / steps) * 100);
+      }
 
       // Em produção, fazer chamada real para API:
       // const blob = await exportService.exportDashboard(dashboard, format);
@@ -42,8 +50,9 @@ export function ExportButton({ dashboard }: ExportButtonProps) {
       showError('Erro ao exportar relatório');
     } finally {
       setIsExporting(false);
+      setProgress(0);
     }
-  };
+  }, [dashboard, showSuccess, showError]);
 
   return (
     <DropdownMenu>
@@ -62,12 +71,22 @@ export function ExportButton({ dashboard }: ExportButtonProps) {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => handleExport('pdf')}>Exportar como PDF</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleExport('excel')}>
+      <DropdownMenuContent align="end" className="w-56">
+        {isExporting && (
+          <div className="px-2 py-2">
+            <Progress value={progress} showLabel className="mb-2" />
+            <p className="text-xs text-muted-foreground">Exportando... {Math.round(progress)}%</p>
+          </div>
+        )}
+        <DropdownMenuItem onClick={() => handleExport('pdf')} disabled={isExporting}>
+          Exportar como PDF
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleExport('excel')} disabled={isExporting}>
           Exportar como Excel
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleExport('csv')}>Exportar como CSV</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleExport('csv')} disabled={isExporting}>
+          Exportar como CSV
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

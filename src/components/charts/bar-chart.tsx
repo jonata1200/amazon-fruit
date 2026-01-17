@@ -1,7 +1,8 @@
 // src/components/charts/bar-chart.tsx
 'use client';
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
+import { analytics } from '@/lib/analytics/events';
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -39,6 +40,14 @@ export const BarChart = memo(function BarChart({
   height = 300,
   layout = 'horizontal',
 }: BarChartProps) {
+  const handleLegendClick = useCallback(() => {
+    analytics.chartInteracted('geral', 'bar', 'legend_click');
+  }, []);
+
+  const handleBarClick = useCallback(() => {
+    analytics.chartInteracted('geral', 'bar', 'data_point_click');
+  }, []);
+
   return (
     <Card>
       {title && (
@@ -62,9 +71,16 @@ export const BarChart = memo(function BarChart({
               </>
             )}
             <Tooltip />
-            <Legend />
+            <Legend onClick={handleLegendClick} />
             {bars.map((bar) => (
-              <Bar key={bar.dataKey} dataKey={bar.dataKey} name={bar.name} fill={bar.color} />
+              <Bar 
+                key={bar.dataKey} 
+                dataKey={bar.dataKey} 
+                name={bar.name} 
+                fill={bar.color}
+                onClick={handleBarClick}
+                style={{ cursor: 'pointer' }}
+              />
             ))}
           </RechartsBarChart>
         </ResponsiveContainer>

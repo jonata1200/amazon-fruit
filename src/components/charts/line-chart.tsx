@@ -1,8 +1,9 @@
 // src/components/charts/line-chart.tsx
 'use client';
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { analytics } from '@/lib/analytics/events';
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -32,6 +33,14 @@ interface LineChartProps {
 }
 
 export const LineChart = memo(function LineChart({ title, data, lines, xAxisKey, height = 300 }: LineChartProps) {
+  const handleLegendClick = useCallback((e: any) => {
+    analytics.chartInteracted('geral', 'line', 'legend_click');
+  }, []);
+
+  const handleDataPointClick = useCallback((data: any, index: number) => {
+    analytics.chartInteracted('geral', 'line', 'data_point_click');
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -51,7 +60,7 @@ export const LineChart = memo(function LineChart({ title, data, lines, xAxisKey,
             <XAxis dataKey={xAxisKey} />
             <YAxis />
             <Tooltip />
-            <Legend />
+            <Legend onClick={handleLegendClick} />
             {lines.map((line) => (
               <Line
                 key={line.dataKey}
@@ -60,6 +69,8 @@ export const LineChart = memo(function LineChart({ title, data, lines, xAxisKey,
                 name={line.name}
                 stroke={line.color}
                 strokeWidth={2}
+                onClick={handleDataPointClick}
+                style={{ cursor: 'pointer' }}
               />
             ))}
           </RechartsLineChart>

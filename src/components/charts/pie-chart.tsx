@@ -1,7 +1,8 @@
 // src/components/charts/pie-chart.tsx
 'use client';
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
+import { analytics } from '@/lib/analytics/events';
 import {
   PieChart as RechartsPieChart,
   Pie,
@@ -26,6 +27,14 @@ interface PieChartProps {
 }
 
 export const PieChart = memo(function PieChart({ title, data, dataKey, nameKey, colors, height = 300 }: PieChartProps) {
+  const handleLegendClick = useCallback(() => {
+    analytics.chartInteracted('geral', 'pie', 'legend_click');
+  }, []);
+
+  const handleCellClick = useCallback(() => {
+    analytics.chartInteracted('geral', 'pie', 'data_point_click');
+  }, []);
+
   return (
     <Card>
       {title && (
@@ -45,13 +54,18 @@ export const PieChart = memo(function PieChart({ title, data, dataKey, nameKey, 
               outerRadius={80}
               fill="#8884d8"
               dataKey={dataKey}
+              onClick={handleCellClick}
             >
               {data.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={colors[index % colors.length]}
+                  style={{ cursor: 'pointer' }}
+                />
               ))}
             </Pie>
             <Tooltip />
-            <Legend />
+            <Legend onClick={handleLegendClick} />
           </RechartsPieChart>
         </ResponsiveContainer>
       </CardContent>

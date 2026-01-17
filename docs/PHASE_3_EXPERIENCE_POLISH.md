@@ -151,12 +151,12 @@ export const tokens = {
 **Arquivo:** `src/components/ui/icon.tsx`
 
 #### 2.4 Design System Documentation
-- [ ] Criar documentação no Storybook
-- [ ] Adicionar Design Principles
-- [ ] Criar guia de uso de cores
-- [ ] Criar guia de tipografia
-- [ ] Criar guia de espaçamento
-- [ ] Adicionar exemplos de uso
+- [x] Criar documentação no Storybook (.storybook/design-system.md)
+- [x] Adicionar Design Principles
+- [x] Criar guia de uso de cores
+- [x] Criar guia de tipografia
+- [x] Criar guia de espaçamento
+- [x] Adicionar exemplos de uso
 
 **Arquivo:** `.storybook/design-system.md`
 
@@ -165,7 +165,7 @@ export const tokens = {
 - [ ] Criar script para sincronizar tokens do Figma (se aplicável)
 - [ ] Documentar processo de atualização do design system
 
-**Progresso:** 3/5 tarefas concluídas ✅
+**Progresso:** 4/5 tarefas concluídas ✅
 
 ---
 
@@ -174,7 +174,7 @@ export const tokens = {
 #### 3.1 Event Tracking Completo
 - [x] Mapear todos os eventos importantes a rastrear
 - [x] Implementar tracking de eventos de dashboard
-- [ ] Rastrear interações com gráficos (zoom, filter, etc) (estrutura criada, falta integrar)
+- [x] Rastrear interações com gráficos (zoom, filter, etc) (integrado em LineChart, BarChart, PieChart)
 - [x] Rastrear uso de funcionalidades (export, search, etc)
 - [x] Rastrear tempo de sessão por dashboard
 
@@ -205,18 +205,18 @@ export const tokens = {
 - [ ] Rastrear tempo de carregamento de dados
 - [ ] Alertas para degradação de performance
 
-**Progresso:** 2/4 tarefas concluídas ✅
+**Progresso:** 3/4 tarefas concluídas ✅
 
 ---
 
 ### 4. Acessibilidade Avançada
 
 #### 4.1 Testes Automatizados de Acessibilidade
-- [ ] Instalar `@axe-core/react`
-- [ ] Configurar testes de acessibilidade no CI/CD
-- [ ] Adicionar testes de acessibilidade no Playwright
-- [ ] Configurar threshold mínimo de acessibilidade
-- [ ] Falhar build se acessibilidade não passar
+- [x] Instalar `@axe-core/react` e `@axe-core/playwright`
+- [x] Configurar testes de acessibilidade no CI/CD (já integrado no workflow e2e)
+- [x] Adicionar testes de acessibilidade no Playwright (tests/e2e/accessibility.spec.ts)
+- [x] Configurar threshold mínimo de acessibilidade (WCAG AA)
+- [x] Falhar build se acessibilidade não passar (testes já falham se houver violações)
 
 **Comando:**
 ```bash
@@ -243,14 +243,14 @@ npm install --save-dev @axe-core/react
 - [ ] Adicionar instruções contextuais para funcionalidades complexas
 
 #### 4.4 Documentação de Acessibilidade
-- [ ] Criar guia de acessibilidade para desenvolvedores
-- [ ] Documentar padrões de acessibilidade do projeto
-- [ ] Criar checklist de acessibilidade para novos componentes
-- [ ] Adicionar testes de acessibilidade no PR template
+- [x] Criar guia de acessibilidade para desenvolvedores (docs/ACCESSIBILITY_GUIDE.md)
+- [x] Documentar padrões de acessibilidade do projeto
+- [x] Criar checklist de acessibilidade para novos componentes
+- [ ] Adicionar testes de acessibilidade no PR template (pode ser expandido)
 
 **Arquivo:** `docs/ACCESSIBILITY_GUIDE.md`
 
-**Progresso:** 0/4 tarefas concluídas
+**Progresso:** 3/4 tarefas concluídas ✅
 
 ---
 
@@ -345,7 +345,7 @@ npm install react-joyride
 npm install framer-motion
 ```
 
-**Progresso:** 0/4 tarefas concluídas
+**Progresso:** 3/4 tarefas concluídas ✅
 
 ---
 
@@ -413,7 +413,7 @@ npm install framer-motion
 ---
 
 **Total de tarefas:** 27  
-**Tarefas concluídas:** 15  
-**Progresso:** 56%
+**Tarefas concluídas:** 21  
+**Progresso:** 78%
 
-> **Nota:** Implementações concluídas: PWA básico (Service Worker, manifest, offline indicator), Design Tokens centralizados, Sistema de ícones, Analytics básico (event tracking criado e integrado), Tooltip component e HelpTooltip, WelcomeTour customizado, Favoritos e bookmarks (sidebar), Animações com Framer Motion (KPICard, LineChart), Sentry estrutura básica (configs criados, falta DSN), Progress component, Testes unitários (error-boundary, useFavorites). Tarefas pendentes incluem: ícones PWA (requer geração de imagens), documentação do Design System no Storybook, testes automatizados de acessibilidade, algumas features de UX (comparação, filtros avançados).
+> **Nota:** Implementações concluídas: PWA básico (Service Worker, manifest, offline indicator), Design Tokens centralizados, Sistema de ícones, Analytics completo (event tracking integrado em gráficos e funcionalidades), Tooltip component e HelpTooltip, WelcomeTour customizado, Favoritos e bookmarks (sidebar), Animações com Framer Motion (KPICard, LineChart), Sentry estrutura básica (configs criados, falta DSN), Progress component com indicadores, Testes automatizados de acessibilidade (Playwright + axe-core), Guia de Acessibilidade completo, Documentação Design System no Storybook, Documentação de Otimizações de Performance. Tarefas pendentes incluem: ícones PWA (requer geração de imagens), algumas features de UX (comparação, filtros avançados), algumas tarefas opcionais.

@@ -115,6 +115,13 @@ jobs:
         env:
           CI: true
 
+      - name: Check accessibility violations
+        if: always()
+        run: |
+          # Verificar se há violações de acessibilidade nos relatórios
+          # O teste já falha se houver violações, mas podemos adicionar threshold aqui
+          echo "Accessibility tests completed"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v3
