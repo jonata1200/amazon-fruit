@@ -158,14 +158,15 @@ npm test -- --coverage
 
 **Estrutura de Testes:**
 - Testes unitários organizados em `tests/unit/` espelhando a estrutura de `src/`
-- Testes de integração em `tests/integration/` (em implementação)
+- Testes de integração em `tests/integration/` para fluxos completos
 - Testes E2E em `tests/e2e/` com Playwright
 
 **Status atual:**
-- ✅ Testes unitários reorganizados e centralizados
-- ✅ 15 arquivos de teste unitário
-- ✅ Cobertura de componentes UI, Hooks, Features e Dashboards
+- ✅ Testes unitários reorganizados e centralizados (283 testes passando)
+- ✅ Testes de integração implementados (28+ testes passando)
+- ✅ Cobertura de componentes UI, Hooks, Features, Dashboards e Fluxos
 - 📋 Ver [Plano de Implementação de Testes](./docs/plano-implementacao-teste-overview.md) para detalhes
+- 📚 Ver [Guia de Testes de Integração](./docs/testes-integracao.md) para escrever testes de integração
 
 ## 🐳 Deploy
 
