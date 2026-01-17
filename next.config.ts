@@ -150,8 +150,11 @@ const nextConfig: NextConfig = {
 
   // Otimizações experimentais
   experimental: {
-    optimizePackageImports: ['recharts', 'lucide-react', '@tanstack/react-query'],
+    optimizePackageImports: ['recharts', 'lucide-react', '@tanstack/react-query', 'framer-motion', 'date-fns'],
   },
+
+  // Configuração Turbopack (vazia para evitar conflito com webpack do next-pwa)
+  turbopack: {},
 
   // Compressão
   compress: true,

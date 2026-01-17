@@ -130,6 +130,7 @@ export function Sidebar() {
                 </div>
               );
             })}
+          </div>
         </nav>
       </div>
     </aside>

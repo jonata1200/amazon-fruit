@@ -25,6 +25,21 @@ function DashboardGeralSkeleton() {
 export function DashboardGeralContent() {
   const { data, isLoading, error } = useDashboardGeral();
 
+  // Preparar dados do gráfico de evolução (memoizado)
+  // IMPORTANTE: Todos os hooks devem ser chamados antes de qualquer return condicional
+  const chartData = useMemo(
+    () => {
+      if (!data?.evolution_chart) return [];
+      return data.evolution_chart.months.map((month, index) => ({
+        mes: month,
+        receita: data.evolution_chart.receita[index],
+        despesa: data.evolution_chart.despesa[index],
+        lucro: data.evolution_chart.lucro[index],
+      }));
+    },
+    [data]
+  );
+
   if (isLoading) {
     return <DashboardGeralSkeleton />;
   }
@@ -47,19 +62,7 @@ export function DashboardGeralContent() {
     );
   }
 
-  const { financial_summary, evolution_chart } = data;
-
-  // Preparar dados do gráfico de evolução (memoizado)
-  const chartData = useMemo(
-    () =>
-      evolution_chart.months.map((month, index) => ({
-        mes: month,
-        receita: evolution_chart.receita[index],
-        despesa: evolution_chart.despesa[index],
-        lucro: evolution_chart.lucro[index],
-      })),
-    [evolution_chart]
-  );
+  const { financial_summary } = data;
 
   return (
     <div className="space-y-6">

@@ -1,6 +1,6 @@
-// src/components/features/__tests__/export-button.test.tsx
+// tests/unit/components/features/export-button.test.tsx
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ExportButton } from '../export/export-button';
+import { ExportButton } from '@/components/features/export/export-button';
 
 // Mock do hook de notificações
 jest.mock('@/lib/hooks/useNotifications', () => ({

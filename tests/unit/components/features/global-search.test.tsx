@@ -1,6 +1,6 @@
-// src/components/features/__tests__/global-search.test.tsx
+// tests/unit/components/features/global-search.test.tsx
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { GlobalSearch } from '../search/global-search';
+import { GlobalSearch } from '@/components/features/search/global-search';
 import { useAppStore } from '@/store';
 
 // Mock do router

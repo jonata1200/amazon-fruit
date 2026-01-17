@@ -1,6 +1,6 @@
-// src/components/ui/__tests__/input.test.tsx
+// tests/unit/components/ui/input.test.tsx
 import { render, screen } from '@testing-library/react';
-import { Input } from '../input';
+import { Input } from '@/components/ui/input';
 
 describe('Input', () => {
   it('renders input element', () => {

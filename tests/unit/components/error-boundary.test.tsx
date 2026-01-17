@@ -1,6 +1,6 @@
-// src/components/__tests__/error-boundary.test.tsx
+// tests/unit/components/error-boundary.test.tsx
 import { render, screen } from '@testing-library/react';
-import { ErrorBoundary } from '../error-boundary';
+import { ErrorBoundary } from '@/components/error-boundary';
 
 // Componente que lança erro para testar ErrorBoundary
 const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {

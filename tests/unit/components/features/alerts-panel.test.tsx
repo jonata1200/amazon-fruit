@@ -1,6 +1,6 @@
-// src/components/features/__tests__/alerts-panel.test.tsx
+// tests/unit/components/features/alerts-panel.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import { AlertsPanel } from '../alerts/alerts-panel';
+import { AlertsPanel } from '@/components/features/alerts/alerts-panel';
 import { useAppStore } from '@/store';
 import { useAlerts } from '@/lib/hooks/useAlerts';
 

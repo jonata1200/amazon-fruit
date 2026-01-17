@@ -1,6 +1,6 @@
-// src/components/ui/__tests__/spinner.test.tsx
+// tests/unit/components/ui/spinner.test.tsx
 import { render, screen } from '@testing-library/react';
-import { Spinner } from '../spinner';
+import { Spinner } from '@/components/ui/spinner';
 
 describe('Spinner', () => {
   it('renders spinner with default size', () => {

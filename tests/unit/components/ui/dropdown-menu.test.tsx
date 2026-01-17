@@ -1,12 +1,12 @@
-// src/components/ui/__tests__/dropdown-menu.test.tsx
+// tests/unit/components/ui/dropdown-menu.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from '../dropdown-menu';
-import { Button } from '../button';
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 describe('DropdownMenu', () => {
   it('opens when trigger is clicked', () => {

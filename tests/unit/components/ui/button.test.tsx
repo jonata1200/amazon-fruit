@@ -1,6 +1,6 @@
-// src/components/ui/__tests__/button.test.tsx
+// tests/unit/components/ui/button.test.tsx
 import { render, screen } from '@testing-library/react';
-import { Button } from '../button';
+import { Button } from '@/components/ui/button';
 
 describe('Button', () => {
   it('renders button with text', () => {

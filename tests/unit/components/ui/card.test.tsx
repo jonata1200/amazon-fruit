@@ -1,6 +1,6 @@
-// src/components/ui/__tests__/card.test.tsx
+// tests/unit/components/ui/card.test.tsx
 import { render, screen } from '@testing-library/react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 
 describe('Card', () => {
   it('renders card with content', () => {

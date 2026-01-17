@@ -1,6 +1,6 @@
-// src/components/ui/__tests__/dialog.test.tsx
+// tests/unit/components/ui/dialog.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 describe('Dialog', () => {
   it('renders when open', () => {

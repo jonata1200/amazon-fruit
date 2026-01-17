@@ -1,6 +1,6 @@
-// src/lib/hooks/__tests__/useDebounce.test.ts
+// tests/unit/lib/hooks/useDebounce.test.ts
 import { renderHook, waitFor } from '@testing-library/react';
-import { useDebounce } from '../useDebounce';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 
 describe('useDebounce', () => {
   beforeEach(() => {

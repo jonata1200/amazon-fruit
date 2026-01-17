@@ -1,6 +1,6 @@
-// src/lib/hooks/__tests__/useFavorites.test.ts
+// tests/unit/lib/hooks/useFavorites.test.ts
 import { renderHook, act } from '@testing-library/react';
-import { useFavorites } from '../useFavorites';
+import { useFavorites } from '@/lib/hooks/useFavorites';
 
 // Mock localStorage
 const localStorageMock = (() => {

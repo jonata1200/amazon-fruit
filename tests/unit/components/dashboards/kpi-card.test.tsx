@@ -1,6 +1,6 @@
-// src/components/dashboards/__tests__/kpi-card.test.tsx
+// tests/unit/components/dashboards/kpi-card.test.tsx
 import { render, screen } from '@testing-library/react';
-import { KPICard } from '../kpi-card';
+import { KPICard } from '@/components/dashboards/kpi-card';
 import { DollarSign } from 'lucide-react';
 
 describe('KPICard', () => {

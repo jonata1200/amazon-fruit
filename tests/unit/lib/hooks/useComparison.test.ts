@@ -1,6 +1,6 @@
-// src/lib/hooks/__tests__/useComparison.test.ts
+// tests/unit/lib/hooks/useComparison.test.ts
 import { renderHook } from '@testing-library/react';
-import { useComparison } from '../useComparison';
+import { useComparison } from '@/lib/hooks/useComparison';
 
 describe('useComparison', () => {
   it('calculates percentage change correctly', () => {

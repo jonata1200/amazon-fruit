@@ -1,6 +1,6 @@
-// src/components/ui/__tests__/data-table.test.tsx
+// tests/unit/components/ui/data-table.test.tsx
 import { render, screen } from '@testing-library/react';
-import { DataTable } from '../data-table';
+import { DataTable } from '@/components/ui/data-table';
 
 describe('DataTable', () => {
   const columns = [
