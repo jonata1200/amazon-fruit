@@ -423,31 +423,6 @@ O projeto está configurado como PWA, permitindo:
 - Notificações push (quando configurado)
 - Cache inteligente de assets
 
-### Monitoramento
-
-O projeto inclui integração com Sentry para:
-- Monitoramento de erros em produção
-- Rastreamento de performance
-- Analytics de uso
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Para contribuir:
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-### Checklist para Contribuições
-
-- [ ] Código segue os padrões do projeto (ESLint, Prettier)
-- [ ] Testes foram adicionados/atualizados
-- [ ] Documentação foi atualizada (se necessário)
-- [ ] Tipo de commit segue o padrão Conventional Commits
-- [ ] Build passa sem erros
-
 ## 📝 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
@@ -457,12 +432,6 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 **Jonata Jesus**
 
 - GitHub: [@jonata1200](https://github.com/jonata1200)
-
-## 🙏 Agradecimentos
-
-- Comunidade Next.js pelo excelente framework
-- Todos os mantenedores das bibliotecas open-source utilizadas
-- Contribuidores e revisores de código
 
 ---
 
