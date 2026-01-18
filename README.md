@@ -66,8 +66,8 @@ Headcount, custos operacionais e gestão de contratações.
 
 ### 🎨 Recursos Visuais Adicionais
 
-![Tema Escuro](./public/images/theme-dark.png)
-![Busca Global](./public/images/global-search.png)
+![Tema Escuro](./public/images/tema-escuro.png)
+
 
 ## ✨ Funcionalidades Principais
 
