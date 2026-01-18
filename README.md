@@ -28,23 +28,43 @@ Fornecer uma solução integrada de análise de dados empresariais, permitindo q
 
 > 💡 **Nota:** Adicione suas screenshots na pasta `public/images/` e atualize os caminhos abaixo.
 
-### Dashboard Principal
+### 📊 Dashboard Geral
 
-![Dashboard Principal](./public/images/dashboard-main.png)
+Visão geral do negócio com KPIs principais e evolução financeira em tempo real.
 
-### Funcionalidades em Ação
+![Dashboard Geral](./public/images/dashboard-geral.png)
 
-<div align="center">
-  <img src="./public/images/dashboard-financas.png" alt="Dashboard de Finanças" width="45%" />
-  <img src="./public/images/dashboard-estoque.png" alt="Dashboard de Estoque" width="45%" />
-</div>
+### 💰 Dashboard de Finanças
 
-<div align="center">
-  <img src="./public/images/dashboard-publico.png" alt="Dashboard de Público-Alvo" width="45%" />
-  <img src="./public/images/dashboard-fornecedores.png" alt="Dashboard de Fornecedores" width="45%" />
-</div>
+Análise detalhada de receitas, despesas e fluxo de caixa.
 
-### Recursos Visuais
+![Dashboard de Finanças](./public/images/dashboard-financas.png)
+
+### 📦 Dashboard de Estoque
+
+Controle de produtos, alertas de baixo estoque e movimentações.
+
+![Dashboard de Estoque](./public/images/dashboard-estoque.png)
+
+### 👥 Dashboard de Público-Alvo
+
+Segmentação demográfica e análise de comportamento.
+
+![Dashboard de Público-Alvo](./public/images/dashboard-publico-alvo.png)
+
+### 🏭 Dashboard de Fornecedores
+
+Ranking, avaliação de performance e histórico de fornecedores.
+
+![Dashboard de Fornecedores](./public/images/dashboard-fornecedores.png)
+
+### 👔 Dashboard de Recursos Humanos
+
+Headcount, custos operacionais e gestão de contratações.
+
+![Dashboard de Recursos Humanos](./public/images/dashboard-recursos-humanos.png)
+
+### 🎨 Recursos Visuais Adicionais
 
 ![Tema Escuro](./public/images/theme-dark.png)
 ![Busca Global](./public/images/global-search.png)
