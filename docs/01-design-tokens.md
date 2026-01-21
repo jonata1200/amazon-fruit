@@ -51,7 +51,7 @@ Consolidar e expandir os design tokens existentes, criando uma base sólida e co
 - [x] Criar tokens para padding e margin
 - [x] Definir espaçamento para componentes (gaps, padding interno)
 - [x] Criar sistema de grid spacing
-- [ ] Documentar uso de espaçamento
+- [x] Documentar uso de espaçamento
 
 ### 6. Sistema de Tipografia
 - [x] Consolidar font families (Geist Sans, Geist Mono)
@@ -76,7 +76,7 @@ Consolidar e expandir os design tokens existentes, criando uma base sólida e co
 ### 9. Z-Index System
 - [x] Revisar e expandir sistema de z-index
 - [x] Criar camadas bem definidas (base, dropdown, modal, tooltip, etc.)
-- [ ] Documentar uso de cada camada
+- [x] Documentar uso de cada camada
 - [x] Garantir que não há conflitos
 
 ### 10. Sistema de Transições
@@ -88,13 +88,13 @@ Consolidar e expandir os design tokens existentes, criando uma base sólida e co
 ### 11. Breakpoints e Responsividade
 - [x] Revisar breakpoints existentes
 - [x] Garantir que estão alinhados com Tailwind
-- [ ] Documentar uso de cada breakpoint
+- [x] Documentar uso de cada breakpoint
 - [x] Criar tokens para container widths
 
 ### 12. TypeScript Types
 - [x] Criar tipos TypeScript para todos os tokens
 - [x] Garantir type-safety ao usar tokens
-- [ ] Criar helpers para acessar tokens com autocomplete
+- [x] Criar helpers para acessar tokens com autocomplete
 - [x] Exportar tipos para uso em componentes
 
 ### 13. Validação e Testes

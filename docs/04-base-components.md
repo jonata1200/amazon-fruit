@@ -59,30 +59,30 @@ Padronizar e melhorar os componentes UI existentes, garantindo consistência, ac
 - [x] Garantir contraste adequado (cores do design system)
 
 ### 7. Componente Dialog/Modal
-- [ ] Revisar componente Dialog atual
-- [ ] Padronizar tamanhos e variantes
-- [ ] Integrar com design tokens
-- [ ] Melhorar acessibilidade (focus trap, ARIA)
-- [ ] Adicionar animações consistentes
-- [ ] Garantir z-index correto
-- [ ] Adicionar suporte a diferentes tamanhos
+- [x] Revisar componente Dialog atual
+- [x] Padronizar tamanhos e variantes
+- [x] Integrar com design tokens
+- [x] Melhorar acessibilidade (focus trap, ARIA)
+- [x] Adicionar animações consistentes
+- [x] Garantir z-index correto
+- [x] Adicionar suporte a diferentes tamanhos
 
 ### 8. Componente Dropdown Menu
-- [ ] Revisar componente Dropdown Menu atual
-- [ ] Padronizar estilos
-- [ ] Integrar com design tokens
-- [ ] Melhorar acessibilidade (keyboard navigation)
-- [ ] Adicionar animações
-- [ ] Garantir posicionamento correto
+- [x] Revisar componente Dropdown Menu atual
+- [x] Padronizar estilos
+- [x] Integrar com design tokens
+- [x] Melhorar acessibilidade (keyboard navigation)
+- [x] Adicionar animações
+- [x] Garantir posicionamento correto
 
 ### 9. Componente Data Table
-- [ ] Revisar componente Data Table atual
-- [ ] Padronizar estilos
-- [ ] Integrar com design tokens
-- [ ] Melhorar acessibilidade
-- [ ] Adicionar variantes (striped, bordered)
-- [ ] Garantir responsividade
-- [ ] Adicionar estados (loading, empty)
+- [x] Revisar componente Data Table atual
+- [x] Padronizar estilos
+- [x] Integrar com design tokens
+- [x] Melhorar acessibilidade
+- [x] Adicionar variantes (striped, bordered)
+- [x] Garantir responsividade
+- [x] Adicionar estados (loading, empty)
 
 ### 10. Componentes de Feedback
 - [x] Revisar componentes: Skeleton, Spinner, Progress
@@ -180,7 +180,7 @@ Padronizar e melhorar os componentes UI existentes, garantindo consistência, ac
 - [x] `src/components/ui/progress.tsx` - Melhorar e padronizar
 - [x] `src/components/ui/tooltip.tsx` - Melhorar e padronizar
 - [x] `src/components/ui/empty-state.tsx` - Melhorar e padronizar
-- [ ] `src/components/ui/index.ts` - Exports centralizados (pode ser criado depois)
+- [x] `src/components/ui/index.ts` - Exports centralizados
 - [x] `src/lib/utils/variants.ts` - Helpers para variantes
 - [ ] `docs/components/` - Documentação de componentes (será feito na Fase 6)
 

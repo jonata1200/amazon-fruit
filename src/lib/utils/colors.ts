@@ -175,3 +175,112 @@ export function hexToHsl(hex: string): { h: number; s: number; l: number } | nul
     l: Math.round(l * 100),
   };
 }
+
+/**
+ * Gera uma paleta de cores baseada em uma cor primária
+ * @param baseColor - Cor base em formato hex
+ * @returns Objeto com paleta de cores (50-950)
+ */
+export function generateColorPalette(baseColor: string): Record<number, string> {
+  const hsl = hexToHsl(baseColor);
+  if (!hsl) {
+    throw new Error('Cor inválida. Use formato hex (#RRGGBB)');
+  }
+
+  const { h, s } = hsl;
+  const palette: Record<number, string> = {};
+
+  // Escala de luminosidade para cada nível
+  const lightnessMap: Record<number, number> = {
+    50: 95,
+    100: 90,
+    200: 80,
+    300: 70,
+    400: 60,
+    500: 50,
+    600: 40,
+    700: 30,
+    800: 20,
+    900: 15,
+    950: 10,
+  };
+
+  // Ajustar saturação para tons mais claros e escuros
+  const saturationMap: Record<number, number> = {
+    50: Math.max(0, s - 20),
+    100: Math.max(0, s - 15),
+    200: Math.max(0, s - 10),
+    300: Math.max(0, s - 5),
+    400: s,
+    500: s,
+    600: Math.min(100, s + 5),
+    700: Math.min(100, s + 10),
+    800: Math.min(100, s + 15),
+    900: Math.min(100, s + 20),
+    950: Math.min(100, s + 25),
+  };
+
+  // Gerar cada nível da paleta
+  for (const [level, lightness] of Object.entries(lightnessMap)) {
+    const levelNum = parseInt(level);
+    const saturation = saturationMap[levelNum];
+    
+    // Converter HSL para RGB e depois para hex
+    const rgb = hslToRgb(h, saturation, lightness);
+    palette[levelNum] = rgbToHex(rgb.r, rgb.g, rgb.b);
+  }
+
+  return palette;
+}
+
+/**
+ * Converte HSL para RGB
+ * @param h - Matiz (0-360)
+ * @param s - Saturação (0-100)
+ * @param l - Luminosidade (0-100)
+ * @returns Objeto com valores RGB
+ */
+function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
+  s /= 100;
+  l /= 100;
+
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+
+  let r = 0;
+  let g = 0;
+  let b = 0;
+
+  if (h >= 0 && h < 60) {
+    r = c;
+    g = x;
+    b = 0;
+  } else if (h >= 60 && h < 120) {
+    r = x;
+    g = c;
+    b = 0;
+  } else if (h >= 120 && h < 180) {
+    r = 0;
+    g = c;
+    b = x;
+  } else if (h >= 180 && h < 240) {
+    r = 0;
+    g = x;
+    b = c;
+  } else if (h >= 240 && h < 300) {
+    r = x;
+    g = 0;
+    b = c;
+  } else if (h >= 300 && h < 360) {
+    r = c;
+    g = 0;
+    b = x;
+  }
+
+  return {
+    r: Math.round((r + m) * 255),
+    g: Math.round((g + m) * 255),
+    b: Math.round((b + m) * 255),
+  };
+}

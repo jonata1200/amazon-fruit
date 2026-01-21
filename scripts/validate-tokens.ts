@@ -62,14 +62,55 @@ function validateTokens(): ValidationResult {
     const white = '#ffffff';
     const black = '#000000';
 
-    if (!meetsContrastRatio(primary, white, 'AA', 'normal')) {
-      result.warnings.push('Primary sobre branco pode não ter contraste adequado');
-    }
-
+    // Validar contraste básico
     if (!meetsContrastRatio(black, white, 'AA', 'normal')) {
       result.errors.push('Contraste preto/branco inválido');
       result.passed = false;
     }
+
+    // Validar contraste de cores semânticas sobre branco
+    const semanticColors: Array<{ name: string; color: string }> = [
+      { name: 'primary', color: primary },
+      { name: 'success', color: getColor('success', 600) },
+      { name: 'error', color: getColor('error', 600) },
+      { name: 'warning', color: getColor('warning', 600) },
+      { name: 'info', color: getColor('info', 600) },
+    ];
+
+    semanticColors.forEach(({ name, color }) => {
+      // Validar contraste para texto normal (AA)
+      if (!meetsContrastRatio(color, white, 'AA', 'normal')) {
+        result.warnings.push(
+          `${name} sobre branco não atende WCAG AA para texto normal (mínimo 4.5:1)`
+        );
+      }
+
+      // Validar contraste para texto grande (AA)
+      if (!meetsContrastRatio(color, white, 'AA', 'large')) {
+        result.warnings.push(
+          `${name} sobre branco não atende WCAG AA para texto grande (mínimo 3:1)`
+        );
+      }
+
+      // Validar contraste AAA (opcional, mas recomendado)
+      if (!meetsContrastRatio(color, white, 'AAA', 'normal')) {
+        result.warnings.push(
+          `${name} sobre branco não atende WCAG AAA (recomendado 7:1 para texto normal)`
+        );
+      }
+    });
+
+    // Validar contraste de cores sobre fundos escuros (dark mode)
+    const darkBackground = '#1a1a1a'; // Cor de fundo escuro típica
+    semanticColors.forEach(({ name, color }) => {
+      // Em dark mode, geralmente usamos cores mais claras
+      const lightColor = getColor(name as any, 400);
+      if (!meetsContrastRatio(lightColor, darkBackground, 'AA', 'normal')) {
+        result.warnings.push(
+          `${name} claro sobre fundo escuro não atende WCAG AA`
+        );
+      }
+    });
   } catch (error) {
     result.warnings.push(`Não foi possível validar contraste: ${error}`);
   }

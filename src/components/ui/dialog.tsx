@@ -1,10 +1,42 @@
-// src/components/ui/dialog.tsx
+/**
+ * Componente Dialog - Diálogos e Modais
+ * Componente padronizado com design tokens, acessibilidade e variantes
+ */
+
 'use client';
 
 import * as React from 'react';
 import { X } from 'lucide-react';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Button } from './button';
+import { componentZIndex } from '@/lib/design-tokens';
+
+// Variantes do Dialog Content
+const dialogContentVariants = cva(
+  'relative z-50 w-full rounded-lg border bg-background shadow-lg transition-all duration-base',
+  {
+    variants: {
+      size: {
+        sm: 'max-w-sm',
+        md: 'max-w-lg',
+        lg: 'max-w-2xl',
+        xl: 'max-w-4xl',
+        full: 'max-w-full mx-4',
+      },
+      padding: {
+        none: 'p-0',
+        sm: 'p-4',
+        md: 'p-6',
+        lg: 'p-8',
+      },
+    },
+    defaultVariants: {
+      size: 'md',
+      padding: 'md',
+    },
+  }
+);
 
 interface DialogProps {
   open: boolean;
@@ -12,9 +44,10 @@ interface DialogProps {
   children: React.ReactNode;
 }
 
-interface DialogContentProps {
+export interface DialogContentProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof dialogContentVariants> {
   children: React.ReactNode;
-  className?: string;
 }
 
 interface DialogHeaderProps {
@@ -62,7 +95,13 @@ export function DialogTrigger({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function DialogContent({ children, className }: DialogContentProps) {
+export function DialogContent({ 
+  children, 
+  className,
+  size,
+  padding,
+  ...props 
+}: DialogContentProps) {
   const { open, onOpenChange } = React.useContext(DialogContext);
   const dialogRef = React.useRef<HTMLDivElement>(null);
   const previousFocusRef = React.useRef<HTMLElement | null>(null);
@@ -137,14 +176,16 @@ export function DialogContent({ children, className }: DialogContentProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 flex items-center justify-center"
+      style={{ zIndex: componentZIndex.modal }}
       aria-modal="true"
       aria-labelledby="dialog-title"
       role="dialog"
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-background/80 backdrop-blur-sm"
+        className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity duration-base"
+        style={{ zIndex: componentZIndex.overlay }}
         onClick={() => onOpenChange(false)}
         aria-hidden="true"
       />
@@ -152,15 +193,13 @@ export function DialogContent({ children, className }: DialogContentProps) {
       {/* Content */}
       <div
         ref={dialogRef}
-        className={cn(
-          'relative z-50 w-full max-w-lg rounded-lg border bg-background p-6 shadow-lg',
-          className
-        )}
+        className={cn(dialogContentVariants({ size, padding }), className)}
+        {...props}
       >
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-4 top-4"
+          className="absolute right-2 top-2 z-10"
           onClick={() => onOpenChange(false)}
           aria-label="Fechar diálogo"
         >
@@ -173,7 +212,7 @@ export function DialogContent({ children, className }: DialogContentProps) {
 }
 
 export function DialogHeader({ children }: DialogHeaderProps) {
-  return <div className="mb-4">{children}</div>;
+  return <div className="mb-4 space-y-1.5">{children}</div>;
 }
 
 export function DialogTitle({ children }: DialogTitleProps) {
@@ -188,6 +227,16 @@ export function DialogDescription({ children }: DialogDescriptionProps) {
   return <p className="text-sm text-muted-foreground mt-2">{children}</p>;
 }
 
-export function DialogFooter({ children }: { children: React.ReactNode }) {
-  return <div className="flex justify-end gap-2 mt-6">{children}</div>;
+export function DialogFooter({ 
+  children,
+  className 
+}: { 
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn('flex justify-end gap-2 mt-6', className)}>
+      {children}
+    </div>
+  );
 }

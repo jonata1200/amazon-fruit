@@ -54,3 +54,38 @@ export type TokenPath =
   | `typography.fontWeights.${FontWeight}`
   | `shadows.${ShadowKey}`
   | `borderRadius.${BorderRadius}`;
+
+// Types para variantes de componentes
+export type ComponentSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon';
+export type ComponentVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'success' | 'warning';
+export type ComponentState = 'default' | 'hover' | 'active' | 'focus' | 'disabled' | 'loading';
+
+// Types para variantes específicas de componentes
+export type ButtonVariant = ComponentVariant;
+export type ButtonSize = ComponentSize;
+export type InputVariant = 'default' | 'outline' | 'filled';
+export type InputSize = 'sm' | 'md' | 'lg';
+export type InputState = 'default' | 'error' | 'success' | 'disabled';
+export type CardVariant = 'default' | 'outlined' | 'filled' | 'elevated';
+export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+export type DropdownAlign = 'start' | 'center' | 'end';
+export type DropdownSize = 'sm' | 'md' | 'lg';
+export type DropdownItemVariant = 'default' | 'destructive';
+export type TableVariant = 'default' | 'striped' | 'bordered';
+export type TableSize = 'sm' | 'md' | 'lg';
+export type TooltipVariant = 'default' | 'dark' | 'light';
+export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
+export type SkeletonVariant = 'default' | 'text' | 'circular' | 'rectangular';
+export type SpinnerSize = 'sm' | 'md' | 'lg';
+export type SpinnerVariant = 'default' | 'primary' | 'secondary';
+export type ProgressSize = 'sm' | 'md' | 'lg';
+export type ProgressVariant = 'default' | 'success' | 'warning' | 'error';
+export type EmptyStateSize = 'sm' | 'md' | 'lg';
+export type EmptyStateVariant = 'default' | 'muted' | 'primary';
+
+// Type helper para extrair variantes de componentes com CVA
+export type ExtractVariantProps<T> = T extends (props: infer P) => any
+  ? P extends { variant?: infer V; size?: infer S }
+    ? { variant?: V; size?: S }
+    : never
+  : never;

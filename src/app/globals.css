@@ -1,5 +1,17 @@
 @import 'tailwindcss';
 
+/* Respeitar prefers-reduced-motion para acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 :root {
   --background: 0 0% 100%;
   --foreground: 270 50% 20%;

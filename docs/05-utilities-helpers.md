@@ -97,12 +97,12 @@ Criar utilitários, helpers e funções auxiliares para facilitar o uso do desig
 - [ ] Criar hook `useAccessibility()` para helpers de acessibilidade (pode ser adicionado depois)
 
 ### 13. TypeScript Types e Interfaces
-- [ ] Criar tipos para design tokens
-- [ ] Criar tipos para variantes de componentes
-- [ ] Criar tipos para utilitários
-- [ ] Criar tipos para helpers
-- [ ] Garantir type-safety em todo o sistema
-- [ ] Exportar tipos para uso externo
+- [x] Criar tipos para design tokens
+- [x] Criar tipos para variantes de componentes
+- [x] Criar tipos para utilitários
+- [x] Criar tipos para helpers
+- [x] Garantir type-safety em todo o sistema
+- [x] Exportar tipos para uso externo
 
 ### 14. Funções de Transformação
 - [ ] Criar função para transformar tokens em CSS

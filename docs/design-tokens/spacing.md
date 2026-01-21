@@ -107,6 +107,75 @@ Use espaçamento responsivo para diferentes tamanhos de tela:
 4. **Considere responsividade** em layouts
 5. **Evite espaçamento negativo** quando possível
 
+## Escala Completa
+
+A escala completa de espaçamento segue múltiplos de 4px:
+
+| Token | Valor | Pixels | Uso Recomendado |
+|-------|-------|--------|-----------------|
+| `0` | `0` | 0px | Sem espaçamento |
+| `1` | `0.25rem` | 4px | Espaçamento mínimo, separadores finos |
+| `2` | `0.5rem` | 8px | Espaçamento pequeno, gaps em listas |
+| `3` | `0.75rem` | 12px | Espaçamento médio-pequeno |
+| `4` | `1rem` | 16px | Espaçamento padrão, padding de componentes |
+| `5` | `1.25rem` | 20px | Espaçamento médio |
+| `6` | `1.5rem` | 24px | Espaçamento grande, gaps maiores |
+| `7` | `1.75rem` | 28px | Espaçamento grande-médio |
+| `8` | `2rem` | 32px | Espaçamento extra grande |
+| `10` | `2.5rem` | 40px | Espaçamento muito grande |
+| `12` | `3rem` | 48px | Espaçamento enorme |
+| `16` | `4rem` | 64px | Espaçamento máximo |
+| `20` | `5rem` | 80px | Espaçamento extremo |
+| `24` | `6rem` | 96px | Espaçamento para seções |
+
+## Espaçamento Semântico vs Numérico
+
+### Semântico (Recomendado)
+Use espaçamento semântico para melhor legibilidade:
+
+```tsx
+// ✅ Bom: Semântico e claro
+<div className="p-md gap-lg">
+
+// ✅ Bom: Usando helpers
+import { getSpacing } from '@/lib/utils';
+const padding = getSpacing('md'); // '1rem'
+```
+
+### Numérico (Quando necessário)
+Use espaçamento numérico para valores específicos:
+
+```tsx
+// ✅ Bom: Quando precisa de valor específico
+<div className="p-4 gap-6">
+```
+
+## Padrões por Tipo de Componente
+
+### Botões
+- Padding horizontal: `px-4` (md) ou `px-6` (lg)
+- Padding vertical: `py-2` (sm) ou `py-3` (md)
+- Gap entre ícone e texto: `gap-2` (sm)
+
+### Cards
+- Padding interno: `p-6` (lg) ou `p-8` (xl)
+- Espaçamento entre header e content: `mb-4` (md)
+- Espaçamento entre itens: `gap-4` (md)
+
+### Formulários
+- Espaçamento entre campos: `space-y-4` (md)
+- Padding interno de inputs: `px-4 py-2` (md/sm)
+- Espaçamento entre label e input: `mb-2` (sm)
+
+### Listas
+- Espaçamento entre itens: `gap-2` (sm) ou `gap-4` (md)
+- Padding de itens: `px-4 py-2` (md/sm)
+
+### Modais/Dialogs
+- Padding interno: `p-6` (lg)
+- Espaçamento entre seções: `space-y-4` (md)
+- Espaçamento de footer: `mt-6` (lg)
+
 ## Exemplos
 
 ```tsx
@@ -121,4 +190,30 @@ Use espaçamento responsivo para diferentes tamanhos de tela:
 
 // ✅ Bom: Responsivo
 <div className="p-4 md:p-6 lg:p-8">
+
+// ✅ Bom: Espaçamento assimétrico
+<div className="px-4 py-2">
+
+// ✅ Bom: Espaçamento condicional
+<div className={cn("p-4", isCompact && "p-2")}>
+```
+
+## Acessando Espaçamento Programaticamente
+
+```typescript
+import { getSpacing, getPaddingClasses, getMarginClasses } from '@/lib/utils';
+import { spacing, semanticSpacing, componentSpacing } from '@/lib/design-tokens';
+
+// Obter valor direto
+const paddingValue = spacing[4]; // '1rem'
+const semanticValue = semanticSpacing.md; // '1rem'
+
+// Usar helpers
+const padding = getSpacing('md'); // '1rem'
+const paddingClass = getPaddingClasses('md'); // 'p-4'
+const marginClass = getMarginClasses('lg'); // 'm-6'
+
+// Espaçamento de componentes
+const cardPadding = componentSpacing.padding.lg; // '1rem'
+const formGap = componentSpacing.gap.md; // '0.75rem'
 ```

@@ -45,13 +45,22 @@ Bem-vindo à documentação do plano de implementação do Design System e otimi
 - [Cores](./design-tokens/colors.md) - Sistema de cores e paleta
 - [Espaçamento](./design-tokens/spacing.md) - Escala de espaçamento
 - [Tipografia](./design-tokens/typography.md) - Sistema tipográfico
+- [Z-Index](./design-tokens/z-index.md) - Sistema de camadas
+- [Breakpoints](./design-tokens/breakpoints.md) - Breakpoints e responsividade
+- [Sombras](./design-tokens/shadows.md) - Sistema de sombras e elevação
+- [Bordas](./design-tokens/borders.md) - Border radius e bordas
+- [Transições](./design-tokens/transitions.md) - Transições e animações
 
 ### Componentes
 - [Button](./components/button.md) - Componente de botão
+- [Input](./components/input.md) - Componente de input
+- [Card](./components/card.md) - Componente de card
 
 ### Guias
 - [Tailwind CSS](./guides/tailwind.md) - Guia de uso do Tailwind
 - [Acessibilidade](./guides/accessibility.md) - Padrões de acessibilidade
+- [Dark Mode](./guides/dark-mode.md) - Implementação de dark mode
+- [Performance](./guides/performance.md) - Otimizações e best practices
 
 ### Contribuição
 - [Guia de Contribuição](./contributing.md) - Como contribuir
@@ -59,6 +68,9 @@ Bem-vindo à documentação do plano de implementação do Design System e otimi
 
 ### Testes
 - [Guia de Testes](./testing.md) - Como executar e escrever testes
+
+### Revisão
+- [Tópicos Pendentes](./REVIEW-PENDING.md) - Revisão completa de itens pendentes nas fases
 
 ## 🚀 Como Começar
 
