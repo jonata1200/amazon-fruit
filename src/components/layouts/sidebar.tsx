@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Apple, LineChart, DollarSign, Package, Users, Truck, UserSquare, Star } from 'lucide-react';
+import { Grape, LineChart, DollarSign, Package, Users, Truck, UserSquare, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store';
 import { useFavorites, type DashboardId } from '@/lib/hooks/useFavorites';
@@ -51,7 +51,7 @@ export function Sidebar() {
       <div className="flex h-full flex-col">
         {/* Logo */}
         <div className="flex h-16 items-center gap-2 border-b px-6">
-          <Apple className="h-6 w-6 text-primary" />
+          <Grape className="h-6 w-6 text-primary" />
           <span className="text-lg font-bold">Amazon Fruit</span>
         </div>
 
