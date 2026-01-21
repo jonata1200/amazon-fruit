@@ -171,12 +171,6 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 | `npm test` | Executa todos os testes unitários |
 | `npm run test:watch` | Executa testes em modo watch |
 | `npm run test:coverage` | Executa testes com cobertura |
-| `npm run test:integration` | Executa testes de integração |
-| `npm run test:integration:watch` | Executa testes de integração em modo watch |
-| `npm run test:e2e` | Executa testes end-to-end com Playwright |
-| `npm run test:e2e:ui` | Executa testes E2E com interface gráfica |
-| `npm run test:e2e:headed` | Executa testes E2E em modo headed (com browser visível) |
-| `npm run test:e2e:debug` | Executa testes E2E em modo debug |
 
 ## 🛠️ Tecnologias
 
@@ -207,7 +201,6 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 - **[Jest](https://jestjs.org/)** - Framework de testes unitários
 - **[Testing Library](https://testing-library.com/)** - Testes de componentes React
-- **[Playwright](https://playwright.dev/)** - Testes end-to-end
 - **[ESLint](https://eslint.org/)** - Linter com configuração Next.js
 - **[Prettier](https://prettier.io/)** - Formatador de código
 - **[Husky](https://typicode.github.io/husky/)** - Git hooks
@@ -228,8 +221,6 @@ O projeto possui uma suíte completa de testes para garantir qualidade e confiab
 ```
 tests/
 ├── unit/              # Testes unitários de componentes e funções
-├── integration/       # Testes de integração entre componentes
-├── e2e/              # Testes end-to-end com Playwright
 ├── fixtures/         # Dados de teste e mocks
 ├── helpers/          # Utilitários para testes
 └── templates/        # Templates para criar novos testes
@@ -246,22 +237,11 @@ npm run test:watch
 
 # Testes com cobertura de código
 npm run test:coverage
-
-# Apenas testes de integração
-npm run test:integration
-
-# Testes end-to-end
-npm run test:e2e
-
-# Testes E2E com interface gráfica
-npm run test:e2e:ui
 ```
 
 ### Tipos de Testes
 
 - **Testes Unitários** - Testam componentes e funções isoladamente
-- **Testes de Integração** - Testam interações entre múltiplos componentes
-- **Testes E2E** - Testam fluxos completos do usuário com Playwright
 
 ### Cobertura de Testes
 
@@ -352,12 +332,10 @@ amazon-fruit/
 │   ├── icons/                        # Ícones PWA
 │   └── manifest.json                 # Manifest PWA
 ├── tests/                            # Testes
-│   ├── e2e/                          # Testes end-to-end (Playwright)
 │   ├── fixtures/                     # Dados de teste
-│   ├── helpers/                      # Utilitários de teste
-│   ├── integration/                  # Testes de integração
-│   ├── templates/                    # Templates de teste
-│   └── unit/                         # Testes unitários
+│   ├── helpers/                       # Utilitários de teste
+│   ├── templates/                     # Templates de teste
+│   └── unit/                          # Testes unitários
 ├── coverage/                         # Relatórios de cobertura (gerado)
 └── [config files]                    # Arquivos de configuração
 ```
