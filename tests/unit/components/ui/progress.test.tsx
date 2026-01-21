@@ -10,36 +10,41 @@ describe('Progress', () => {
   });
 
   it('displays correct value at 0%', () => {
-    render(<Progress value={0} />);
+    const { container } = render(<Progress value={0} />);
     const progressbar = screen.getByRole('progressbar');
     expect(progressbar).toHaveAttribute('aria-valuenow', '0');
-    expect(progressbar).toHaveStyle({ width: '0%' });
+    const progressBar = container.querySelector('[style*="width"]');
+    expect(progressBar).toHaveStyle({ width: '0%' });
   });
 
   it('displays correct value at 50%', () => {
-    render(<Progress value={50} />);
+    const { container } = render(<Progress value={50} />);
     const progressbar = screen.getByRole('progressbar');
     expect(progressbar).toHaveAttribute('aria-valuenow', '50');
-    expect(progressbar).toHaveStyle({ width: '50%' });
+    const progressBar = container.querySelector('[style*="width"]');
+    expect(progressBar).toHaveStyle({ width: '50%' });
   });
 
   it('displays correct value at 100%', () => {
-    render(<Progress value={100} />);
+    const { container } = render(<Progress value={100} />);
     const progressbar = screen.getByRole('progressbar');
     expect(progressbar).toHaveAttribute('aria-valuenow', '100');
-    expect(progressbar).toHaveStyle({ width: '100%' });
+    const progressBar = container.querySelector('[style*="width"]');
+    expect(progressBar).toHaveStyle({ width: '100%' });
   });
 
   it('clamps value above 100%', () => {
-    render(<Progress value={150} />);
+    const { container } = render(<Progress value={150} />);
     const progressbar = screen.getByRole('progressbar');
-    expect(progressbar).toHaveStyle({ width: '100%' });
+    const progressBar = container.querySelector('[style*="width"]');
+    expect(progressBar).toHaveStyle({ width: '100%' });
   });
 
   it('clamps value below 0%', () => {
-    render(<Progress value={-10} />);
+    const { container } = render(<Progress value={-10} />);
     const progressbar = screen.getByRole('progressbar');
-    expect(progressbar).toHaveStyle({ width: '0%' });
+    const progressBar = container.querySelector('[style*="width"]');
+    expect(progressBar).toHaveStyle({ width: '0%' });
   });
 
   it('shows label when showLabel is true', () => {

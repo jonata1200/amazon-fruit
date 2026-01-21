@@ -10,7 +10,7 @@ import { X } from 'lucide-react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Button } from './button';
-import { componentZIndex } from '@/lib/design-tokens';
+import { componentZIndex } from '@/lib/design-tokens/z-index';
 
 // Variantes do Dialog Content
 const dialogContentVariants = cva(

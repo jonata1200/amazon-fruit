@@ -9,12 +9,13 @@
  */
 
 // Re-exportar da nova estrutura para compatibilidade
-export { tokens } from './design-tokens';
+export { tokens } from './design-tokens/index';
 
 // Re-exportar tipos da nova estrutura
 export type {
   ColorScale,
-  Spacing,
+  SpacingKey,
+  SemanticSpacing,
   FontSize,
   FontWeight,
-} from './design-tokens';
+} from './design-tokens/types';

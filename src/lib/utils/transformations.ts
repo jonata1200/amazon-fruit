@@ -205,14 +205,15 @@ export function normalizeTokenValue(
  * Obtém valor padrão para tipo de token
  */
 function getDefaultValue(type: 'color' | 'spacing' | 'shadow' | 'radius'): string {
+  // Importar valores diretamente para evitar referência circular
   switch (type) {
     case 'color':
-      return tokens.colors.primary[600];
+      return '#9333ea'; // primary-600
     case 'spacing':
-      return tokens.spacing.semantic.md;
+      return '1rem'; // md spacing
     case 'shadow':
-      return tokens.shadows.base;
+      return '0 1px 2px 0 rgb(0 0 0 / 0.05)'; // base shadow
     case 'radius':
-      return tokens.borderRadius.md;
+      return '0.375rem'; // md radius
   }
 }

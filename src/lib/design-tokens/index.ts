@@ -26,6 +26,9 @@ import { transitions, componentTransitions, animations } from './transitions';
 import { zIndex, componentZIndex } from './z-index';
 import { breakpoints, containerWidths, mediaQueries } from './breakpoints';
 
+// Re-exportar componentZIndex explicitamente para garantir compatibilidade com testes
+export { componentZIndex, zIndex };
+
 /**
  * Objeto consolidado com todos os tokens
  * Mantém compatibilidade com código existente

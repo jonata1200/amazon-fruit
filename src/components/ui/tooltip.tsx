@@ -67,6 +67,7 @@ export function Tooltip({
 }: TooltipProps) {
   const [isVisible, setIsVisible] = React.useState(false);
   const timeoutRef = React.useRef<NodeJS.Timeout>();
+  const tooltipId = React.useId(); // Mover useId para fora da renderização condicional
 
   const handleMouseEnter = () => {
     if (disabled) return;
@@ -103,7 +104,7 @@ export function Tooltip({
         <div
           role="tooltip"
           className={cn(tooltipVariants({ side, variant }), className)}
-          id={`tooltip-${React.useId()}`}
+          id={`tooltip-${tooltipId}`}
         >
           {content}
           <div className={cn(arrowVariants({ side, variant }))} />

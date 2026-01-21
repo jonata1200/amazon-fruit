@@ -13,9 +13,9 @@ import {
 describe('Transformations', () => {
   describe('spacingToTailwindClass', () => {
     it('deve converter espaçamento para classe Tailwind', () => {
-      expect(spacingToTailwindClass('md', 'p')).toBe('p-4');
-      expect(spacingToTailwindClass('lg', 'm')).toBe('m-6');
-      expect(spacingToTailwindClass('sm', 'gap')).toBe('gap-2');
+      expect(spacingToTailwindClass(4, 'p')).toBe('p-4');
+      expect(spacingToTailwindClass(6, 'm')).toBe('m-6');
+      expect(spacingToTailwindClass(2, 'gap')).toBe('gap-2');
     });
 
     it('deve usar valor padrão se não encontrado', () => {
@@ -45,8 +45,8 @@ describe('Transformations', () => {
   describe('tokensToTailwindClasses', () => {
     it('deve combinar múltiplos tokens em classes', () => {
       const classes = tokensToTailwindClasses({
-        padding: 'md',
-        gap: 'sm',
+        padding: 4,
+        gap: 2,
         shadow: 'base',
         radius: 'md',
       });

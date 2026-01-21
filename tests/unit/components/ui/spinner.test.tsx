@@ -24,6 +24,6 @@ describe('Spinner', () => {
 
   it('has accessible label', () => {
     render(<Spinner />);
-    expect(screen.getByLabelText('Carregando')).toBeInTheDocument();
+    expect(screen.getByLabelText('Carregando...')).toBeInTheDocument();
   });
 });

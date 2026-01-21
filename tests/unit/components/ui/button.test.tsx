@@ -10,25 +10,25 @@ describe('Button', () => {
 
   it('applies variant classes', () => {
     render(<Button variant="destructive">Delete</Button>);
-    const button = screen.getByText('Delete');
-    expect(button.className).toContain('destructive');
+    const button = screen.getByText('Delete').closest('button');
+    expect(button?.className).toContain('destructive');
   });
 
   it('applies size classes', () => {
     render(<Button size="lg">Large Button</Button>);
-    const button = screen.getByText('Large Button');
-    expect(button.className).toContain('h-11');
+    const button = screen.getByText('Large Button').closest('button');
+    expect(button?.className).toContain('h-11');
   });
 
   it('handles disabled state', () => {
     render(<Button disabled>Disabled</Button>);
-    const button = screen.getByText('Disabled');
+    const button = screen.getByText('Disabled').closest('button');
     expect(button).toBeDisabled();
   });
 
   it('renders as ghost variant', () => {
     render(<Button variant="ghost">Ghost</Button>);
-    const button = screen.getByText('Ghost');
-    expect(button.className).toContain('hover:bg-accent');
+    const button = screen.getByText('Ghost').closest('button');
+    expect(button?.className).toContain('hover:bg-accent');
   });
 });

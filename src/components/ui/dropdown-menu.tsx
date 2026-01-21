@@ -8,7 +8,7 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
-import { componentZIndex } from '@/lib/design-tokens';
+import { componentZIndex } from '@/lib/design-tokens/z-index';
 
 // Variantes do Dropdown Menu Content
 const dropdownContentVariants = cva(
