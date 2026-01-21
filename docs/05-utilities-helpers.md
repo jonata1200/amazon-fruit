@@ -7,80 +7,80 @@ Criar utilitários, helpers e funções auxiliares para facilitar o uso do desig
 ## ✅ Checklist
 
 ### 1. Função `cn()` Otimizada
-- [ ] Revisar implementação atual de `cn()`
-- [ ] Otimizar performance (usar clsx + tailwind-merge)
-- [ ] Adicionar suporte a design tokens
-- [ ] Adicionar suporte a conditional classes
-- [ ] Criar variantes com type-safety
-- [ ] Adicionar helpers para variantes de componentes
-- [ ] Documentar uso avançado
+- [x] Revisar implementação atual de `cn()`
+- [x] Otimizar performance (usar clsx + tailwind-merge)
+- [x] Adicionar suporte a design tokens (tokenClass helper)
+- [x] Adicionar suporte a conditional classes (já suportado)
+- [x] Criar variantes com type-safety (cnVariants)
+- [x] Adicionar helpers para variantes de componentes (cnVariants)
+- [x] Documentar uso avançado (comentários JSDoc)
 
 ### 2. Helpers para Design Tokens
-- [ ] Criar função `getColor()` para acessar cores
-- [ ] Criar função `getSpacing()` para acessar espaçamento
-- [ ] Criar função `getTypography()` para tipografia
-- [ ] Criar função `getShadow()` para sombras
-- [ ] Criar função `getRadius()` para border-radius
-- [ ] Criar função `getTransition()` para transições
-- [ ] Garantir type-safety em todos os helpers
+- [x] Criar função `getColor()` para acessar cores
+- [x] Criar função `getSpacing()` para acessar espaçamento
+- [x] Criar função `getTypography()` para tipografia
+- [x] Criar função `getShadow()` para sombras
+- [x] Criar função `getRadius()` para border-radius
+- [x] Criar função `getTransition()` para transições
+- [x] Garantir type-safety em todos os helpers
 
 ### 3. Helpers para Variantes de Componentes
-- [ ] Criar helper genérico para variantes
-- [ ] Criar helpers específicos por componente
-- [ ] Integrar com class-variance-authority
-- [ ] Garantir type-safety
-- [ ] Criar helpers para combinação de variantes
-- [ ] Documentar padrão de uso
+- [x] Criar helper genérico para variantes (variants.ts)
+- [x] Criar helpers específicos por componente (createSizeVariants, createStateVariants)
+- [x] Integrar com class-variance-authority
+- [x] Garantir type-safety
+- [x] Criar helpers para combinação de variantes (cnVariants)
+- [x] Documentar padrão de uso (comentários JSDoc)
 
 ### 4. Utilitários de Cores
-- [ ] Criar função para obter cor com opacidade
-- [ ] Criar função para obter cor de texto baseada em fundo
-- [ ] Criar função para verificar contraste
-- [ ] Criar função para gerar paleta de cores
-- [ ] Criar função para converter cores (hex, rgb, hsl)
-- [ ] Criar helpers para dark mode
+- [x] Criar função para obter cor com opacidade (getColorWithOpacity)
+- [x] Criar função para obter cor de texto baseada em fundo (getTextColor)
+- [x] Criar função para verificar contraste (getContrastRatio, meetsContrastRatio)
+- [ ] Criar função para gerar paleta de cores (pode ser adicionado depois)
+- [x] Criar função para converter cores (hex, rgb, hsl)
+- [x] Criar helpers para dark mode (useColorMode hook)
 
 ### 5. Utilitários de Espaçamento
-- [ ] Criar função para calcular espaçamento
-- [ ] Criar helpers para padding/margin consistentes
-- [ ] Criar função para gaps em layouts
-- [ ] Criar helpers para spacing responsivo
-- [ ] Documentar sistema de espaçamento
+- [x] Criar função para calcular espaçamento (calculateSpacing)
+- [x] Criar helpers para padding/margin consistentes (getPaddingClasses, getMarginClasses)
+- [x] Criar função para gaps em layouts (getGapClasses)
+- [x] Criar helpers para spacing responsivo (getResponsiveSpacing)
+- [x] Documentar sistema de espaçamento (comentários JSDoc)
 
 ### 6. Utilitários de Tipografia
-- [ ] Criar função para obter estilos tipográficos
-- [ ] Criar helpers para line-height baseado em font-size
-- [ ] Criar função para truncar texto
-- [ ] Criar função para line-clamp
-- [ ] Criar helpers para hierarquia tipográfica
+- [x] Criar função para obter estilos tipográficos (getFontSizeClasses, getFontWeightClasses)
+- [x] Criar helpers para line-height baseado em font-size (calculateLineHeight)
+- [x] Criar função para truncar texto (getTruncateClasses)
+- [x] Criar função para line-clamp (getTruncateClasses com linhas)
+- [x] Criar helpers para hierarquia tipográfica (getTypeScaleClasses)
 
 ### 7. Utilitários de Layout
-- [ ] Criar helpers para flexbox comum
-- [ ] Criar helpers para grid comum
-- [ ] Criar helpers para container widths
-- [ ] Criar helpers para posicionamento
-- [ ] Criar helpers para responsividade
+- [ ] Criar helpers para flexbox comum (pode ser adicionado depois se necessário)
+- [ ] Criar helpers para grid comum (pode ser adicionado depois se necessário)
+- [ ] Criar helpers para container widths (já existe no Tailwind)
+- [ ] Criar helpers para posicionamento (já existe no Tailwind)
+- [x] Criar helpers para responsividade (getResponsiveClasses)
 
 ### 8. Utilitários de Acessibilidade
-- [ ] Criar função para gerar IDs únicos
-- [ ] Criar helpers para ARIA attributes
-- [ ] Criar função para verificar contraste
-- [ ] Criar helpers para focus management
-- [ ] Criar helpers para screen reader text
+- [x] Criar função para gerar IDs únicos (generateId)
+- [x] Criar helpers para ARIA attributes (createAriaAttributes)
+- [x] Criar função para verificar contraste (meetsContrastRatio)
+- [x] Criar helpers para focus management (createFocusAttributes)
+- [x] Criar helpers para screen reader text (srOnly)
 
 ### 9. Utilitários de Animações
-- [ ] Criar helpers para transições comuns
-- [ ] Criar função para respeitar reduced-motion
-- [ ] Criar helpers para keyframes
-- [ ] Criar função para delays de animação
-- [ ] Documentar sistema de animações
+- [x] Criar helpers para transições comuns (getTransitionClasses)
+- [x] Criar função para respeitar reduced-motion (prefersReducedMotion, getRespectfulTransitionDuration)
+- [ ] Criar helpers para keyframes (já existem no CSS)
+- [x] Criar função para delays de animação (getAnimationDelay)
+- [x] Documentar sistema de animações (comentários JSDoc)
 
 ### 10. Utilitários de Breakpoints
-- [ ] Criar hooks para breakpoints (useMediaQuery)
-- [ ] Criar função para verificar breakpoint atual
-- [ ] Criar helpers para classes responsivas
-- [ ] Integrar com design tokens de breakpoints
-- [ ] Documentar uso
+- [x] Criar hooks para breakpoints (useBreakpoint, useBreakpointBelow, useCurrentBreakpoint)
+- [x] Criar função para verificar breakpoint atual (useCurrentBreakpoint)
+- [x] Criar helpers para classes responsivas (getResponsiveClasses)
+- [x] Integrar com design tokens de breakpoints
+- [x] Documentar uso (comentários JSDoc)
 
 ### 11. Utilitários de Validação
 - [ ] Criar função para validar design tokens
@@ -90,11 +90,11 @@ Criar utilitários, helpers e funções auxiliares para facilitar o uso do desig
 - [ ] Adicionar warnings em desenvolvimento
 
 ### 12. Composables e Hooks
-- [ ] Criar hook `useDesignToken()` para acessar tokens
-- [ ] Criar hook `useTheme()` melhorado
-- [ ] Criar hook `useBreakpoint()` para responsividade
-- [ ] Criar hook `useColorMode()` para dark mode
-- [ ] Criar hook `useAccessibility()` para helpers de acessibilidade
+- [ ] Criar hook `useDesignToken()` para acessar tokens (pode ser adicionado depois)
+- [x] Criar hook `useTheme()` melhorado (useColorMode)
+- [x] Criar hook `useBreakpoint()` para responsividade
+- [x] Criar hook `useColorMode()` para dark mode
+- [ ] Criar hook `useAccessibility()` para helpers de acessibilidade (pode ser adicionado depois)
 
 ### 13. TypeScript Types e Interfaces
 - [ ] Criar tipos para design tokens
@@ -154,22 +154,22 @@ Criar utilitários, helpers e funções auxiliares para facilitar o uso do desig
 
 ## 📁 Arquivos a Criar/Modificar
 
-- [ ] `src/lib/utils/cn.ts` - Função cn() otimizada
-- [ ] `src/lib/utils/design-tokens.ts` - Helpers para design tokens
-- [ ] `src/lib/utils/colors.ts` - Utilitários de cores
-- [ ] `src/lib/utils/spacing.ts` - Utilitários de espaçamento
-- [ ] `src/lib/utils/typography.ts` - Utilitários de tipografia
-- [ ] `src/lib/utils/variants.ts` - Helpers para variantes
-- [ ] `src/lib/utils/layout.ts` - Utilitários de layout
-- [ ] `src/lib/utils/accessibility.ts` - Utilitários de acessibilidade
-- [ ] `src/lib/utils/animations.ts` - Utilitários de animações
-- [ ] `src/lib/utils/breakpoints.ts` - Utilitários de breakpoints
-- [ ] `src/lib/utils/validation.ts` - Utilitários de validação
-- [ ] `src/lib/hooks/use-design-token.ts` - Hook para design tokens
-- [ ] `src/lib/hooks/use-breakpoint.ts` - Hook para breakpoints
-- [ ] `src/lib/hooks/use-color-mode.ts` - Hook para color mode
-- [ ] `src/lib/types/design-system.ts` - Types do design system
-- [ ] `src/lib/utils/index.ts` - Exports centralizados
+- [x] `src/lib/utils/cn.ts` - Função cn() otimizada (já existia, melhorada)
+- [x] `src/lib/utils/design-tokens.ts` - Helpers para design tokens
+- [x] `src/lib/utils/colors.ts` - Utilitários de cores
+- [x] `src/lib/utils/spacing.ts` - Utilitários de espaçamento
+- [x] `src/lib/utils/typography.ts` - Utilitários de tipografia
+- [x] `src/lib/utils/variants.ts` - Helpers para variantes (já existia)
+- [ ] `src/lib/utils/layout.ts` - Utilitários de layout (não necessário, Tailwind cobre)
+- [x] `src/lib/utils/accessibility.ts` - Utilitários de acessibilidade
+- [x] `src/lib/utils/animations.ts` - Utilitários de animações
+- [x] `src/lib/utils/breakpoints.ts` - Utilitários de breakpoints
+- [ ] `src/lib/utils/validation.ts` - Utilitários de validação (já existe validators.ts)
+- [ ] `src/lib/hooks/use-design-token.ts` - Hook para design tokens (pode ser adicionado depois)
+- [x] `src/lib/hooks/use-breakpoint.ts` - Hook para breakpoints
+- [x] `src/lib/hooks/use-color-mode.ts` - Hook para color mode
+- [ ] `src/lib/types/design-system.ts` - Types do design system (já existem em design-tokens/types.ts)
+- [x] `src/lib/utils/index.ts` - Exports centralizados
 
 ## 🎯 Critérios de Sucesso
 
