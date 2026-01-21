@@ -1,11 +1,19 @@
 import type { Config } from 'tailwindcss'
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { customPlugins } = require('./src/lib/tailwind/plugins')
 
 const config: Config = {
   darkMode: 'class',
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
+    // Excluir arquivos que não precisam ser escaneados
+    '!./src/**/*.test.{js,ts,jsx,tsx}',
+    '!./src/**/*.spec.{js,ts,jsx,tsx}',
+    '!./src/**/__tests__/**',
+    '!./node_modules/**',
+    '!./.next/**',
+    '!./out/**',
+    '!./build/**',
   ],
   theme: {
     extend: {
@@ -137,9 +145,20 @@ const config: Config = {
         inOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
         spring: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
       },
+      // Variantes customizadas
+      screens: {
+        'hover-touch': { raw: '(hover: hover) and (pointer: fine)' },
+        'reduced-motion': { raw: '(prefers-reduced-motion: reduce)' },
+        print: { raw: 'print' },
+      },
     },
   },
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('tailwindcss-animate'),
+    // Plugins customizados do design system
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    ...require('./src/lib/tailwind/plugins').customPlugins,
+  ],
 }
 export default config
