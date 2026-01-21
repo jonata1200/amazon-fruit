@@ -30,6 +30,15 @@ export * from './breakpoints';
 // Helpers para variantes
 export * from './variants';
 
+// Funções de transformação
+export * from './transformations';
+
+// Utilitários de performance
+export * from './performance';
+
+// Utilitários de desenvolvimento
+export * from './development';
+
 // Outros utilitários existentes
 export * from './formatters';
 export * from './validators';

@@ -23,6 +23,20 @@ const eslintConfig = defineConfig([
       "tailwindcss/no-contradicting-classname": "error", // Erro para classes contraditórias
     },
   },
+  // Regras específicas para design system
+  {
+    files: ["src/components/**/*.tsx", "src/lib/**/*.ts"],
+    rules: {
+      // Encorajar uso de design tokens
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

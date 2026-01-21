@@ -61,6 +61,11 @@ Bem-vindo à documentação do plano de implementação do Design System e otimi
 - [Acessibilidade](./guides/accessibility.md) - Padrões de acessibilidade
 - [Dark Mode](./guides/dark-mode.md) - Implementação de dark mode
 - [Performance](./guides/performance.md) - Otimizações e best practices
+- [Utilitários](./guides/utilities.md) - Guia completo de utilitários
+- [Ferramentas de Desenvolvimento](./guides/development-tools.md) - Ferramentas e configurações
+
+### Exemplos
+- [Padrões Comuns](./examples/common-patterns.md) - Exemplos práticos de uso
 
 ### Contribuição
 - [Guia de Contribuição](./contributing.md) - Como contribuir
@@ -71,6 +76,7 @@ Bem-vindo à documentação do plano de implementação do Design System e otimi
 
 ### Revisão
 - [Tópicos Pendentes](./REVIEW-PENDING.md) - Revisão completa de itens pendentes nas fases
+- [Resumo de Implementação](./IMPLEMENTATION-SUMMARY.md) - Resumo completo das implementações
 
 ## 🚀 Como Começar
 
