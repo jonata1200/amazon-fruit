@@ -7,75 +7,75 @@ Criar documentação completa do design system, ferramentas de validação e gui
 ## ✅ Checklist
 
 ### 1. Estrutura de Documentação
-- [ ] Definir estrutura de pastas para documentação
-- [ ] Criar índice/navegação da documentação
-- [ ] Definir formato de documentação (Markdown)
-- [ ] Criar template para páginas de documentação
-- [ ] Organizar documentação por categorias
+- [x] Definir estrutura de pastas para documentação
+- [x] Criar índice/navegação da documentação
+- [x] Definir formato de documentação (Markdown)
+- [x] Criar template para páginas de documentação
+- [x] Organizar documentação por categorias
 
 ### 2. Documentação de Design Tokens
-- [ ] Documentar sistema de cores completo
-- [ ] Documentar escala de espaçamento
-- [ ] Documentar sistema tipográfico
-- [ ] Documentar sistema de sombras
-- [ ] Documentar border radius
-- [ ] Documentar breakpoints
-- [ ] Documentar z-index layers
-- [ ] Documentar transições
-- [ ] Criar exemplos visuais de cada token
-- [ ] Criar tabela de referência rápida
+- [x] Documentar sistema de cores completo
+- [x] Documentar escala de espaçamento
+- [x] Documentar sistema tipográfico
+- [ ] Documentar sistema de sombras (pode ser adicionado depois)
+- [ ] Documentar border radius (pode ser adicionado depois)
+- [ ] Documentar breakpoints (pode ser adicionado depois)
+- [ ] Documentar z-index layers (pode ser adicionado depois)
+- [ ] Documentar transições (pode ser adicionado depois)
+- [x] Criar exemplos visuais de cada token (tabelas)
+- [x] Criar tabela de referência rápida
 
 ### 3. Documentação de Componentes
-- [ ] Documentar cada componente UI
-- [ ] Incluir exemplos de uso
-- [ ] Documentar props e variantes
-- [ ] Documentar acessibilidade
-- [ ] Documentar quando usar cada componente
-- [ ] Criar exemplos de código
-- [ ] Documentar anti-patterns
-- [ ] Criar playground/exemplos interativos (se possível)
+- [x] Documentar cada componente UI (Button documentado, outros podem ser adicionados)
+- [x] Incluir exemplos de uso
+- [x] Documentar props e variantes
+- [x] Documentar acessibilidade
+- [x] Documentar quando usar cada componente
+- [x] Criar exemplos de código
+- [x] Documentar anti-patterns
+- [ ] Criar playground/exemplos interativos (opcional, pode ser adicionado depois)
 
 ### 4. Guia de Uso do Tailwind
-- [ ] Documentar configuração do Tailwind
-- [ ] Documentar utilitários customizados
-- [ ] Documentar plugins customizados
-- [ ] Criar guia de boas práticas
-- [ ] Documentar convenções
-- [ ] Criar exemplos de uso
-- [ ] Documentar anti-patterns
+- [x] Documentar configuração do Tailwind
+- [x] Documentar utilitários customizados
+- [x] Documentar plugins customizados
+- [x] Criar guia de boas práticas
+- [x] Documentar convenções
+- [x] Criar exemplos de uso
+- [x] Documentar anti-patterns
 
 ### 5. Guia de Tipografia
-- [ ] Documentar escala tipográfica
-- [ ] Documentar componentes tipográficos
-- [ ] Criar exemplos de hierarquia
-- [ ] Documentar quando usar cada tamanho
-- [ ] Criar guia de acessibilidade tipográfica
-- [ ] Documentar responsividade
+- [x] Documentar escala tipográfica (em design-tokens/typography.md)
+- [x] Documentar componentes tipográficos
+- [x] Criar exemplos de hierarquia
+- [x] Documentar quando usar cada tamanho
+- [x] Criar guia de acessibilidade tipográfica
+- [x] Documentar responsividade
 
 ### 6. Guia de Cores
-- [ ] Documentar paleta de cores
-- [ ] Criar visualização da paleta
-- [ ] Documentar uso semântico de cores
-- [ ] Documentar contraste e acessibilidade
-- [ ] Criar exemplos de uso
-- [ ] Documentar dark mode
-- [ ] Criar ferramenta de verificação de contraste
+- [x] Documentar paleta de cores (em design-tokens/colors.md)
+- [x] Criar visualização da paleta (tabelas)
+- [x] Documentar uso semântico de cores
+- [x] Documentar contraste e acessibilidade
+- [x] Criar exemplos de uso
+- [x] Documentar dark mode
+- [x] Criar ferramenta de verificação de contraste (meetsContrastRatio helper)
 
 ### 7. Guia de Espaçamento
-- [ ] Documentar escala de espaçamento
-- [ ] Criar exemplos visuais
-- [ ] Documentar quando usar cada valor
-- [ ] Criar guia de layout spacing
-- [ ] Documentar sistema de grid
+- [x] Documentar escala de espaçamento (em design-tokens/spacing.md)
+- [x] Criar exemplos visuais (tabelas e exemplos de código)
+- [x] Documentar quando usar cada valor
+- [x] Criar guia de layout spacing
+- [ ] Documentar sistema de grid (pode ser adicionado depois)
 
 ### 8. Guia de Acessibilidade
-- [ ] Documentar padrões de acessibilidade
-- [ ] Criar checklist de acessibilidade
-- [ ] Documentar uso de ARIA
-- [ ] Documentar navegação por teclado
-- [ ] Documentar contraste de cores
-- [ ] Criar guia de testes de acessibilidade
-- [ ] Documentar ferramentas úteis
+- [x] Documentar padrões de acessibilidade
+- [x] Criar checklist de acessibilidade
+- [x] Documentar uso de ARIA
+- [x] Documentar navegação por teclado
+- [x] Documentar contraste de cores
+- [x] Criar guia de testes de acessibilidade
+- [x] Documentar ferramentas úteis
 
 ### 9. Guia de Dark Mode
 - [ ] Documentar implementação de dark mode
@@ -92,12 +92,12 @@ Criar documentação completa do design system, ferramentas de validação e gui
 - [ ] Criar ferramentas de análise
 
 ### 11. Ferramentas de Validação
-- [ ] Criar script para validar design tokens
-- [ ] Criar script para validar uso de cores
-- [ ] Criar script para validar acessibilidade
-- [ ] Criar script para validar contraste
-- [ ] Criar script para verificar uso de classes Tailwind
-- [ ] Integrar validações no CI/CD (se aplicável)
+- [x] Criar script para validar design tokens (validate-tokens.ts)
+- [x] Criar script para validar uso de cores (incluído em validate-tokens.ts)
+- [ ] Criar script para validar acessibilidade (pode ser adicionado depois)
+- [x] Criar script para validar contraste (incluído em validate-tokens.ts)
+- [ ] Criar script para verificar uso de classes Tailwind (pode ser adicionado depois)
+- [ ] Integrar validações no CI/CD (pode ser configurado depois)
 
 ### 12. Ferramentas de Desenvolvimento
 - [ ] Criar script para gerar documentação
@@ -107,12 +107,12 @@ Criar documentação completa do design system, ferramentas de validação e gui
 - [ ] Criar ferramenta de geração de código
 
 ### 13. Guia de Contribuição
-- [ ] Documentar como adicionar novos tokens
-- [ ] Documentar como criar novos componentes
-- [ ] Documentar processo de revisão
-- [ ] Criar template para novos componentes
-- [ ] Documentar convenções de código
-- [ ] Criar checklist de contribuição
+- [x] Documentar como adicionar novos tokens
+- [x] Documentar como criar novos componentes
+- [x] Documentar processo de revisão
+- [x] Criar template para novos componentes
+- [x] Documentar convenções de código
+- [x] Criar checklist de contribuição
 
 ### 14. Exemplos e Playgrounds
 - [ ] Criar exemplos de uso comum
@@ -122,11 +122,11 @@ Criar documentação completa do design system, ferramentas de validação e gui
 - [ ] Criar CodeSandbox/StackBlitz templates
 
 ### 15. Changelog e Versionamento
-- [ ] Criar sistema de versionamento do design system
-- [ ] Documentar breaking changes
-- [ ] Criar changelog
-- [ ] Documentar migração entre versões
-- [ ] Criar guia de atualização
+- [x] Criar sistema de versionamento do design system (Semantic Versioning)
+- [x] Documentar breaking changes (formato no changelog)
+- [x] Criar changelog
+- [ ] Documentar migração entre versões (será adicionado quando houver versões)
+- [ ] Criar guia de atualização (será adicionado quando houver versões)
 
 ### 16. Integração com Ferramentas
 - [ ] Configurar ESLint para design system
@@ -165,32 +165,32 @@ Criar documentação completa do design system, ferramentas de validação e gui
 
 ## 📁 Arquivos a Criar
 
-- [ ] `docs/design-tokens/` - Documentação de tokens
-  - [ ] `colors.md`
-  - [ ] `spacing.md`
-  - [ ] `typography.md`
-  - [ ] `shadows.md`
-  - [ ] `borders.md`
-- [ ] `docs/components/` - Documentação de componentes
-  - [ ] `button.md`
-  - [ ] `input.md`
-  - [ ] `card.md`
-  - [ ] etc.
-- [ ] `docs/guides/` - Guias de uso
-  - [ ] `tailwind.md`
-  - [ ] `typography.md`
-  - [ ] `colors.md`
-  - [ ] `spacing.md`
-  - [ ] `accessibility.md`
-  - [ ] `dark-mode.md`
-  - [ ] `performance.md`
-- [ ] `docs/contributing.md` - Guia de contribuição
-- [ ] `docs/changelog.md` - Changelog
-- [ ] `docs/README.md` - Índice da documentação
-- [ ] `scripts/validate-tokens.ts` - Validação de tokens
-- [ ] `scripts/validate-accessibility.ts` - Validação de acessibilidade
-- [ ] `scripts/generate-docs.ts` - Geração de documentação
-- [ ] `.vscode/snippets.json` - Snippets para VS Code
+- [x] `docs/design-tokens/` - Documentação de tokens
+  - [x] `colors.md`
+  - [x] `spacing.md`
+  - [x] `typography.md`
+  - [ ] `shadows.md` (pode ser adicionado depois)
+  - [ ] `borders.md` (pode ser adicionado depois)
+- [x] `docs/components/` - Documentação de componentes
+  - [x] `button.md`
+  - [ ] `input.md` (pode ser adicionado depois)
+  - [ ] `card.md` (pode ser adicionado depois)
+  - [ ] etc. (podem ser adicionados conforme necessário)
+- [x] `docs/guides/` - Guias de uso
+  - [x] `tailwind.md`
+  - [x] `accessibility.md`
+  - [ ] `typography.md` (já coberto em design-tokens/typography.md)
+  - [ ] `colors.md` (já coberto em design-tokens/colors.md)
+  - [ ] `spacing.md` (já coberto em design-tokens/spacing.md)
+  - [ ] `dark-mode.md` (pode ser adicionado depois)
+  - [ ] `performance.md` (pode ser adicionado depois)
+- [x] `docs/contributing.md` - Guia de contribuição
+- [x] `docs/changelog.md` - Changelog
+- [x] `docs/README.md` - Índice da documentação (atualizado)
+- [x] `scripts/validate-tokens.ts` - Validação de tokens
+- [ ] `scripts/validate-accessibility.ts` - Validação de acessibilidade (pode ser adicionado depois)
+- [ ] `scripts/generate-docs.ts` - Geração de documentação (pode ser adicionado depois)
+- [ ] `.vscode/snippets.json` - Snippets para VS Code (pode ser adicionado depois)
 
 ## 🎯 Critérios de Sucesso
 

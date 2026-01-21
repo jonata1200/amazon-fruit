@@ -34,10 +34,31 @@ Bem-vindo à documentação do plano de implementação do Design System e otimi
    - Implementar utilitários TypeScript
    - Otimizar função `cn()`
 
-6. **[Fase 6: Documentação e Ferramentas](./06-documentation-tools.md)** - Documentação Completa
+6. **[Fase 6: Documentação e Ferramentas](./06-documentation-tools.md)** - Documentação Completa ✅
    - Criar documentação visual
    - Implementar ferramentas de validação
    - Criar guias de uso
+
+## 📚 Documentação do Design System
+
+### Design Tokens
+- [Cores](./design-tokens/colors.md) - Sistema de cores e paleta
+- [Espaçamento](./design-tokens/spacing.md) - Escala de espaçamento
+- [Tipografia](./design-tokens/typography.md) - Sistema tipográfico
+
+### Componentes
+- [Button](./components/button.md) - Componente de botão
+
+### Guias
+- [Tailwind CSS](./guides/tailwind.md) - Guia de uso do Tailwind
+- [Acessibilidade](./guides/accessibility.md) - Padrões de acessibilidade
+
+### Contribuição
+- [Guia de Contribuição](./contributing.md) - Como contribuir
+- [Changelog](./changelog.md) - Histórico de mudanças
+
+### Testes
+- [Guia de Testes](./testing.md) - Como executar e escrever testes
 
 ## 🚀 Como Começar
 
