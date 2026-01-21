@@ -178,13 +178,6 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 | `npm run test:e2e:headed` | Executa testes E2E em modo headed (com browser visível) |
 | `npm run test:e2e:debug` | Executa testes E2E em modo debug |
 
-### Storybook
-
-| Script | Descrição |
-|--------|-----------|
-| `npm run storybook` | Inicia Storybook na porta 6006 |
-| `npm run build-storybook` | Compila Storybook para produção |
-
 ## 🛠️ Tecnologias
 
 ### Stack Principal
@@ -224,7 +217,6 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 - **[Sentry](https://sentry.io/)** - Monitoramento de erros e performance
 - **[Next PWA](https://github.com/shadowwalker/next-pwa)** - Suporte a Progressive Web App
-- **[Storybook](https://storybook.js.org/)** - Documentação e testes visuais de componentes
 - **[Bundle Analyzer](https://github.com/vercel/next.js/tree/canary/packages/next-bundle-analyzer)** - Análise de bundle
 
 ## 🧪 Testes
@@ -353,7 +345,6 @@ amazon-fruit/
 │   │   ├── utils/                    # Funções utilitárias
 │   │   └── validation/               # Schemas de validação (Zod)
 │   ├── store/                        # Zustand stores (estado global)
-│   ├── stories/                      # Componentes para Storybook
 │   ├── styles/                       # Estilos globais e tokens
 │   └── types/                        # Definições TypeScript
 ├── public/                           # Assets estáticos
@@ -367,7 +358,6 @@ amazon-fruit/
 │   ├── integration/                  # Testes de integração
 │   ├── templates/                    # Templates de teste
 │   └── unit/                         # Testes unitários
-├── .storybook/                       # Configuração do Storybook
 ├── coverage/                         # Relatórios de cobertura (gerado)
 └── [config files]                    # Arquivos de configuração
 ```
@@ -400,20 +390,6 @@ NEXT_PUBLIC_API_TIMEOUT=30000
 NEXT_PUBLIC_APP_NAME=Amazon Fruit
 NEXT_PUBLIC_APP_VERSION=0.1.0
 ```
-
-### Storybook
-
-O projeto inclui Storybook para documentação e testes visuais de componentes:
-
-```bash
-# Iniciar Storybook
-npm run storybook
-
-# Build do Storybook
-npm run build-storybook
-```
-
-Acesse `http://localhost:6006` para visualizar os componentes documentados.
 
 ### PWA (Progressive Web App)
 
