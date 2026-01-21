@@ -151,6 +151,16 @@ const config: Config = {
         'reduced-motion': { raw: '(prefers-reduced-motion: reduce)' },
         print: { raw: 'print' },
       },
+      // Font families do design system
+      fontFamily: {
+        sans: ['var(--font-geist-sans)', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['var(--font-geist-mono)', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        serif: ['Georgia', 'Times New Roman', 'serif'],
+      },
+      // Font sizes já estão alinhados com design tokens
+      // Font weights já estão alinhados com design tokens
+      // Line heights já estão alinhados com design tokens
+      // Letter spacing já está alinhado com design tokens
     },
   },
   plugins: [
