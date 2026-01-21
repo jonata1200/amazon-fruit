@@ -1,0 +1,154 @@
+/**
+ * Design Tokens - Sistema de Cores
+ * Paleta de cores semânticas e neutras do design system
+ */
+
+export const colors = {
+  // Cores semânticas
+  primary: {
+    50: '#faf5ff',
+    100: '#f3e8ff',
+    200: '#e9d5ff',
+    300: '#d8b4fe',
+    400: '#c084fc',
+    500: '#a855f7',
+    600: '#9333ea', // Cor principal
+    700: '#7e22ce',
+    800: '#6b21a8',
+    900: '#581c87',
+    950: '#3b0764',
+  },
+  secondary: {
+    50: '#f8fafc',
+    100: '#f1f5f9',
+    200: '#e2e8f0',
+    300: '#cbd5e1',
+    400: '#94a3b8',
+    500: '#64748b',
+    600: '#475569',
+    700: '#334155',
+    800: '#1e293b',
+    900: '#0f172a',
+    950: '#020617',
+  },
+  success: {
+    50: '#f0fdf4',
+    100: '#dcfce7',
+    200: '#bbf7d0',
+    300: '#86efac',
+    400: '#4ade80',
+    500: '#22c55e',
+    600: '#16a34a',
+    700: '#15803d',
+    800: '#166534',
+    900: '#14532d',
+    950: '#052e16',
+  },
+  warning: {
+    50: '#fffbeb',
+    100: '#fef3c7',
+    200: '#fde68a',
+    300: '#fcd34d',
+    400: '#fbbf24',
+    500: '#f59e0b',
+    600: '#d97706',
+    700: '#b45309',
+    800: '#92400e',
+    900: '#78350f',
+    950: '#451a03',
+  },
+  error: {
+    50: '#fef2f2',
+    100: '#fee2e2',
+    200: '#fecaca',
+    300: '#fca5a5',
+    400: '#f87171',
+    500: '#ef4444',
+    600: '#dc2626',
+    700: '#b91c1c',
+    800: '#991b1b',
+    900: '#7f1d1d',
+    950: '#450a0a',
+  },
+  info: {
+    50: '#eff6ff',
+    100: '#dbeafe',
+    200: '#bfdbfe',
+    300: '#93c5fd',
+    400: '#60a5fa',
+    500: '#3b82f6',
+    600: '#2563eb',
+    700: '#1d4ed8',
+    800: '#1e40af',
+    900: '#1e3a8a',
+    950: '#172554',
+  },
+  // Escala de cinza/neutral
+  neutral: {
+    50: '#fafafa',
+    100: '#f5f5f5',
+    200: '#e5e5e5',
+    300: '#d4d4d4',
+    400: '#a3a3a3',
+    500: '#737373',
+    600: '#525252',
+    700: '#404040',
+    800: '#262626',
+    900: '#171717',
+    950: '#0a0a0a',
+  },
+} as const;
+
+// Cores de estado (para hover, active, disabled)
+export const stateColors = {
+  hover: {
+    opacity: 0.8,
+    darken: 0.1,
+  },
+  active: {
+    opacity: 0.9,
+    darken: 0.15,
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  focus: {
+    ring: {
+      width: '2px',
+      offset: '2px',
+    },
+  },
+} as const;
+
+// Escala de opacidade para overlays
+export const opacity = {
+  0: '0',
+  5: '0.05',
+  10: '0.1',
+  20: '0.2',
+  25: '0.25',
+  30: '0.3',
+  40: '0.4',
+  50: '0.5',
+  60: '0.6',
+  70: '0.7',
+  75: '0.75',
+  80: '0.8',
+  90: '0.9',
+  95: '0.95',
+  100: '1',
+} as const;
+
+// Cores de texto para cada cor de fundo (para garantir contraste)
+export const textColors = {
+  onPrimary: '#ffffff',
+  onSecondary: '#ffffff',
+  onSuccess: '#ffffff',
+  onWarning: '#000000',
+  onError: '#ffffff',
+  onInfo: '#ffffff',
+  onNeutral: {
+    light: '#000000',
+    dark: '#ffffff',
+  },
+} as const;
