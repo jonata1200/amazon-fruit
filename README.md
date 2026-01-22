@@ -3,8 +3,8 @@
 > Sistema completo de dashboards para gestão de negócios, construído com Next.js 16, React 19 e TypeScript 5. Plataforma moderna com PWA, analytics e monitoramento de erros integrado.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-16.1-black.svg)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19.2-61dafb.svg)](https://reactjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black.svg)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.2.3-61dafb.svg)](https://reactjs.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ## 📖 Sobre o Projeto
@@ -87,6 +87,7 @@ Headcount, custos operacionais e gestão de contratações.
 - 📤 **Exportação de Dados** - Relatórios em PDF, Excel e CSV
 - ⌨️ **Atalhos de Teclado** - Navegação rápida e eficiente com ajuda integrada
 - 🎨 **Temas Personalizados** - Modo claro e escuro com preferências salvas no localStorage
+- 🎨 **Design System** - Sistema completo de design tokens (cores, espaçamento, tipografia, sombras)
 - 📱 **Design Responsivo** - Experiência otimizada para mobile e desktop
 - 📱 **Progressive Web App (PWA)** - Funcionalidade offline e instalação como app nativo
 - 📊 **Gráficos Interativos** - Visualizações dinâmicas com Recharts
@@ -94,6 +95,7 @@ Headcount, custos operacionais e gestão de contratações.
 - 🛡️ **Tratamento de Erros** - Error boundaries e monitoramento com Sentry
 - ♿ **Acessibilidade** - Conforme WCAG com suporte a leitores de tela
 - 🚀 **Performance Otimizada** - Lazy loading, code splitting e cache inteligente
+- 📚 **Documentação Completa** - Guias e exemplos em `docs/` para desenvolvimento
 
 ## 🚀 Início Rápido
 
@@ -123,7 +125,7 @@ npm install
 cp .env.example .env.local
 ```
 
-Edite `.env.local` com suas configurações:
+Edite `.env.local` com suas configurações (o arquivo `.env.example` contém os campos necessários):
 
 ```env
 # API Configuration
@@ -134,6 +136,8 @@ NEXT_PUBLIC_API_TIMEOUT=30000
 NEXT_PUBLIC_APP_NAME=Amazon Fruit
 NEXT_PUBLIC_APP_VERSION=0.1.0
 ```
+
+> 💡 **Nota:** As variáveis de ambiente são opcionais e têm valores padrão. Configure-as apenas se precisar de valores específicos.
 
 4. **Inicie o servidor de desenvolvimento:**
 
@@ -149,7 +153,7 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 | Script | Descrição |
 |--------|-----------|
-| `npm run dev` | Inicia servidor de desenvolvimento |
+| `npm run dev` | Inicia servidor de desenvolvimento (com webpack) |
 | `npm run build` | Compila para produção |
 | `npm start` | Inicia servidor de produção |
 | `npm run analyze` | Analisa o tamanho do bundle |
@@ -163,6 +167,7 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 | `npm run format` | Formata código com Prettier |
 | `npm run format:check` | Verifica formatação do código |
 | `npm run type-check` | Verifica tipos TypeScript |
+| `npm run validate:tokens` | Valida design tokens do projeto |
 
 ### Testes
 
@@ -176,9 +181,10 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 ### Stack Principal
 
-- **[Next.js 16](https://nextjs.org/)** - Framework React com App Router e Turbopack
-- **[React 19](https://react.dev/)** - Biblioteca UI com Server Components
+- **[Next.js 16.1.1](https://nextjs.org/)** - Framework React com App Router
+- **[React 19.2.3](https://react.dev/)** - Biblioteca UI com Server Components
 - **[TypeScript 5](https://www.typescriptlang.org/)** - Tipagem estática
+- **[Geist Font](https://vercel.com/font)** - Fonte otimizada do Vercel (Geist Sans e Geist Mono)
 
 ### Bibliotecas Principais
 
@@ -193,9 +199,12 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 - **[Framer Motion](https://www.framer.com/motion/)** - Animações fluidas
 - **[React Hook Form](https://react-hook-form.com/)** - Gerenciamento de formulários
-- **[Zod](https://zod.dev/)** - Validação de esquemas TypeScript-first
+- **[Zod 4.3.5](https://zod.dev/)** - Validação de esquemas TypeScript-first
 - **[date-fns](https://date-fns.org/)** - Manipulação de datas
 - **[Axios](https://axios-http.com/)** - Cliente HTTP
+- **[Class Variance Authority](https://cva.style/)** - Variantes de componentes
+- **[clsx](https://github.com/lukeed/clsx)** - Utilitário para classes CSS condicionais
+- **[tailwind-merge](https://github.com/dcastil/tailwind-merge)** - Merge de classes Tailwind
 
 ### Ferramentas de Desenvolvimento
 
@@ -211,6 +220,13 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 - **[Sentry](https://sentry.io/)** - Monitoramento de erros e performance
 - **[Next PWA](https://github.com/shadowwalker/next-pwa)** - Suporte a Progressive Web App
 - **[Bundle Analyzer](https://github.com/vercel/next.js/tree/canary/packages/next-bundle-analyzer)** - Análise de bundle
+- **[React Error Boundary](https://github.com/bvaughn/react-error-boundary)** - Tratamento de erros React
+
+### Design System
+
+- **Design Tokens** - Sistema completo de tokens de design (cores, espaçamento, tipografia, sombras, bordas, transições, z-index, breakpoints)
+- **Componentes Typography** - Sistema tipográfico completo e acessível
+- **Tailwind CSS v4** - Framework CSS com configuração customizada e plugins
 
 ## 🧪 Testes
 
@@ -245,7 +261,25 @@ npm run test:coverage
 
 ### Cobertura de Testes
 
-O projeto utiliza Jest para cobertura de código. Execute `npm run test:coverage` para gerar relatórios detalhados.
+O projeto utiliza Jest para cobertura de código. Execute `npm run test:coverage` para gerar relatórios detalhados. O projeto mantém um threshold mínimo de 50% de cobertura para branches, functions, lines e statements.
+
+## 📚 Documentação
+
+O projeto possui documentação completa e organizada na pasta `docs/`:
+
+### Estrutura da Documentação
+
+- **`docs/components/`** - Documentação de componentes UI (Button, Card, Input)
+- **`docs/design-tokens/`** - Documentação completa do sistema de design tokens
+  - Cores, espaçamento, tipografia, sombras, bordas, transições, z-index, breakpoints
+- **`docs/guides/`** - Guias de desenvolvimento
+  - Acessibilidade, dark mode, ferramentas de desenvolvimento, performance, Tailwind, utilitários
+- **`docs/examples/`** - Exemplos de padrões comuns de uso
+- **`docs/testing.md`** - Guia completo de testes
+
+### Acessando a Documentação
+
+A documentação está disponível em formato Markdown e pode ser visualizada diretamente no GitHub ou através de qualquer visualizador Markdown. Para contribuir com a documentação, edite os arquivos em `docs/` seguindo o padrão existente.
 
 ## 🚀 Deploy
 
@@ -302,9 +336,12 @@ amazon-fruit/
 │   │   │   ├── fornecedores/         # Dashboard de fornecedores
 │   │   │   └── recursos-humanos/     # Dashboard de RH
 │   │   ├── api/                      # API Routes
+│   │   │   └── health/               # Endpoint de health check
 │   │   ├── layout.tsx                # Layout raiz
 │   │   ├── page.tsx                  # Página inicial
-│   │   └── error.tsx                 # Página de erro
+│   │   ├── error.tsx                 # Página de erro
+│   │   ├── robots.ts                 # Configuração de robots.txt
+│   │   └── sitemap.ts                # Geração de sitemap
 │   ├── components/                   # Componentes React
 │   │   ├── charts/                   # Componentes de gráficos (Recharts)
 │   │   ├── dashboards/               # Componentes específicos de dashboards
@@ -315,27 +352,50 @@ amazon-fruit/
 │   │   │   └── search/               # Busca global
 │   │   ├── layouts/                  # Layouts (header, sidebar, footer)
 │   │   ├── onboarding/               # Componentes de onboarding
-│   │   └── ui/                       # Componentes UI base (shadcn/ui)
+│   │   ├── typography/               # Componentes tipográficos
+│   │   ├── ui/                       # Componentes UI base
+│   │   │   └── skeletons/             # Componentes de skeleton loading
+│   │   ├── error-boundary.tsx        # Error boundary global
+│   │   └── offline-indicator.tsx     # Indicador de status offline
 │   ├── lib/                          # Bibliotecas e utilidades
 │   │   ├── analytics/                # Rastreamento de eventos
 │   │   ├── api/                      # Cliente API e serviços
 │   │   ├── constants/                # Constantes do projeto
+│   │   ├── design-tokens/            # Sistema de design tokens
+│   │   │   ├── colors.ts             # Tokens de cores
+│   │   │   ├── spacing.ts            # Tokens de espaçamento
+│   │   │   ├── typography.ts         # Tokens tipográficos
+│   │   │   ├── shadows.ts            # Tokens de sombras
+│   │   │   ├── borders.ts            # Tokens de bordas
+│   │   │   ├── transitions.ts         # Tokens de transições
+│   │   │   ├── z-index.ts            # Tokens de z-index
+│   │   │   └── breakpoints.ts        # Tokens de breakpoints
 │   │   ├── hooks/                    # Hooks customizados React
 │   │   ├── providers/                # Context providers (Query, Theme)
+│   │   ├── tailwind/                 # Configurações e plugins Tailwind
 │   │   ├── utils/                    # Funções utilitárias
 │   │   └── validation/               # Schemas de validação (Zod)
 │   ├── store/                        # Zustand stores (estado global)
 │   ├── styles/                       # Estilos globais e tokens
 │   └── types/                        # Definições TypeScript
+├── docs/                             # Documentação do projeto
+│   ├── components/                   # Documentação de componentes
+│   ├── design-tokens/                # Documentação de design tokens
+│   ├── examples/                     # Exemplos de uso
+│   ├── guides/                       # Guias de desenvolvimento
+│   └── testing.md                    # Guia de testes
+├── scripts/                          # Scripts utilitários
+│   └── validate-tokens.ts            # Validador de design tokens
 ├── public/                           # Assets estáticos
 │   ├── images/                       # Screenshots e imagens
 │   ├── icons/                        # Ícones PWA
-│   └── manifest.json                 # Manifest PWA
+│   ├── manifest.json                 # Manifest PWA
+│   └── offline.html                  # Página offline do PWA
 ├── tests/                            # Testes
 │   ├── fixtures/                     # Dados de teste
-│   ├── helpers/                       # Utilitários de teste
-│   ├── templates/                     # Templates de teste
-│   └── unit/                          # Testes unitários
+│   ├── helpers/                      # Utilitários de teste
+│   ├── templates/                    # Templates de teste
+│   └── unit/                         # Testes unitários
 ├── coverage/                         # Relatórios de cobertura (gerado)
 └── [config files]                    # Arquivos de configuração
 ```
@@ -369,13 +429,31 @@ NEXT_PUBLIC_APP_NAME=Amazon Fruit
 NEXT_PUBLIC_APP_VERSION=0.1.0
 ```
 
+> 💡 **Nota:** As variáveis de ambiente são opcionais. O projeto funciona sem configuração adicional, mas você pode personalizar conforme necessário.
+
 ### PWA (Progressive Web App)
 
 O projeto está configurado como PWA, permitindo:
 - Instalação como app nativo
-- Funcionalidade offline
+- Funcionalidade offline com página offline customizada
+- Cache inteligente de assets (fontes, imagens, APIs, páginas)
 - Notificações push (quando configurado)
-- Cache inteligente de assets
+- Service Worker automático com estratégias de cache otimizadas
+
+### Design Tokens
+
+O projeto possui um sistema completo de design tokens organizado em `src/lib/design-tokens/`:
+
+- **Cores** - Paleta completa com suporte a tema claro/escuro
+- **Espaçamento** - Sistema de espaçamento semântico e consistente
+- **Tipografia** - Escala tipográfica e tokens de fonte
+- **Sombras** - Sistema de elevação e sombras
+- **Bordas** - Raio de borda e estilos
+- **Transições** - Durações e easings padronizados
+- **Z-Index** - Camadas de z-index organizadas
+- **Breakpoints** - Sistema responsivo consistente
+
+Os tokens são validados através do script `npm run validate:tokens` e documentados em `docs/design-tokens/`.
 
 ## 📝 Licença
 

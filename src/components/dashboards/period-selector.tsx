@@ -2,7 +2,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -59,7 +58,6 @@ export function PeriodSelector() {
       </div>
 
       <Button onClick={handleApply}>
-        <Calendar className="mr-2 h-4 w-4" />
         Aplicar Período
       </Button>
 
