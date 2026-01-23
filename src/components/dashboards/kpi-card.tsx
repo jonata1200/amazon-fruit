@@ -52,16 +52,16 @@ export const KPICard = memo(function KPICard({
       className={className}
     >
       <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-2">
+        <CardTitle className="text-xs sm:text-sm font-medium truncate pr-2">{title}</CardTitle>
+        {Icon && <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0" />}
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{formattedValue}</div>
+      <CardContent className="pt-2">
+        <div className="text-xl sm:text-2xl font-bold break-words">{formattedValue}</div>
         {change !== undefined && (
-          <div className={cn('flex items-center text-xs', trendColor)}>
-            <TrendIcon className="mr-1 h-4 w-4" />
-            <span>{formatPercentage(Math.abs(change))} vs período anterior</span>
+          <div className={cn('flex items-center text-xs mt-2', trendColor)}>
+            <TrendIcon className="mr-1 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+            <span className="truncate">{formatPercentage(Math.abs(change))} vs período anterior</span>
           </div>
         )}
       </CardContent>

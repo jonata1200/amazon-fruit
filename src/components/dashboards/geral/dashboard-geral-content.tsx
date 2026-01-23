@@ -11,8 +11,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 function DashboardGeralSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Skeleton className="h-32" />
         <Skeleton className="h-32" />
         <Skeleton className="h-32" />
@@ -65,9 +65,9 @@ export function DashboardGeralContent() {
   const { financial_summary } = data;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* KPIs */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <KPICard
           title="Receita Total"
           value={financial_summary.receita}
@@ -116,7 +116,7 @@ export function DashboardGeralContent() {
           { dataKey: 'despesa', name: 'Despesa', color: '#ef4444' },
           { dataKey: 'lucro', name: 'Lucro', color: '#3b82f6' },
         ]}
-        height={400}
+        height={300}
       />
     </div>
   );

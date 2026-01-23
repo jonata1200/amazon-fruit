@@ -10,14 +10,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 function DashboardRHSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Skeleton className="h-96" />
-        <Skeleton className="h-96" />
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
+        <Skeleton className="h-64 sm:h-96" />
+        <Skeleton className="h-64 sm:h-96" />
       </div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Skeleton className="h-96" />
-        <Skeleton className="h-96" />
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
+        <Skeleton className="h-64 sm:h-96" />
+        <Skeleton className="h-64 sm:h-96" />
       </div>
     </div>
   );
@@ -69,9 +69,9 @@ export function DashboardRHContent() {
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Headcount e Custo por Departamento */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
         <BarChart
           title="Funcionários por Departamento"
           data={headcountData}
@@ -83,26 +83,26 @@ export function DashboardRHContent() {
               color: '#3b82f6',
             },
           ]}
-          height={350}
+          height={300}
         />
         <BarChart
           title="Custo por Departamento"
           data={costData}
           xAxisKey="departamento"
           bars={[{ dataKey: 'custo', name: 'Custo (R$)', color: '#10b981' }]}
-          height={350}
+          height={300}
         />
       </div>
 
       {/* Distribuição por Cargo e Contratações */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
         <PieChart
           title="Distribuição por Cargo"
           data={roleData}
           dataKey="value"
           nameKey="name"
           colors={colors}
-          height={350}
+          height={300}
         />
         <LineChart
           title="Contratações ao Longo do Tempo"
@@ -115,7 +115,7 @@ export function DashboardRHContent() {
               color: '#8b5cf6',
             },
           ]}
-          height={350}
+          height={300}
         />
       </div>
     </div>

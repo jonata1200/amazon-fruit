@@ -9,11 +9,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 function DashboardPublicoAlvoSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Skeleton className="h-96" />
-        <Skeleton className="h-96" />
-        <Skeleton className="h-96" />
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-3">
+        <Skeleton className="h-64 sm:h-96" />
+        <Skeleton className="h-64 sm:h-96" />
+        <Skeleton className="h-64 sm:h-96" />
       </div>
     </div>
   );
@@ -60,15 +60,15 @@ export function DashboardPublicoAlvoContent() {
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Gráficos de Distribuição */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-3">
         <BarChart
           title="Distribuição por Localização"
           data={locationData}
           xAxisKey="local"
           bars={[{ dataKey: 'count', name: 'Clientes', color: '#3b82f6' }]}
-          height={350}
+          height={300}
         />
         <PieChart
           title="Distribuição por Gênero"
@@ -76,7 +76,7 @@ export function DashboardPublicoAlvoContent() {
           dataKey="value"
           nameKey="name"
           colors={colors}
-          height={350}
+          height={300}
         />
         <PieChart
           title="Distribuição por Canal"
@@ -84,7 +84,7 @@ export function DashboardPublicoAlvoContent() {
           dataKey="value"
           nameKey="name"
           colors={colors}
-          height={350}
+          height={300}
         />
       </div>
     </div>

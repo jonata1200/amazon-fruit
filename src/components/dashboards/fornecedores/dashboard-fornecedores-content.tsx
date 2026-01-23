@@ -10,12 +10,12 @@ import { formatNumber } from '@/lib/utils';
 
 function DashboardFornecedoresSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Skeleton className="h-96" />
-        <Skeleton className="h-96" />
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
+        <Skeleton className="h-64 sm:h-96" />
+        <Skeleton className="h-64 sm:h-96" />
       </div>
-      <Skeleton className="h-96" />
+      <Skeleton className="h-64 sm:h-96" />
     </div>
   );
 }
@@ -51,9 +51,9 @@ export function DashboardFornecedoresContent() {
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Tabelas de Top e Bottom */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
         <DataTable
           title="🏆 Top 5 Fornecedores"
           columns={[
@@ -91,7 +91,7 @@ export function DashboardFornecedoresContent() {
         dataKey="value"
         nameKey="name"
         colors={colors}
-        height={400}
+        height={300}
       />
     </div>
   );

@@ -42,7 +42,7 @@ export const PieChart = memo(function PieChart({ title, data, dataKey, nameKey, 
           <CardTitle>{title}</CardTitle>
         </CardHeader>
       )}
-      <CardContent>
+      <CardContent className="p-3 sm:p-6">
         <ResponsiveContainer width="100%" height={height}>
           <RechartsPieChart>
             <Pie
@@ -50,8 +50,11 @@ export const PieChart = memo(function PieChart({ title, data, dataKey, nameKey, 
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={(props) => String((props as unknown as PieChartDataItem)[nameKey])}
-              outerRadius={80}
+              label={(props) => {
+                const entry = props as unknown as PieChartDataItem;
+                return String(entry[nameKey]);
+              }}
+              outerRadius={60}
               fill="#8884d8"
               dataKey={dataKey}
               onClick={handleCellClick}
@@ -64,8 +67,17 @@ export const PieChart = memo(function PieChart({ title, data, dataKey, nameKey, 
                 />
               ))}
             </Pie>
-            <Tooltip />
-            <Legend onClick={handleLegendClick} />
+            <Tooltip 
+              contentStyle={{ 
+                fontSize: '12px',
+                padding: '8px',
+                borderRadius: '6px'
+              }}
+            />
+            <Legend 
+              onClick={handleLegendClick}
+              wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+            />
           </RechartsPieChart>
         </ResponsiveContainer>
       </CardContent>

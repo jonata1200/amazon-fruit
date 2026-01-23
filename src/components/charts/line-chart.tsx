@@ -53,14 +53,29 @@ export const LineChart = memo(function LineChart({ title, data, lines, xAxisKey,
           <CardTitle>{title}</CardTitle>
         </CardHeader>
       )}
-      <CardContent>
+      <CardContent className="p-3 sm:p-6">
         <ResponsiveContainer width="100%" height={height}>
-          <RechartsLineChart data={data}>
+          <RechartsLineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey={xAxisKey} />
-            <YAxis />
-            <Tooltip />
-            <Legend onClick={handleLegendClick} />
+            <XAxis 
+              dataKey={xAxisKey} 
+              tick={{ fontSize: 12 }}
+              angle={-45}
+              textAnchor="end"
+              height={60}
+            />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip 
+              contentStyle={{ 
+                fontSize: '12px',
+                padding: '8px',
+                borderRadius: '6px'
+              }}
+            />
+            <Legend 
+              onClick={handleLegendClick}
+              wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+            />
             {lines.map((line) => (
               <Line
                 key={line.dataKey}

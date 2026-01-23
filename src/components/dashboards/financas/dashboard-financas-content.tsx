@@ -11,16 +11,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 function DashboardFinancasSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-32" />
         ))}
       </div>
-      <Skeleton className="h-96" />
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Skeleton className="h-80" />
-        <Skeleton className="h-80" />
+      <Skeleton className="h-64 sm:h-96" />
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
+        <Skeleton className="h-64 sm:h-80" />
+        <Skeleton className="h-64 sm:h-80" />
       </div>
     </div>
   );
@@ -74,9 +74,9 @@ export function DashboardFinancasContent() {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* KPIs */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <KPICard
           title="Receita Total"
           value={financial_summary.receita}
@@ -125,18 +125,18 @@ export function DashboardFinancasContent() {
           { dataKey: 'despesa', name: 'Despesa', color: '#ef4444' },
           { dataKey: 'lucro', name: 'Lucro', color: '#3b82f6' },
         ]}
-        height={400}
+        height={300}
       />
 
       {/* Gráficos de Top Despesas e Receitas */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
         <BarChart
           title="Top 5 Despesas"
           data={expensesData}
           xAxisKey="categoria"
           bars={[{ dataKey: 'valor', name: 'Valor', color: '#ef4444' }]}
           layout="vertical"
-          height={300}
+          height={250}
         />
         <BarChart
           title="Top 5 Receitas"
@@ -144,7 +144,7 @@ export function DashboardFinancasContent() {
           xAxisKey="categoria"
           bars={[{ dataKey: 'valor', name: 'Valor', color: '#10b981' }]}
           layout="vertical"
-          height={300}
+          height={250}
         />
       </div>
     </div>

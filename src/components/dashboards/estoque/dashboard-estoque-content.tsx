@@ -11,13 +11,13 @@ import { formatNumber } from '@/lib/utils';
 
 function DashboardEstoqueSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Skeleton className="h-32" />
         <Skeleton className="h-32" />
         <Skeleton className="h-32" />
       </div>
-      <Skeleton className="h-96" />
+      <Skeleton className="h-64 sm:h-96" />
     </div>
   );
 }
@@ -58,9 +58,9 @@ export function DashboardEstoqueContent() {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* KPIs */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <KPICard title="Total de Itens" value={kpis.total_items} format="number" icon={Package} />
         <KPICard
           title="Valor Total do Estoque"
