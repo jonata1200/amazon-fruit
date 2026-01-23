@@ -8,6 +8,26 @@ export function useKeyboardShortcuts() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Verificar se é mobile (largura < 640px)
+      const isMobile = window.innerWidth < 640;
+
+      // Em mobile, apenas ESC funciona (para fechar painéis)
+      if (isMobile) {
+        if (e.key === 'Escape') {
+          const searchOpen = useAppStore.getState().searchOpen;
+          const alertsOpen = useAppStore.getState().alertsOpen;
+
+          if (searchOpen) {
+            useAppStore.getState().setSearchOpen(false);
+          }
+          if (alertsOpen) {
+            useAppStore.getState().setAlertsOpen(false);
+          }
+        }
+        return; // Não processar outros atalhos em mobile
+      }
+
+      // Atalhos apenas em desktop
       // Ctrl/Cmd + K: Busca
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();

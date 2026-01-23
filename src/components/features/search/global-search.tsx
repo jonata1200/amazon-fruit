@@ -9,11 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Search, X, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useDebounce } from '@/lib/hooks/useDebounce';
+import { useMobile } from '@/lib/hooks/useMobile';
+import { cn } from '@/lib/utils';
 
 export function GlobalSearch() {
   const router = useRouter();
   const searchOpen = useAppStore((state) => state.searchOpen);
   const setSearchOpen = useAppStore((state) => state.setSearchOpen);
+  const isMobile = useMobile();
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<
@@ -105,16 +108,30 @@ export function GlobalSearch() {
   if (!searchOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm" onClick={handleClose}>
-      <div className="container mx-auto max-w-2xl px-4 py-20" onClick={(e) => e.stopPropagation()}>
-        <Card>
-          <CardContent className="p-6">
+    <div 
+      className={cn(
+        "fixed inset-0 z-50 bg-background/80 backdrop-blur-sm",
+        isMobile && "bg-background"
+      )} 
+      onClick={handleClose}
+    >
+      <div 
+        className={cn(
+          isMobile 
+            ? "h-full flex flex-col p-4" 
+            : "container mx-auto max-w-2xl px-4 py-20"
+        )} 
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Card className={cn(isMobile && "flex-1 flex flex-col")}>
+          <CardContent className={cn("p-4 sm:p-6", isMobile && "flex-1 flex flex-col")}>
             {/* Search Input */}
             <div className="flex items-center gap-2 mb-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  type="text"
+                  type="search"
+                  inputMode="search"
                   placeholder="Buscar em todos os dashboards..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
@@ -122,13 +139,13 @@ export function GlobalSearch() {
                   autoFocus
                 />
               </div>
-              <Button variant="ghost" size="icon" onClick={handleClose}>
+              <Button variant="ghost" size="icon" onClick={handleClose} aria-label="Fechar busca">
                 <X className="h-5 w-5" />
               </Button>
             </div>
 
             {/* Results */}
-            <div className="space-y-2">
+            <div className={cn("space-y-2", isMobile && "flex-1 overflow-y-auto")}>
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -138,18 +155,18 @@ export function GlobalSearch() {
                   <button
                     key={result.id}
                     onClick={() => handleResultClick(result.url)}
-                    className="w-full text-left p-3 rounded-lg hover:bg-muted transition-colors"
+                    className="w-full text-left p-3 sm:p-4 rounded-lg hover:bg-muted active:bg-muted transition-colors min-h-[60px] sm:min-h-[44px]"
                   >
-                    <p className="font-medium">{result.title}</p>
-                    <p className="text-sm text-muted-foreground">{result.description}</p>
+                    <p className="font-medium text-sm sm:text-base">{result.title}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">{result.description}</p>
                   </button>
                 ))
               ) : query.length >= 3 ? (
-                <div className="py-8 text-center text-muted-foreground">
+                <div className="py-8 text-center text-muted-foreground text-sm sm:text-base">
                   Nenhum resultado encontrado
                 </div>
               ) : (
-                <div className="py-8 text-center text-muted-foreground">
+                <div className="py-8 text-center text-muted-foreground text-sm sm:text-base">
                   Digite pelo menos 3 caracteres para buscar
                 </div>
               )}

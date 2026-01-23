@@ -8,6 +8,8 @@ import { Grape, LineChart, DollarSign, Package, Users, Truck, UserSquare, Star }
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store';
 import { useFavorites, type DashboardId } from '@/lib/hooks/useFavorites';
+import { useSwipeGesture } from '@/lib/hooks/useSwipeGesture';
+import { useMobile } from '@/lib/hooks/useMobile';
 
 const menuItems = [
   { id: 'geral', name: 'Visão Geral', icon: LineChart, href: '/geral' },
@@ -38,6 +40,7 @@ export function Sidebar() {
   const sidebarOpen = useAppStore((state) => state.sidebarOpen);
   const setSidebarOpen = useAppStore((state) => state.setSidebarOpen);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const isMobile = useMobile();
 
   // Separar itens favoritos dos demais
   const favoriteItems = menuItems.filter((item) => favorites.includes(item.id as DashboardId));
@@ -45,22 +48,37 @@ export function Sidebar() {
 
   // Fechar sidebar ao clicar em item em mobile
   const handleLinkClick = () => {
-    if (window.innerWidth < 1024) {
+    if (isMobile) {
       setSidebarOpen(false);
     }
   };
 
+  // Gestos swipe para abrir/fechar drawer em mobile
+  useSwipeGesture({
+    onSwipeRight: () => {
+      if (isMobile && !sidebarOpen) {
+        setSidebarOpen(true);
+      }
+    },
+    onSwipeLeft: () => {
+      if (isMobile && sidebarOpen) {
+        setSidebarOpen(false);
+      }
+    },
+    enabled: isMobile,
+  });
+
   // Fechar sidebar ao pressionar ESC
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && sidebarOpen && window.innerWidth < 1024) {
+      if (e.key === 'Escape' && sidebarOpen && isMobile) {
         setSidebarOpen(false);
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [sidebarOpen, setSidebarOpen]);
+  }, [sidebarOpen, setSidebarOpen, isMobile]);
 
   return (
     <>
@@ -139,14 +157,15 @@ export function Sidebar() {
                   <Link
                     href={item.href}
                     aria-current={isActive ? 'page' : undefined}
+                    onClick={handleLinkClick}
                     className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]',
                       isActive
                         ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                     )}
                   >
-                    <Icon className="h-5 w-5" aria-hidden="true" />
+                    <Icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
                     <span>{item.name}</span>
                   </Link>
                   <button
