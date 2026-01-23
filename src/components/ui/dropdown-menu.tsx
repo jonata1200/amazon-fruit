@@ -35,7 +35,7 @@ const dropdownContentVariants = cva(
 
 // Variantes do Dropdown Menu Item
 const dropdownItemVariants = cva(
-  'relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+  'relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 sm:py-1.5 text-sm outline-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[44px]',
   {
     variants: {
       variant: {

@@ -100,8 +100,8 @@ export function DataTable({
             size="sm"
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className={cn(tableVariants({ variant, size }))}>
+          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <table className={cn(tableVariants({ variant, size }), 'min-w-full')}>
               {showHeader && (
                 <thead>
                   <tr className="border-b">

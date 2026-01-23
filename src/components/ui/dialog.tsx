@@ -11,6 +11,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Button } from './button';
 import { componentZIndex } from '@/lib/design-tokens/z-index';
+import { useMobile } from '@/lib/hooks/useMobile';
 
 // Variantes do Dialog Content
 const dialogContentVariants = cva(
@@ -176,7 +177,10 @@ export function DialogContent({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center"
+      className={cn(
+        "fixed inset-0",
+        isMobile ? "flex items-end sm:items-center justify-center" : "flex items-center justify-center"
+      )}
       style={{ zIndex: componentZIndex.modal }}
       aria-modal="true"
       aria-labelledby="dialog-title"
@@ -193,7 +197,11 @@ export function DialogContent({
       {/* Content */}
       <div
         ref={dialogRef}
-        className={cn(dialogContentVariants({ size, padding }), className)}
+        className={cn(
+          dialogContentVariants({ size, padding }),
+          isMobile && "w-full max-w-full mx-0 rounded-t-lg sm:rounded-lg max-h-[90vh] overflow-y-auto",
+          className
+        )}
         {...props}
       >
         <Button

@@ -14,8 +14,8 @@ const inputVariants = cva(
     variants: {
       size: {
         sm: 'h-8 px-2 text-sm',
-        md: 'h-10 px-3 text-sm',
-        lg: 'h-12 px-4 text-base',
+        md: 'h-10 px-3 text-sm min-h-[44px]',
+        lg: 'h-12 px-4 text-base min-h-[44px]',
       },
       state: {
         default: 'border-input focus-visible:ring-ring',
@@ -61,6 +61,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             inputVariants({ size, state }),
             hasLeftIcon && 'pl-9',
             hasRightIcon && 'pr-9',
+            'text-base sm:text-sm', // Prevenir zoom iOS (mínimo 16px)
             className
           )}
           ref={ref}

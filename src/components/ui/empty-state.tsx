@@ -12,9 +12,9 @@ import { Button } from './button';
 const emptyStateVariants = cva('flex flex-col items-center justify-center text-center', {
   variants: {
     size: {
-      sm: 'py-8',
-      md: 'py-12',
-      lg: 'py-16',
+      sm: 'py-6 sm:py-8',
+      md: 'py-8 sm:py-12',
+      lg: 'py-12 sm:py-16',
     },
     variant: {
       default: '',

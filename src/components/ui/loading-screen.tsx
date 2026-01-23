@@ -7,9 +7,9 @@ interface LoadingScreenProps {
 
 export function LoadingScreen({ message = 'Carregando...' }: LoadingScreenProps) {
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col items-center justify-center h-screen p-4">
       <Spinner size="lg" />
-      <p className="mt-4 text-muted-foreground">{message}</p>
+      <p className="mt-4 text-sm sm:text-base text-muted-foreground text-center">{message}</p>
     </div>
   );
 }

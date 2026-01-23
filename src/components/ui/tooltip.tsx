@@ -83,6 +83,19 @@ export function Tooltip({
     setIsVisible(false);
   };
 
+  // Suporte para touch em mobile
+  const handleTouchStart = () => {
+    if (disabled) return;
+    setIsVisible(true);
+  };
+
+  const handleTouchEnd = () => {
+    // Delay para permitir que o usuário veja o tooltip
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 2000);
+  };
+
   React.useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -98,6 +111,8 @@ export function Tooltip({
       onMouseLeave={handleMouseLeave}
       onFocus={handleMouseEnter}
       onBlur={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {children}
       {isVisible && !disabled && (

@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 import { Grape, LineChart, DollarSign, Package, Users, Truck, UserSquare, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store';
@@ -35,19 +36,49 @@ const menuItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const sidebarOpen = useAppStore((state) => state.sidebarOpen);
+  const setSidebarOpen = useAppStore((state) => state.setSidebarOpen);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
   // Separar itens favoritos dos demais
   const favoriteItems = menuItems.filter((item) => favorites.includes(item.id as DashboardId));
   const regularItems = menuItems.filter((item) => !favorites.includes(item.id as DashboardId));
 
+  // Fechar sidebar ao clicar em item em mobile
+  const handleLinkClick = () => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  };
+
+  // Fechar sidebar ao pressionar ESC
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && sidebarOpen && window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [sidebarOpen, setSidebarOpen]);
+
   return (
-    <aside
-      className={cn(
-        'fixed left-0 top-0 z-40 h-screen w-64 bg-card border-r transition-transform',
-        !sidebarOpen && '-translate-x-full lg:translate-x-0'
+    <>
+      {/* Overlay para mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm lg:hidden transition-opacity duration-300"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
       )}
-    >
+
+      <aside
+        className={cn(
+          'fixed left-0 top-0 z-40 h-screen w-64 bg-card border-r transition-transform duration-300 ease-in-out',
+          !sidebarOpen && '-translate-x-full lg:translate-x-0'
+        )}
+      >
       <div className="flex h-full flex-col">
         {/* Logo */}
         <div className="flex h-16 items-center gap-2 border-b px-6">
@@ -70,14 +101,15 @@ export function Sidebar() {
                     <Link
                       href={item.href}
                       aria-current={isActive ? 'page' : undefined}
+                      onClick={handleLinkClick}
                       className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]',
                         isActive
                           ? 'bg-primary text-primary-foreground'
                           : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                       )}
                     >
-                      <Icon className="h-5 w-5" aria-hidden="true" />
+                      <Icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
                       <span>{item.name}</span>
                     </Link>
                     <button
@@ -134,5 +166,6 @@ export function Sidebar() {
         </nav>
       </div>
     </aside>
+    </>
   );
 }

@@ -15,8 +15,8 @@ export function Footer() {
   const displayYear = year ?? '2024';
 
   return (
-    <footer className="border-t py-4 px-6">
-      <p className="text-center text-sm text-muted-foreground">
+    <footer className="border-t py-3 sm:py-4 px-4 sm:px-6">
+      <p className="text-center text-xs sm:text-sm text-muted-foreground">
         &copy; {displayYear} Amazon Fruit - Sistema de Análise de Dados
       </p>
     </footer>

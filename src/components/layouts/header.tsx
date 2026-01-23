@@ -21,16 +21,16 @@ export function Header({ title }: HeaderProps) {
   const alertsCount = alertsData?.count || 0;
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-2 sm:gap-4 border-b bg-background px-3 sm:px-6">
       {/* Mobile Menu Toggle */}
       <Button variant="ghost" size="icon" className="lg:hidden" onClick={toggleSidebar}>
         <Menu className="h-5 w-5" />
       </Button>
 
       {/* Title */}
-      <h1 className="text-xl font-semibold">{title}</h1>
+      <h1 className="text-base sm:text-xl font-semibold truncate flex-1 min-w-0">{title}</h1>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-1 sm:gap-2">
         {/* Search */}
         <Button variant="ghost" size="icon" onClick={toggleSearch} title="Busca (Ctrl+K)">
           <Search className="h-5 w-5" />
